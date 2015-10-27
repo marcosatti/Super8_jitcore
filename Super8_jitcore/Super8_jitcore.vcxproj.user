@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
+    <RemoteDebuggerServerName>marco-laptop-pc</RemoteDebuggerServerName>
+    <RemoteDebuggerCommand>c:\remotetemp\super8_jitcore.exe</RemoteDebuggerCommand>
+    <RemoteDebuggerWorkingDirectory>c:\remotetemp</RemoteDebuggerWorkingDirectory>
+    <RemoteDebuggerDebuggerType>NativeOnly</RemoteDebuggerDebuggerType>
+    <DeploymentDirectory>c:\remotetemp</DeploymentDirectory>
+    <AdditionalFiles>
+    </AdditionalFiles>
+  </PropertyGroup>
+</Project>
