@@ -51,6 +51,7 @@ public:
 	void MOV_MtoR_8(X86Register dest, uint8_t* source);
 	void MOV_MtoR_32(X86Register dest, uint32_t* source);
 	void MOV_PTRtoR_8(X86Register dest, X86Register PTR_source);
+	void MOV_RtoPTR_8(X86Register PTR_dest, X86Register source);
 	void MOV_RtoR_8(X86Register dest, X86Register source);
 	void MOV_RtoR_32(X86Register dest, X86Register source);
 	void MOV_ImmtoR_8(X86Register dest, uint8_t immediate);
@@ -95,8 +96,10 @@ public:
 	void XOR_RwithR_32(X86Register dest, X86Register source);
 	void SHL_R_8(X86Register reg, uint8_t count);
 	void SHR_R_8(X86Register reg, uint8_t count);
+	void SHR_R_32(X86Register reg, uint8_t count);
 	void CMP_RwithR_8(X86Register dest, X86Register source);
 	void CMP_RwithImm_8(X86Register dest, uint8_t immediate);
+	void CMP_RwithImm_32(X86Register dest, uint32_t immediate);
 
 	// Jump opcode functions
 	void JMP_REL_32(int32_t relative);
@@ -109,10 +112,12 @@ public:
 
 	// Misc opcode functions
 	void MUL_RwithR_8(X86Register source);
+	void DIV_RwithR_8(X86Register source);
 	void CALL_M_PTR_32(uint32_t * ptr_address); // CALL opcode
 	void RET(); // RET opcode
 	void POP(X86Register reg); // POP opcode
 	void PUSH(X86Register reg); // PUSH opcode
+	void RDTSC(); // Read time-stamp counter into EDX:EAX (used for random numbers)
 private:
 	// Helper function for ModRegRM byte of opcodes (TODO: make inline)
 	uint8_t ModRegRM(uint8_t mod, X86Register reg, X86Register rm);

@@ -40,6 +40,13 @@ void Chip8Engine_CodeEmitter_x86::MUL_RwithR_8(X86Register source)
 	cache->write8(ModRegRM(3, (X86Register)4, source));
 }
 
+void Chip8Engine_CodeEmitter_x86::DIV_RwithR_8(X86Register source)
+{
+	// Unsigned divide AX by r / m8, with result stored in AL = Quotient, AH = Remainder. Eg: 16/3 -> quotient = 5, remainder = 1
+	cache->write8(0xF6);
+	cache->write8(ModRegRM(3, (X86Register)6, source));
+}
+
 void Chip8Engine_CodeEmitter_x86::CALL_M_PTR_32(uint32_t * ptr_address)
 {
 	cache->write8(0xFF);
@@ -62,6 +69,12 @@ void Chip8Engine_CodeEmitter_x86::PUSH(X86Register reg)
 {
 	uint8_t opcode = 0x50 + (uint8_t)reg;
 	cache->write8(opcode);
+}
+
+void Chip8Engine_CodeEmitter_x86::RDTSC()
+{
+	cache->write8(0x0F);
+	cache->write8(0x31);
 }
 
 uint8_t Chip8Engine_CodeEmitter_x86::ModRegRM(uint8_t mod, X86Register reg, X86Register rm)

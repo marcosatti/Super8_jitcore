@@ -12,7 +12,9 @@ namespace Chip8Globals {
 			USE_INTERPRETER = 1,
 			OUT_OF_CODE = 2,
 			PREPARE_FOR_INDIRECT_JUMP = 3,
-			SELF_MODIFYING_CODE = 4
+			SELF_MODIFYING_CODE = 4,
+			DEBUG = 5,
+			WAIT_FOR_KEYPRESS = 6
 		} X86_STATUS_CODE;
 
 		extern uint8_t * x86_resume_address;

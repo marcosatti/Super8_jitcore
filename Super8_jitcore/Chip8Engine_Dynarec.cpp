@@ -518,15 +518,14 @@ void Chip8Engine_Dynarec::handleOpcodeMSN_C() {
 	// Only one subtype of opcode in this branch
 	// 0xCXNN: Sets Vx to the result of 0xNN & (random number)
 	// TODO: Check if correct.
-	//uint8_t randnum = rand() % 256; // Get random number from 0 -> 255.
-	//uint8_t vx = (opcode & 0x0F00) >> 8; // Need to bit shift by 8 to get to a single base16 digit.
-	//uint8_t opcodenum = opcode & 0x0FF; // Number from opcode.
-	//emitter->MOV_ImmtoR_8(al, randnum);
-	//emitter->AND_RwithImm_8(al, opcodenum);
-	//emitter->MOV_RtoM_8(cpu.V + vx, al);
-	//C8_incrementPC(); // Update PC by 2 bytes
-	//sync_cache = 0;
-	emitter->DYNAREC_EMIT_INTERRUPT(X86_STATE::USE_INTERPRETER, C8_STATE::opcode);
+	//emitter->DYNAREC_EMIT_INTERRUPT(X86_STATE::DEBUG, C8_STATE::opcode);
+	uint8_t vx = (C8_STATE::opcode & 0x0F00) >> 8; // Need to bit shift by 8 to get to a single base16 digit.
+	uint8_t opcodenum = C8_STATE::opcode & 0xFF; // Number from opcode.
+	emitter->RDTSC(); // eax will contain the lower 32 bits of the timestamp, which is random enough (pseudo-random)
+	emitter->AND_RwithImm_8(al, opcodenum);
+	emitter->MOV_RtoM_8(C8_STATE::cpu.V + vx, al);
+	//emitter->DYNAREC_EMIT_INTERRUPT(X86_STATE::DEBUG, C8_STATE::opcode);
+	//emitter->DYNAREC_EMIT_INTERRUPT(X86_STATE::USE_INTERPRETER, C8_STATE::opcode);
 	C8_STATE::C8_incrementPC();
 }
 
@@ -618,7 +617,10 @@ void Chip8Engine_Dynarec::handleOpcodeMSN_F() {
 		// 0xFX0A: A key press is awaited, then stored in Vx.
 		// TODO: Check if correct.
 		// check if in sync
-		emitter->DYNAREC_EMIT_INTERRUPT(X86_STATE::USE_INTERPRETER, C8_STATE::opcode);
+		uint8_t vx = (C8_STATE::opcode & 0x0F00) >> 8; // Need to bit shift by 8 to get to a single base16 digit.
+		emitter->DYNAREC_EMIT_INTERRUPT(X86_STATE::WAIT_FOR_KEYPRESS, C8_STATE::opcode); // This will put the key (single value from 0x0 to 0xF) in key->x86_key_pressed
+		emitter->MOV_MtoR_8(al, &key->X86_KEY_PRESSED);
+		emitter->MOV_RtoM_8(C8_STATE::cpu.V + vx, al);
 		C8_STATE::C8_incrementPC();
 		break;
 	}
@@ -669,7 +671,34 @@ void Chip8Engine_Dynarec::handleOpcodeMSN_F() {
 	case 0x0033:
 	{
 		// 0xFX33: Splits the decimal representation of Vx into 3 locations: hundreds stored in address I, tens in address I+1, and ones in I+2.
-		emitter->DYNAREC_EMIT_INTERRUPT(X86_STATE::USE_INTERPRETER, C8_STATE::opcode);
+		// Check: dont know if this apply's to signed numbers as well, but I'm assuming this is just for unsigned numbers (no documentation)
+		//emitter->DYNAREC_EMIT_INTERRUPT(X86_STATE::USE_INTERPRETER, C8_STATE::opcode);
+		//emitter->DYNAREC_EMIT_INTERRUPT(X86_STATE::DEBUG, C8_STATE::opcode);
+
+		uint8_t vx = (C8_STATE::opcode & 0x0F00) >> 8; // Need to bit shift by 8 to get to a single base16 digit.
+		emitter->XOR_RwithR_32(eax, eax); // clear eax register
+		// Move the address from I into register edx (= starting address of memory array + offset from I)
+		emitter->MOV_ImmtoR_32(edx, (uint32_t)C8_STATE::memory);
+		emitter->ADD_MtoR_16(dx, &C8_STATE::cpu.I);
+		emitter->MOV_MtoR_8(al, C8_STATE::cpu.V + vx); // Move Vx value into al
+		// Start with 100's
+		emitter->MOV_ImmtoR_8(cl, 100); // Move 100 value into cl
+		emitter->DIV_RwithR_8(cl); // Result is in AX register. AX = al/cl, quotient in al, remainder in ah
+		emitter->MOV_RtoPTR_8(edx, al); // Move result to Mem+I (ptr in edx)
+		// 10's
+		emitter->ADD_ImmtoR_8(edx, 1); // point edx to Mem+I+1
+		emitter->SHR_R_32(eax, 8); // Shift (e)ax right by 7, get the remainder into al
+		emitter->MOV_ImmtoR_8(cl, 10); // Move 10 into cl
+		emitter->DIV_RwithR_8(cl); // Result is in AX register. AX = al/cl, quotient in al, remainder in ah
+		emitter->MOV_RtoPTR_8(edx, al); // Move result to Mem+I+1 (ptr in edx)
+		// 1's
+		emitter->ADD_ImmtoR_8(edx, 1); // point edx to Mem+I+2
+		emitter->SHR_R_32(eax, 8); // Shift (e)ax right by 7, get the remainder into al
+		// Dont need to divide, as its by 1!
+		emitter->MOV_RtoPTR_8(edx, al); // Move result to Mem+I+2 (ptr in edx)
+
+		//emitter->DYNAREC_EMIT_INTERRUPT(X86_STATE::DEBUG, C8_STATE::opcode);
+
 		C8_STATE::C8_incrementPC();
 		break;
 	}
@@ -678,7 +707,23 @@ void Chip8Engine_Dynarec::handleOpcodeMSN_F() {
 		// 0xFX55: Copies all current values in registers V0 -> Vx to memory starting at address I.
 		// YIKES! this could be self-modifying code!!! -> Idea: Invalidate cache that the memory writes to!
 		emitter->DYNAREC_EMIT_INTERRUPT(X86_STATE::SELF_MODIFYING_CODE, C8_STATE::opcode);
-		emitter->DYNAREC_EMIT_INTERRUPT(X86_STATE::USE_INTERPRETER, C8_STATE::opcode);
+
+		uint8_t vx = (C8_STATE::opcode & 0x0F00) >> 8; // Need to bit shift by 8 to get to a single base16 digit.
+		// Setup loop
+		// Move the address from I into register eax (= starting address of memory array + offset from I)
+		emitter->MOV_ImmtoR_32(eax, (uint32_t)C8_STATE::memory);
+		emitter->ADD_MtoR_16(ax, &C8_STATE::cpu.I);
+		// Move address of V[0] into edx register
+		emitter->MOV_ImmtoR_32(edx, (uint32_t)C8_STATE::cpu.V);
+		// Start loop
+		emitter->MOV_PTRtoR_8(cl, edx); // Move 8bit value from PTR @ edx (c8 V address + loop number) into cl register
+		emitter->MOV_RtoPTR_8(eax, cl); // Move 8bit value from cl register into PTR @ eax (c8 memory + I register + loop number)
+		// Add one to each PTR to increment loop
+		emitter->ADD_ImmtoR_8(eax, 1);
+		emitter->ADD_ImmtoR_8(edx, 1);
+		// Compare edx with final V address (to stop loop)
+		emitter->CMP_RwithImm_32(edx, (uint32_t)(C8_STATE::cpu.V + vx + 1)); // "less than" compare
+		emitter->JNE_8(-18); // jump to start of loop -(2+6+3+3+2+2) = -18
 		C8_STATE::C8_incrementPC();
 		break;
 	}
@@ -686,7 +731,29 @@ void Chip8Engine_Dynarec::handleOpcodeMSN_F() {
 	{
 		// 0xFX65: Copies memory starting from address I to all registers V0 -> Vx.
 		// TODO: check if correct.
-		emitter->DYNAREC_EMIT_INTERRUPT(X86_STATE::USE_INTERPRETER, C8_STATE::opcode);
+
+		// Debug
+		//emitter->DYNAREC_EMIT_INTERRUPT(X86_STATE::DEBUG, C8_STATE::opcode);
+
+		uint8_t vx = (C8_STATE::opcode & 0x0F00) >> 8; // Need to bit shift by 8 to get to a single base16 digit.
+		// Setup loop
+		// Move the address from I into register eax (= starting address of memory array + offset from I)
+		emitter->MOV_ImmtoR_32(eax, (uint32_t)C8_STATE::memory);
+		emitter->ADD_MtoR_16(ax, &C8_STATE::cpu.I);
+		// Move address of V[0] into edx register
+		emitter->MOV_ImmtoR_32(edx, (uint32_t)C8_STATE::cpu.V);
+		// Start loop
+		emitter->MOV_PTRtoR_8(cl, eax); // Move 8bit value from PTR @ eax (c8 memory + I register + loop number) into cl register
+		emitter->MOV_RtoPTR_8(edx, cl); // Move 8bit value from cl register into PTR @ edx (c8 V address + loop number)
+		// Add one to each PTR to increment address
+		emitter->ADD_ImmtoR_8(eax, 1);
+		emitter->ADD_ImmtoR_8(edx, 1);
+		// Compare edx with final V address (to stop loop)
+		emitter->CMP_RwithImm_32(edx, (uint32_t)(C8_STATE::cpu.V + vx + 1)); // "less than" compare
+		emitter->JNE_8(-18); // jump to start of loop -(2+6+3+3+2+2) = -18
+
+		// Debug
+		//emitter->DYNAREC_EMIT_INTERRUPT(X86_STATE::DEBUG, C8_STATE::opcode);
 		C8_STATE::C8_incrementPC();
 		break;
 	}

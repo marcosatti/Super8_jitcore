@@ -315,10 +315,10 @@ void Chip8Engine_Interpreter::handleOpcodeMSN_C() {
 	// Only one subtype of opcode in this branch
 	// 0xCXNN: Sets Vx to the result of 0xNN & (random number)
 	// TODO: Check if correct.
-	uint8_t randnum = rand() % 256; // Get random number from 0 -> 255.
-	uint8_t vx = (opcode & 0x0F00) >> 8; // Need to bit shift by 8 to get to a single base16 digit.
-	uint8_t opcodenum = opcode & 0x0FF; // Number from opcode.
-	C8_STATE::cpu.V[vx] = opcodenum & randnum; // Set Vx to number from opcode AND random number.
+	//uint8_t randnum = rand() % 256; // Get random number from 0 -> 255.
+	//uint8_t vx = (opcode & 0x0F00) >> 8; // Need to bit shift by 8 to get to a single base16 digit.
+	//uint8_t opcodenum = opcode & 0x0FF; // Number from opcode.
+	//C8_STATE::cpu.V[vx] = opcodenum & randnum; // Set Vx to number from opcode AND random number.
 }
 
 void Chip8Engine_Interpreter::handleOpcodeMSN_D() {
@@ -405,16 +405,16 @@ void Chip8Engine_Interpreter::handleOpcodeMSN_F() {
 		{
 			// 0xFX0A: A key press is awaited, then stored in Vx.
 			// TODO: Check if correct.
-			bool keypressed = false;
-			uint8_t vx = (opcode & 0x0F00) >> 8; // Need to bit shift by 8 to get to a single base16 digit.
-			for (int i = 0; i < NUM_KEYS; i++) {
-				uint8_t keystate = key->getKeyState(i); // Get the keystate from the key object.
-				if (keystate) {
-					C8_STATE::cpu.V[vx] = i; // Set Vx to the key pressed (0x0 -> 0xF).
-					keypressed = true;
-				}
-			}
-			if (!keypressed) return; // Dont update PC if no key was pressed.
+			//bool keypressed = false;
+			//uint8_t vx = (opcode & 0x0F00) >> 8; // Need to bit shift by 8 to get to a single base16 digit.
+			//for (int i = 0; i < NUM_KEYS; i++) {
+			//	uint8_t keystate = key->getKeyState(i); // Get the keystate from the key object.
+			//	if (keystate) {
+			//		C8_STATE::cpu.V[vx] = i; // Set Vx to the key pressed (0x0 -> 0xF).
+			//		keypressed = true;
+			//	}
+			//}
+			//if (!keypressed) return; // Dont update PC if no key was pressed.
 			//C8_incrementPC(); // Update PC by 2 bytes
 			break;
 		}
@@ -459,30 +459,30 @@ void Chip8Engine_Interpreter::handleOpcodeMSN_F() {
 		case 0x0033:
 		{
 			// 0xFX33: Splits the decimal representation of Vx into 3 locations: hundreds stored in address I, tens in address I+1, and ones in I+2.
-			uint8_t vx = (opcode & 0x0F00) >> 8; // Need to bit shift by 8 to get to a single base16 digit.
-			C8_STATE::memory[C8_STATE::cpu.I] = C8_STATE::cpu.V[vx] / 100; // Hundreds go into address I
-			C8_STATE::memory[C8_STATE::cpu.I + 1] = (C8_STATE::cpu.V[vx] % 100) / 10; // Tens go into address I+1
-			C8_STATE::memory[C8_STATE::cpu.I + 2] = (C8_STATE::cpu.V[vx] % 100) % 10 /* / 1 */; // Ones go into address I+2
+			//uint8_t vx = (opcode & 0x0F00) >> 8; // Need to bit shift by 8 to get to a single base16 digit.
+			//C8_STATE::memory[C8_STATE::cpu.I] = C8_STATE::cpu.V[vx] / 100; // Hundreds go into address I
+			//C8_STATE::memory[C8_STATE::cpu.I + 1] = (C8_STATE::cpu.V[vx] % 100) / 10; // Tens go into address I+1
+			//C8_STATE::memory[C8_STATE::cpu.I + 2] = (C8_STATE::cpu.V[vx] % 100) % 10 /* / 1 */; // Ones go into address I+2
 			break;
 		}
 		case 0x0055:
 		{
 			// 0xFX55: Copies all current values in registers V0 -> Vx to memory starting at address I.
 			// TODO: check if correct.
-			uint8_t vx = (opcode & 0x0F00) >> 8; // Need to bit shift by 8 to get to a single base16 digit.
-			for (int i = 0x0; i <= vx; i++) {
-				C8_STATE::memory[C8_STATE::cpu.I + i] = C8_STATE::cpu.V[i];
-			}
+			//uint8_t vx = (opcode & 0x0F00) >> 8; // Need to bit shift by 8 to get to a single base16 digit.
+			//for (int i = 0x0; i <= vx; i++) {
+			//	C8_STATE::memory[C8_STATE::cpu.I + i] = C8_STATE::cpu.V[i];
+			//}
 			break;
 		}
 		case 0x0065:
 		{
 			// 0xFX65: Copies memory starting from address I to all registers V0 -> Vx.
 			// TODO: check if correct.
-			uint8_t vx = (opcode & 0x0F00) >> 8; // Need to bit shift by 8 to get to a single base16 digit.
-			for (int i = 0x0; i <= vx; i++) {
-				C8_STATE::cpu.V[i] = C8_STATE::memory[C8_STATE::cpu.I + i];
-			}
+			//uint8_t vx = (opcode & 0x0F00) >> 8; // Need to bit shift by 8 to get to a single base16 digit.
+			//for (int i = 0x0; i <= vx; i++) {
+			//	C8_STATE::cpu.V[i] = C8_STATE::memory[C8_STATE::cpu.I + i];
+			//}
 			break;
 		}
 		default:

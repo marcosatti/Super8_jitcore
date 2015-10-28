@@ -37,6 +37,12 @@ void Chip8Engine_CodeEmitter_x86::MOV_PTRtoR_8(X86Register dest, X86Register PTR
 	cache->write8(ModRegRM(0, dest, PTR_source));
 }
 
+void Chip8Engine_CodeEmitter_x86::MOV_RtoPTR_8(X86Register PTR_dest, X86Register source)
+{
+	cache->write8(0x88);
+	cache->write8(ModRegRM(0, source, PTR_dest));
+}
+
 void Chip8Engine_CodeEmitter_x86::MOV_RtoR_8(X86Register dest, X86Register source)
 {
 	cache->write8(0x88);

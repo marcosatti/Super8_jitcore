@@ -13,6 +13,7 @@ enum KEY_STATE {
 class Chip8KeyEngine
 {
 public:
+	uint8_t X86_KEY_PRESSED;
 	uint8_t key[NUM_KEYS]; // Array to store 0 -> F key states.
 
 	Chip8KeyEngine();

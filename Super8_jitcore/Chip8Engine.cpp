@@ -153,10 +153,31 @@ void Chip8Engine::handleX86Interrupt()
 	}
 	case X86_STATE::PREPARE_FOR_INDIRECT_JUMP:
 	{
+		printf("TODO: Implement PREPARE_FOR_INDIRECT_JUMP !\n");
 		break;
 	}
 	case X86_STATE::SELF_MODIFYING_CODE:
 	{
+		printf("TODO: Implement SELF_MODIFYING_CODE !\n");
+		break;
+	}
+	case X86_STATE::DEBUG:
+	{
+		printf("!!! Debug Interrupt, Opcode = 0x%.4X !!!\n", X86_STATE::x86_resume_c8_pc);
+		break;
+	}
+	case X86_STATE::WAIT_FOR_KEYPRESS:
+	{
+		// For now this will do, however it should be handled by the parent object to the C8Engine
+		// Check if there has been a key press, and if so, store it in key->x86_key_pressed
+		uint8_t keystate = 0;
+		for (int i = 0; i < NUM_KEYS; i++) {
+			keystate = key->getKeyState(i); // Get the keystate from the key object.
+			if (keystate) {
+				key->X86_KEY_PRESSED = i; // Set Vx to the key pressed (0x0 -> 0xF).
+				break;
+			}
+		}
 		break;
 	}
 	}
