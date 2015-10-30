@@ -37,6 +37,7 @@ namespace Chip8Globals {
 	extern uint32_t translate_cycles;
 	extern bool dynarec_break_loop;
 
+	extern uint64_t drawcycles;
 	bool getDrawFlag();
 	void setDrawFlag(bool isdraw);
 }

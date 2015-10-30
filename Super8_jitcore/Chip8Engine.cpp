@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "Chip8Engine.h"
+#include <time.h>
 
 Chip8Engine::Chip8Engine() {
 }
@@ -52,9 +53,10 @@ void Chip8Engine::loadProgram(std::string path) {
 	// Open file.
 	std::ifstream file(path, std::ios::in | std::ios::binary);
 
-	// Get length of file.
+	// Get length of file, store end location in global var
 	file.seekg(0, std::ios::end);
 	size_t length = (size_t) file.tellg();
+	C8_STATE::rom_sz = 0x0200 + (uint16_t)length;
 	file.seekg(0, std::ios::beg);
 
 	// Read file into memory at address 0x200.
@@ -67,88 +69,91 @@ void Chip8Engine::emulationLoop()
 	// The heart and soul of this emulator
 	// Exec cache and cleanup & handle return interrupt code (first run will produce OUT_OF_CODE)
 	while (true) {
+		// Exec caches
+		//cache->DEBUG_printCacheList();
+		//jumptbl->DEBUG_printJumpList();
+		//jumptbl->DEBUG_printCondJumpList();
 		cache->execCache_CDECL();
-		printf("Chip8Engine: Ran cache ok. NEW X86_RESUME_ADDRESS = 0x%.8X (in cache[%d])\n", (uint32_t)X86_STATE::x86_resume_address, cache->getMemoryRegionIndexByX86Address(X86_STATE::x86_resume_address));
-		printf("             Interrupt code = %d, (optional) C8 handle opcode = 0x%.4X\n", X86_STATE::x86_status_code, X86_STATE::x86_resume_c8_pc);
+		//printf("Chip8Engine: Ran cache ok. Interrupt code = %d, (optional) C8 handle opcode = 0x%.4X\n", X86_STATE::x86_status_code, X86_STATE::x86_resume_c8_pc); 
+		// Flush caches that are marked
+		cache->invalidateCacheByFlag();
+		// Handle Interrupts
 		handleX86Interrupt();
+		//printf("Chip8Engine: NEW X86_RESUME_ADDRESS = 0x%.8X (in cache[%d])\n", (uint32_t)X86_STATE::x86_resume_address, cache->getCacheIndexByX86Address(X86_STATE::x86_resume_address));
 	}
 }
 
 void Chip8Engine::handleX86Interrupt()
 {
+	// DEBUG: change key states everytime an interrupt is generated
+	if (drawcycles % 32 == 0) {
+		uint8_t randstate = 0;
+		srand((unsigned int)time(NULL) + (unsigned int)drawcycles);
+		for (int i = 0; i < 0x10; i++) {
+			randstate = rand() % 0x2;
+			setKeyState(i, (KEY_STATE)randstate);
+		}
+	}
+
 	switch (X86_STATE::x86_status_code) {
 	case X86_STATE::PREPARE_FOR_JUMP:
 	{
 		// ! ! ! X86_STATE::x86_resume_c8_pc contains jump location ! ! !
 
-		// Perform a check to make sure the region is available (otherwise a runtime error will be thrown due to jump to unknown address)
-		// If the jump is into the middle of a region, need to invalidate and create a new region
-		//int32_t index = cache->checkMemoryRegionAllocatedByC8PC(X86_STATE::x86_resume_c8_pc);
-		//if (index == -1) cache->allocNewMemoryRegionByC8PC(X86_STATE::x86_resume_c8_pc);
-		//else {
-		//	// Cache found, but check if its to the start of a region
-		//	if (X86_STATE::x86_resume_c8_pc != cache->getMemoryRegionInfoByIndex(index)->c8_start_recompile_pc) {
-		//		cache->invalidateMemoryRegionByIndex(index);
-		//		cache->allocNewMemoryRegionByC8PC(X86_STATE::x86_resume_c8_pc);
-		//	}
-		//}
 		// Need to update the jump table/cache before the jumps are made.
+		//cache->DEBUG_printCacheList();
 		jumptbl->checkAndFillJumpsByStartC8PC();
 		break;
 	}
 	case X86_STATE::USE_INTERPRETER:
 	{
 		// ! ! ! X86_STATE::x86_resume_c8_pc contains interpreter opcode ! ! !
+
 		// Opcode hasnt been implemented in the dynarec yet, need to use interpreter
 		interpreter->setOpcode(X86_STATE::x86_resume_c8_pc);
 		interpreter->emulateCycle();
+		//cache->DEBUG_printCacheList();
 		DEBUG_render();
 		break;
 	}
 	case X86_STATE::OUT_OF_CODE:
 	{
 		// ! ! ! X86_STATE::x86_resume_c8_pc contains start pc of cache ! ! !
-		// End of cache was reached, usually because there was no jump back to another cache
-		// Set c8 pc to end of memory region c8 pc, so it will start recompiling code from there
-		// Flush caches that are marked after caches have run
-		cache->invalidateAllMemoryRegionsByFlag();
 
-		// Set pc to recompile code from and x86_resume_addr which will be at the beginning of the next instruction emitted
-		MEM_REGION * region = cache->getMemoryRegionInfoByC8PC(X86_STATE::x86_resume_c8_pc);
-		C8_STATE::cpu.pc = region->c8_end_recompile_pc;
+		// End of cache was reached, because of 3 posibilities:
+		// 1. The cache is genuinely out of code due to translator loop exiting on X many cycles
+		// 2. The cache contains code (ie: conditional jump) that goes over the end jump
+		// 3. The cache has previously been split up into two caches due to a jump into the middle of the cache.
+		// Case 2 and 3 mean that no jump will be at the end of the cache! -> They are the same sort of problem
+		// Can determine between 1 & 2-3 by looking for a cache with the next pc as the start pc
+
+		// We can determine which case it is by looking at the do not write flag, where 1 and 3. will have false, and 2. will have true.
+		// For determining between 1 and 3, we can check for an existing cache and emit jump code if there is
+		CACHE_REGION * region = cache->getCacheInfoByC8PC(X86_STATE::x86_resume_c8_pc);
 		X86_STATE::x86_resume_address = region->x86_mem_address + region->x86_pc;
-
-		// Conditional case: even though a region ends with a jump, sometimes it can go over the jump code, if there is a conditional jump
-		// Need to check for this by checking against the do not write flag, and emit a jump to the next region
-		if (region->stop_write_flag) {
+		//cache->DEBUG_printCacheList();
+		if (cache->getCacheIndexByStartC8PC(region->c8_end_recompile_pc + 2) != -1 || region->stop_write_flag > 0) {
+			// Case 2 & 3 - Absolute end of region reached -> Record & Emit jump to next region
 			// First record jump in jump table if DNE (so it will get updated on every translator loop)
-			int32_t tblindex = jumptbl->findJumpEntry(region->c8_end_recompile_pc + 2, region->c8_end_recompile_pc + 2);
+			int32_t tblindex = jumptbl->findJumpEntry(region->c8_end_recompile_pc + 2);
 			if (tblindex == -1) {
-				tblindex = jumptbl->recordJumpEntry(region->c8_end_recompile_pc + 2, region->c8_end_recompile_pc + 2);
+				tblindex = jumptbl->recordJumpEntry(region->c8_end_recompile_pc + 2);
 			}
 
-			// Check if the jump location is not to start of a cache, and if so, need to mark invalid
-			// I think this will never be true? Cache from will have do not write, so the next pc must be in a cache that has the correct starting pc?
-			int32_t index = cache->checkMemoryRegionAllocatedByC8PC(region->c8_end_recompile_pc + 2);
-			if (index == -1) cache->allocNewMemoryRegionByC8PC(region->c8_end_recompile_pc + 2); // No cache was found, alloc a new one
-			else {
-				// Cache found, but check if its to the start of a region
-				if ((region->c8_end_recompile_pc + 2) != cache->getMemoryRegionInfoByIndex(index)->c8_start_recompile_pc) {
-					cache->setInvalidFlagByIndex(index, 1);
-					cache->allocNewMemoryRegionByC8PC(region->c8_end_recompile_pc + 2);
-				}
-			}
-
-			// Emit jump (to out of code cache)
-			int32_t old_index = cache->getMemoryRegionIndex();
-			cache->switchMemoryRegionByC8PC(X86_STATE::x86_resume_c8_pc);
+			// Emit the jump
+			int32_t old_index = cache->getCacheIndexCurrent();
+			cache->switchCacheByC8PC(X86_STATE::x86_resume_c8_pc);
 			emitter->DYNAREC_EMIT_INTERRUPT(X86_STATE::PREPARE_FOR_JUMP, region->c8_end_recompile_pc + 2);
-			emitter->JMP_M_PTR_32((uint32_t*)&jumptbl->jump_table[tblindex].x86_address_to);
-			cache->switchMemoryRegionByIndex(old_index);
-		}
-
-		// Start recompiling code
-		translatorLoop();
+			emitter->JMP_M_PTR_32((uint32_t*)&jumptbl->jump_list[tblindex].x86_address_to);
+			cache->setStopWriteFlagCurrent(1);
+			cache->switchCacheByIndex(old_index);
+		} 
+		else {
+			// Case 1 - Absolute end of region NOT reached -> start recompiling code again
+			// Start recompiling code at end of cache c8pc
+			C8_STATE::cpu.pc = region->c8_end_recompile_pc;
+			translatorLoop();
+		}		
 		break;
 	}
 	case X86_STATE::PREPARE_FOR_INDIRECT_JUMP:
@@ -158,27 +163,110 @@ void Chip8Engine::handleX86Interrupt()
 	}
 	case X86_STATE::SELF_MODIFYING_CODE:
 	{
-		printf("TODO: Implement SELF_MODIFYING_CODE !\n");
+		// ! ! ! X86_STATE::x86_resume_c8_pc contains opcode from translator ! ! !
+		// Only 2 opcodes in the C8 specs that do this. For SMC, need to invalidate cache that the memory writes to
+		uint8_t result = 0;
+		switch (X86_STATE::x86_resume_c8_pc & 0xF0FF) {
+		case 0xF033:
+		{
+			// 0xFX33: Splits the decimal representation of Vx into 3 locations: hundreds stored in address I, tens in address I+1, and ones in I+2.
+			//cache->DEBUG_printCacheList();
+			uint16_t I = C8_STATE::cpu.I;
+			result = cache->setInvalidFlagByC8PC(C8_STATE::cpu.I);
+			result = cache->setInvalidFlagByC8PC(C8_STATE::cpu.I+1);
+			result = cache->setInvalidFlagByC8PC(C8_STATE::cpu.I+2);
+			break;
+		}
+		case 0xF055:
+		{
+			// 0xFX55: Copies all current values in registers V0 -> Vx to memory starting at address I.
+			uint8_t vx = (X86_STATE::x86_resume_c8_pc & 0x0F00) >> 8; // Need to bit shift by 8 to get to a single base16 digit.
+			for (uint8_t i = 0; i <= vx; i++) {
+				result = cache->setInvalidFlagByC8PC(C8_STATE::cpu.I + i);
+			}
+			break;
+		}
+		}
 		break;
 	}
 	case X86_STATE::DEBUG:
 	{
 		printf("!!! Debug Interrupt, Opcode = 0x%.4X !!!\n", X86_STATE::x86_resume_c8_pc);
+		C8_STATE::DEBUG_printC8_STATE();
+		printf("Memory values at 0x02F2(+ 0,1,2) = 0x%.2X, 0x%.2X, 0x%.2X\n", C8_STATE::memory[0x02F2], C8_STATE::memory[0x02F3], C8_STATE::memory[0x02F4]);
+
+		//X86_STATE::DEBUG_printX86_STATE();
+		cache->DEBUG_printCacheList();
+		//jumptbl->DEBUG_printJumpList();
+		//jumptbl->DEBUG_printCondJumpList();
 		break;
 	}
 	case X86_STATE::WAIT_FOR_KEYPRESS:
 	{
+		// ! ! ! X86_STATE::x86_resume_c8_pc contains NO USEFUL INFO ! ! !
 		// For now this will do, however it should be handled by the parent object to the C8Engine
 		// Check if there has been a key press, and if so, store it in key->x86_key_pressed
 		uint8_t keystate = 0;
 		for (int i = 0; i < NUM_KEYS; i++) {
 			keystate = key->getKeyState(i); // Get the keystate from the key object.
 			if (keystate) {
-				key->X86_KEY_PRESSED = i; // Set Vx to the key pressed (0x0 -> 0xF).
+				key->X86_KEY_PRESSED = i; // Set Vx to the key pressed (0x0 -> 0xF). See dynarec
 				break;
 			}
 		}
 		break;
+	}
+	case X86_STATE::PREPARE_FOR_STACK_JUMP:
+	{
+		// ! ! ! X86_STATE::x86_resume_c8_pc contains either: 0x2NNN (call, address = NNN) or 0x00EE (ret) ! ! !
+		switch (X86_STATE::x86_resume_c8_pc & 0xF000) {
+		case 0x2000:
+		{
+			// get jump location & return location
+			uint16_t jump_c8_pc = X86_STATE::x86_resume_c8_pc & 0x0FFF;
+			uint16_t return_c8_pc = X86_STATE::x86_resume_c8_return_pc;
+
+			// Record stack entry for the return point - which will be the next opcode!
+			STACK_ENTRY entry;
+			entry.c8_address = return_c8_pc;
+			stack->setTopStack(entry);
+
+			// First record jump in jump table if DNE (so it will get updated on every translator loop)
+			int32_t tblindex = jumptbl->findJumpEntry(jump_c8_pc);
+			if (tblindex == -1) {
+				tblindex = jumptbl->recordJumpEntry(jump_c8_pc);
+			}
+
+			// Need to check/alloc jump location caches
+			cache->allocNewCacheByJumpC8PC(jump_c8_pc);
+			jumptbl->checkAndFillJumpsByStartC8PC();
+
+			// Set stack->x86_address_to equal to jumptable location
+			stack->x86_address_to = jumptbl->jump_list[tblindex].x86_address_to;
+			//printf("stack->x86_address_to = 0x%.8X\n", (uint32_t)stack->x86_address_to);
+			break;
+		}
+		case 0x0000:
+		{
+			// Get stack entry & set jump location
+			STACK_ENTRY entry = stack->getTopStack();
+
+			// First record jump in jump table if DNE (so it will get updated on every translator loop)
+			int32_t tblindex = jumptbl->findJumpEntry(entry.c8_address);
+			if (tblindex == -1) {
+				tblindex = jumptbl->recordJumpEntry(entry.c8_address);
+			}
+
+			// Need to check/alloc jump location caches
+			cache->allocNewCacheByJumpC8PC(entry.c8_address);
+			jumptbl->checkAndFillJumpsByStartC8PC();
+
+			// Set stack->x86_address_to equal to jumptable location
+			stack->x86_address_to = jumptbl->jump_list[tblindex].x86_address_to;
+			//printf("stack->x86_address_to = 0x%.8X\n", (uint32_t)stack->x86_address_to);
+			break;
+		}
+		}
 	}
 	}
 }
@@ -186,46 +274,46 @@ void Chip8Engine::handleX86Interrupt()
 int32_t Chip8Engine::translatorSelectCache()
 {
 	// First check if memory region is ready/allocated (check for both current pc (indicates already recompiled), and check for pc-2 (ready to write to))
-	int32_t cache_index = cache->checkMemoryRegionAllocatedByC8PC(C8_STATE::cpu.pc);
+	int32_t cache_index = cache->getCacheIndexByC8PC(C8_STATE::cpu.pc);
 	if (cache_index != -1) {
 		// Cache exists for current PC
 		// Check if its invalid
 		if (cache->getInvalidFlagByIndex(cache_index)) {
 			// Cache was invalid, so create a new cache at current PC
-			cache_index = cache->allocAndSwitchNewMemoryRegionByC8PC(C8_STATE::cpu.pc);
+			cache_index = cache->allocAndSwitchNewCacheByC8PC(C8_STATE::cpu.pc);
 		}
 		else {
 			// Cache was not marked as invalid, so next check for the do not write flag.
 			// However, it does not matter as later the pc will be moved to the end of the region (code must already exist in this logic block), so just switch to this cache for now
-			cache->switchMemoryRegionByIndex(cache_index);
+			cache->switchCacheByIndex(cache_index);
 		}
 	}
 	else {
 		// Cache does not exist for current PC, so it hasnt been compiled before. Need to get region which is available to hold this recompiled code
 		// Check for cache with PC - 2 end PC.
-		cache_index = cache->checkMemoryRegionAllocatedByC8PC(C8_STATE::cpu.pc - 2);
+		cache_index = cache->getCacheIndexByC8PC(C8_STATE::cpu.pc - 2);
 		if (cache_index != -1) {
 			// Cache exists for current PC - 2
 			// Check if its invalid
 			if (cache->getInvalidFlagByIndex(cache_index)) {
 				// Cache was invalid, so create a new cache at current PC
-				cache_index = cache->allocAndSwitchNewMemoryRegionByC8PC(C8_STATE::cpu.pc);
+				cache_index = cache->allocAndSwitchNewCacheByC8PC(C8_STATE::cpu.pc);
 			}
 			else {
 				// Cache was not marked as invalid, so next check for the do not write flag.
-				if (cache->getStopWriteMemoryRegionByIndex(cache_index)) {
+				if (cache->getStopWriteFlagByIndex(cache_index)) {
 					// Cache has do not write flag set, so allocate a new region
-					cache_index = cache->allocAndSwitchNewMemoryRegionByC8PC(C8_STATE::cpu.pc);
+					cache_index = cache->allocAndSwitchNewCacheByC8PC(C8_STATE::cpu.pc);
 				}
 				else {
 					// Cache does not have do not write flag set, so its safe to write to this cache
-					cache->switchMemoryRegionByIndex(cache_index);
+					cache->switchCacheByIndex(cache_index);
 				}
 			}
 		}
 		else {
 			// No cache was found for PC - 2 as well, so allocate a new one for current pc
-			cache_index = cache->allocAndSwitchNewMemoryRegionByC8PC(C8_STATE::cpu.pc);
+			cache_index = cache->allocAndSwitchNewCacheByC8PC(C8_STATE::cpu.pc);
 		}
 	}
 	return cache_index;
@@ -233,22 +321,41 @@ int32_t Chip8Engine::translatorSelectCache()
 
 void Chip8Engine::translatorLoop()
 {
+	uint8_t translator_cycles_offset = 0;
 	do {
-		printf("\nChip8Engine: Running translator cycle: %d\n", translate_cycles);
+		//printf("\nChip8Engine: Running translator cycle: %d\n", translate_cycles);
+
+		// Check and fill in conditional jumps & decrease num of cycles
+		jumptbl->decreaseConditionalCycle();
+		jumptbl->checkAndFillConditionalJumpsByCycles();
+
+		// Bounds checking (do not translate outside of rom location)
+		if (C8_STATE::cpu.pc > C8_STATE::rom_sz) {
+			printf("Chip8Engine: Warning: C8 PC was outside of rom location! Running cache again as there is no code to translate (reset pc to 0x0200).\n");
+			C8_STATE::cpu.pc = 0x0200;
+			translate_cycles++;
+			break;
+		}
+
+		// DEBUG
+		/*if (translate_cycles == 100) {
+			printf("BREAKPOINT\n");
+			cache->DEBUG_printCacheList();
+		}*/
 
 		// Select the right cache to use
 		int32_t cache_index = translatorSelectCache();
 
 		// Has code already been compiled? (only valid if start != end c8 pc)
-		MEM_REGION * memory_region = cache->getMemoryRegionInfoByIndex(cache_index);
-		if (C8_STATE::cpu.pc <= memory_region->c8_end_recompile_pc &&
-			memory_region->c8_start_recompile_pc != memory_region->c8_end_recompile_pc) {
+		CACHE_REGION * memory_region = cache->getCacheInfoByIndex(cache_index);
+		if (C8_STATE::cpu.pc <= memory_region->c8_end_recompile_pc && memory_region->c8_start_recompile_pc != memory_region->c8_end_recompile_pc) {
 			// This is when we have entered a block that already has compiled code in it... need to switch to end of the region/change region and recompile from there.
 			// Update cpu.pc to the end C8 PC of region
 			// End C8 PC is defined to be already compiled, so need to plus 2 for next opcode. However, if next opcode is in a different region, we need to select the correct one. Place a continue here so we keep getting the REAL end memory region.
 			// When we loop again, the check memory region function will run again and give the correct region.
-			C8_STATE::cpu.pc = cache->getMemoryRegionC8EndPC() + 2;
-			printf("Chip8Engine: Warning: C8 PC was not at end of block. Old C8 PC = 0x%.4X, New C8 PC = 0x%.4X. Re-running emulation loop to check memory region again.\n", C8_STATE::cpu.pc - 2, C8_STATE::cpu.pc);
+			
+			printf("Chip8Engine: Warning: C8 PC was not at end of block. Old C8 PC = 0x%.4X, New C8 PC = 0x%.4X. Re-running translator loop to check memory region again.\n", C8_STATE::cpu.pc, cache->getEndC8PCCurrent() + 2);
+			C8_STATE::cpu.pc = cache->getEndC8PCCurrent() + 2;
 			// Update cycle number
 			translate_cycles++;
 			continue;
@@ -258,18 +365,10 @@ void Chip8Engine::translatorLoop()
 		// Fetch Opcode
 		C8_STATE::opcode = C8_STATE::memory[C8_STATE::cpu.pc] << 8 | C8_STATE::memory[C8_STATE::cpu.pc + 1]; // We have 8-bit memory, but an opcode is 16-bits long. Need to construct opcode from 2 successive memory locations.
 
-		// DEBUG
-		printf("             Mem Region = %d, x86 Mem Region Start = 0x%.8X, x86 Mem Region PC = 0x%.8X, invalid_flag = %d\n", cache->getMemoryRegionIndex(), (uint32_t)memory_region->x86_mem_address, (uint32_t)memory_region->x86_pc, memory_region->invalid_flag);
-		printf("             x86 RESUME ADDRESS = 0x%.8X (in cache[%d])\n", (uint32_t)X86_STATE::x86_resume_address, cache->getMemoryRegionIndexByX86Address(X86_STATE::x86_resume_address));
-		printf("             C8 PC = 0x%.4X, C8 Opcode = 0x%.4X, Mem Region START C8 PC = 0x%.4X, Mem Region END C8 PC = 0x%.4X\n", C8_STATE::cpu.pc, C8_STATE::opcode, memory_region->c8_start_recompile_pc, memory_region->c8_end_recompile_pc);
-
 		// Update Timers
 		dynarec->emulateTranslatorTimers();
 		// Translate
 		dynarec->emulateTranslatorCycle();
-		// Check and fill in conditional jumps & decrease num of cycles
-		jumptbl->checkAndFillConditionalJumpsByCycles();
-		jumptbl->decreaseConditionalCycle();
 
 		// Update cycle number
 		translate_cycles++;
@@ -279,7 +378,7 @@ void Chip8Engine::translatorLoop()
 			dynarec_break_loop = false;
 			break;
 		}
-	} while (translate_cycles % 16 != 0); // Limit a cache update to 16 c8 opcodes at a time
+	} while (translate_cycles % 16 != 0 || jumptbl->checkConditionalCycle() > 0); // Limit a cache update to 16 c8 opcodes at a time, but do not exit if there is a conditional cycle waiting to be updated
 }
 
 void Chip8Engine::setKeyState(uint8_t keyindex, KEY_STATE state)
@@ -292,8 +391,9 @@ void Chip8Engine::DEBUG_render()
 	if (getDrawFlag()) {
 		//mChip8->DEBUG_printCPUState();
 		//mChip8->DEBUG_printSoundTimer();
-		DEBUG_renderGFXText();
+		if (drawcycles % 16 == 0) DEBUG_renderGFXText();
 		setDrawFlag(false);
+		drawcycles++;
 	}
 }
 

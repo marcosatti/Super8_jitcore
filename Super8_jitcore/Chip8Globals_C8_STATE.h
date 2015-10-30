@@ -53,5 +53,9 @@ namespace Chip8Globals {
 		};
 		#define FONT_WIDTH 5
 		#define FONTSET_SZ (sizeof(Chip8Globals::C8_STATE::chip8_fontset)/sizeof(Chip8Globals::C8_STATE::chip8_fontset[0]))
+
+		extern uint16_t rom_sz;
+
+		void DEBUG_printC8_STATE();
 	}
 }

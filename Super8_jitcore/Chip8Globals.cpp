@@ -17,6 +17,7 @@ namespace Chip8Globals {
 	bool dynarec_break_loop;
 
 	bool drawflag;
+	uint64_t drawcycles;
 
 	bool getDrawFlag() {
 		return drawflag;

@@ -17,8 +17,8 @@ Chip8Engine_Dynarec::~Chip8Engine_Dynarec()
 
 void Chip8Engine_Dynarec::initialiseFirstMemoryRegion()
 {
-	cache->allocAndSwitchNewMemoryRegionByC8PC(C8_STATE::cpu.pc);
-	X86_STATE::x86_resume_address = cache->getMemoryRegionInfo()->x86_mem_address;
+	cache->allocAndSwitchNewCacheByC8PC(C8_STATE::cpu.pc);
+	X86_STATE::x86_resume_address = cache->getCacheInfoCurrent()->x86_mem_address;
 }
 
 void Chip8Engine_Dynarec::emulateTranslatorCycle() {
@@ -97,7 +97,7 @@ void Chip8Engine_Dynarec::emulateTranslatorTimers()
 	emitter->CMP_RwithImm_8(al, 0);
 	emitter->JNG_8(9);
 	emitter->SUB_ImmfromR_8(al, 1);
-	emitter->MOV_RtoM_8(&timers->delay_timer, al);
+	emitter->MOV_RtoM_8(&timers->sound_timer, al);
 }
 
 void Chip8Engine_Dynarec::handleOpcodeMSN_0() {
@@ -114,38 +114,19 @@ void Chip8Engine_Dynarec::handleOpcodeMSN_0() {
 	{
 		// 0x00EE: Returns from a subroutine - direct jump (uses stack)!
 		// TODO: Check if correct.
-		// A return must have a valid x86 return point, otherwise the stack entry would not be created in the first place!
-		// Get stack entry & set c8 pc for next loop
-		STACK_ENTRY entry = stack->getTopStack();
+
+		// Debug
+		//emitter->DYNAREC_EMIT_INTERRUPT(X86_STATE::DEBUG, C8_STATE::opcode);
 
 		// Set stop write flag on current cache
-		cache->stopWriteMemoryRegion();
-
-		// First record jump in jump table if DNE (so it will get updated on every translator loop)
-		int32_t tblindex = jumptbl->findJumpEntry(C8_STATE::cpu.pc, entry.c8_address);
-		if (tblindex == -1) {
-			tblindex = jumptbl->recordJumpEntry(C8_STATE::cpu.pc, entry.c8_address);
-		}
-
-		// Check if the jump location is not to start of a cache, and if so, need to mark invalid
-		int32_t index = cache->checkMemoryRegionAllocatedByC8PC(entry.c8_address);
-		if (index == -1) cache->allocNewMemoryRegionByC8PC(entry.c8_address); // No cache was found, alloc a new one
-		else {
-			// Cache found, but check if its to the start of a region
-			if (entry.c8_address != cache->getMemoryRegionInfoByIndex(index)->c8_start_recompile_pc) {
-				cache->setInvalidFlagByIndex(index, 1);
-				cache->allocNewMemoryRegionByC8PC(X86_STATE::x86_resume_c8_pc);
-			}
-		}
+		cache->setStopWriteFlagCurrent(1);
 
 		// Emit jump
-		emitter->DYNAREC_EMIT_INTERRUPT(X86_STATE::PREPARE_FOR_JUMP, entry.c8_address);
-		emitter->JMP_M_PTR_32((uint32_t*)&jumptbl->jump_table[tblindex].x86_address_to);
+		emitter->DYNAREC_EMIT_INTERRUPT(X86_STATE::PREPARE_FOR_STACK_JUMP, C8_STATE::opcode);
+		emitter->JMP_M_PTR_32((uint32_t*)&stack->x86_address_to);
 
-		// Set region pc to current c8 pc
-		cache->setMemoryRegionC8EndPC(C8_STATE::cpu.pc);
-		// Change C8 PC
-		C8_STATE::cpu.pc = entry.c8_address;
+		// Change C8 PC to +2 (pointless to access stack as the address will not be the same across multiple calls)
+		C8_STATE::C8_incrementPC();
 		break;
 	}
 	default:
@@ -166,74 +147,43 @@ void Chip8Engine_Dynarec::handleOpcodeMSN_1() {
 	uint16_t jump_c8_pc = C8_STATE::opcode & 0x0FFF;
 
 	// Set stop write flag on current cache
-	cache->stopWriteMemoryRegion();
+	cache->setStopWriteFlagCurrent(1);
 
 	// First record jump in jump table if DNE (so it will get updated on every translator loop)
-	int32_t tblindex = jumptbl->findJumpEntry(C8_STATE::cpu.pc, jump_c8_pc);
+	int32_t tblindex = jumptbl->findJumpEntry(jump_c8_pc);
 	if (tblindex == -1) {
-		tblindex = jumptbl->recordJumpEntry(C8_STATE::cpu.pc, jump_c8_pc);
+		tblindex = jumptbl->recordJumpEntry(jump_c8_pc);
 	}
 
-	// Check if the jump location is not to start of a cache, and if so, need to mark invalid
-	int32_t index = cache->checkMemoryRegionAllocatedByC8PC(jump_c8_pc);
-	if (index == -1) cache->allocNewMemoryRegionByC8PC(jump_c8_pc); // No cache was found, alloc a new one
-	else {
-		// Cache found, but check if its to the start of a region
-		if (jump_c8_pc != cache->getMemoryRegionInfoByIndex(index)->c8_start_recompile_pc) {
-			cache->setInvalidFlagByIndex(index, 1);
-			cache->allocNewMemoryRegionByC8PC(jump_c8_pc);
-		}
-	}
+	// Need to check/alloc jump location caches
+	cache->allocNewCacheByJumpC8PC(jump_c8_pc);
 
 	// Emit jump
 	emitter->DYNAREC_EMIT_INTERRUPT(X86_STATE::PREPARE_FOR_JUMP, jump_c8_pc);
-	emitter->JMP_M_PTR_32((uint32_t*)&jumptbl->jump_table[tblindex].x86_address_to);
+	emitter->JMP_M_PTR_32((uint32_t*)&jumptbl->jump_list[tblindex].x86_address_to);
 
 	// Set region pc to current c8 pc
-	cache->setMemoryRegionC8EndPC(C8_STATE::cpu.pc);
+	cache->setCacheEndC8PCCurrent(C8_STATE::cpu.pc);
 	// Change PC to jump location
 	C8_STATE::cpu.pc = jump_c8_pc;
 } 
 
 void Chip8Engine_Dynarec::handleOpcodeMSN_2() {
 	// Only one subtype of opcode in this branch
-	// 0x2NNN calls the subroutine at address 0xNNN - direct jump, however handle using a synced cycle (implement x86 stack later)!
-	// Record stack entry for the return point - which will be the next opcode!
-	STACK_ENTRY entry;
-	entry.c8_address = C8_STATE::cpu.pc + 2;
-	stack->setTopStack(entry);
+	// 0x2NNN calls the subroutine at address 0xNNN - direct jump, however handle using stack
+	
+	// Debug
+	//emitter->DYNAREC_EMIT_INTERRUPT(X86_STATE::DEBUG, C8_STATE::opcode);
 
 	// Set stop write flag on current cache
-	cache->stopWriteMemoryRegion();
-
-	// get jump location
-	uint16_t jump_c8_pc = C8_STATE::opcode & 0x0FFF;
-
-	// First record jump in jump table if DNE (so it will get updated on every translator loop)
-	int32_t tblindex = jumptbl->findJumpEntry(C8_STATE::cpu.pc, jump_c8_pc);
-	if (tblindex == -1) {
-		tblindex = jumptbl->recordJumpEntry(C8_STATE::cpu.pc, jump_c8_pc);
-	}
-
-	// Check if the jump location is not to start of a cache, and if so, need to mark invalid
-	int32_t index = cache->checkMemoryRegionAllocatedByC8PC(jump_c8_pc);
-	if (index == -1) cache->allocNewMemoryRegionByC8PC(jump_c8_pc); // No cache was found, alloc a new one
-	else {
-		// Cache found, but check if its to the start of a region
-		if (jump_c8_pc != cache->getMemoryRegionInfoByIndex(index)->c8_start_recompile_pc) {
-			cache->setInvalidFlagByIndex(index, 1);
-			cache->allocNewMemoryRegionByC8PC(jump_c8_pc);
-		}
-	}
+	cache->setStopWriteFlagCurrent(1);
 
 	// Emit jump
-	emitter->DYNAREC_EMIT_INTERRUPT(X86_STATE::PREPARE_FOR_JUMP, jump_c8_pc);
-	emitter->JMP_M_PTR_32((uint32_t*)&jumptbl->jump_table[tblindex].x86_address_to);
+	emitter->DYNAREC_EMIT_INTERRUPT(X86_STATE::PREPARE_FOR_STACK_JUMP, C8_STATE::opcode, C8_STATE::cpu.pc + 2);
+	emitter->JMP_M_PTR_32((uint32_t*)&stack->x86_address_to);
 
-	// Set region pc to current c8 pc
-	cache->setMemoryRegionC8EndPC(C8_STATE::cpu.pc);
-	// Change C8 PC
-	C8_STATE::cpu.pc = jump_c8_pc;
+	// Change C8 PC to +2 (pointless to access stack as the address will not be the same across multiple calls)
+	C8_STATE::C8_incrementPC();
 }
 
 void Chip8Engine_Dynarec::handleOpcodeMSN_3() {
@@ -246,7 +196,7 @@ void Chip8Engine_Dynarec::handleOpcodeMSN_3() {
 	uint8_t num = (C8_STATE::opcode & 0x00FF);
 
 	// First record jump in jump table if DNE (so it will get updated on every translator loop)
-	jumptbl->recordConditionalJumpEntry(C8_STATE::cpu.pc, C8_STATE::cpu.pc + 4, 1, cache->getMemoryRegionCurrentx86Address() + 11 - 1); // address is located at current x86 pc + length of emitted code below (6 + 3 + 2 = 11 bytes) - 1 (relative takes up 1 byte)
+	jumptbl->recordConditionalJumpEntry(C8_STATE::cpu.pc, C8_STATE::cpu.pc + 4, 2, cache->getEndX86AddressCurrent() + 11 - 1); // address is located at current x86 pc + length of emitted code below (6 + 3 + 2 = 11 bytes) - 1 (relative takes up 1 byte)
 
 	// Emit conditional code
 	emitter->MOV_MtoR_8(al, &C8_STATE::cpu.V[vx]);
@@ -266,7 +216,7 @@ void Chip8Engine_Dynarec::handleOpcodeMSN_4() {
 	uint8_t num = (C8_STATE::opcode & 0x00FF);
 
 	// First record jump in jump table if DNE (so it will get updated on every translator loop)
-	jumptbl->recordConditionalJumpEntry(C8_STATE::cpu.pc, C8_STATE::cpu.pc + 4, 1, cache->getMemoryRegionCurrentx86Address() + 11 - 1); // address is located at current x86 pc + length of emitted code below (6 + 3 + 2 = 11 bytes) - 1 (relative takes up 1 byte)
+	jumptbl->recordConditionalJumpEntry(C8_STATE::cpu.pc, C8_STATE::cpu.pc + 4, 2, cache->getEndX86AddressCurrent() + 11 - 1); // address is located at current x86 pc + length of emitted code below (6 + 3 + 2 = 11 bytes) - 1 (relative takes up 1 byte)
 	
 	// Emit conditional code
 	emitter->MOV_MtoR_8(al, &C8_STATE::cpu.V[vx]);
@@ -286,7 +236,7 @@ void Chip8Engine_Dynarec::handleOpcodeMSN_5() {
 	uint8_t vy = (C8_STATE::opcode & 0x00F0) >> 4;
 
 	// First record jump in jump table if DNE (so it will get updated on every translator loop)
-	jumptbl->recordConditionalJumpEntry(C8_STATE::cpu.pc, C8_STATE::cpu.pc + 4, 1, cache->getMemoryRegionCurrentx86Address() + 16 - 1); // address is located at current x86 pc + length of emitted code below (6 + 6 + 2 + 2 = 16 bytes) - 1 (relative takes up 1 byte)
+	jumptbl->recordConditionalJumpEntry(C8_STATE::cpu.pc, C8_STATE::cpu.pc + 4, 2, cache->getEndX86AddressCurrent() + 16 - 1); // address is located at current x86 pc + length of emitted code below (6 + 6 + 2 + 2 = 16 bytes) - 1 (relative takes up 1 byte)
 
 	// Emit conditional code
 	emitter->MOV_MtoR_8(al, &C8_STATE::cpu.V[vx]);
@@ -458,7 +408,7 @@ void Chip8Engine_Dynarec::handleOpcodeMSN_9() {
 		uint8_t vy = (C8_STATE::opcode & 0x00F0) >> 4;
 
 		// First record jump in jump table if DNE (so it will get updated on every translator loop)
-		jumptbl->recordConditionalJumpEntry(C8_STATE::cpu.pc, C8_STATE::cpu.pc + 4, 1, cache->getMemoryRegionCurrentx86Address() + 16 - 1); // address is located at current x86 pc + length of emitted code below (6 + 6 + 2 + 2 = 16 bytes) - 1 (relative takes up 1 byte)
+		jumptbl->recordConditionalJumpEntry(C8_STATE::cpu.pc, C8_STATE::cpu.pc + 4, 2, cache->getEndX86AddressCurrent() + 16 - 1); // address is located at current x86 pc + length of emitted code below (6 + 6 + 2 + 2 = 16 bytes) - 1 (relative takes up 1 byte)
 		
 		// Emit conditional code
 		emitter->MOV_MtoR_8(al, &C8_STATE::cpu.V[vx]);
@@ -490,15 +440,15 @@ void Chip8Engine_Dynarec::handleOpcodeMSN_A() {
 void Chip8Engine_Dynarec::handleOpcodeMSN_B() {
 	// Only one subtype of opcode in this branch
 	// 0xBNNN: Sets PC to the address (NNN + V0) aka INDIRECT JUMP!
-	// TODO: Check if correct
+	// TODO: Implement properly!!
 
 	// Get values
 	uint16_t num = (C8_STATE::opcode & 0x0FFF);
 
 	// First record jump in jump table if DNE (so it will get updated on every translator loop)
-	int32_t tblindex = jumptbl->findJumpEntry(C8_STATE::cpu.pc, 0xFFFF);
+	int32_t tblindex = jumptbl->findJumpEntry(0xFFFF);
 	if (tblindex == -1) {
-		tblindex = jumptbl->recordJumpEntry(C8_STATE::cpu.pc, 0xFFFF);
+		tblindex = jumptbl->recordJumpEntry(0xFFFF);
 	}
 
 	// Emit jump
@@ -506,9 +456,9 @@ void Chip8Engine_Dynarec::handleOpcodeMSN_B() {
 	// Need to also interrupt so we can determine the cache where the jump should lead to.
 	emitter->MOV_ImmtoR_16(ax, num);
 	emitter->ADD_MtoR_8(al, &C8_STATE::cpu.V[0]);
-	emitter->MOV_RtoM_16(&jumptbl->jump_table[tblindex].c8_address_to, ax);
+	emitter->MOV_RtoM_16(&jumptbl->jump_list[tblindex].c8_address_to, ax);
 	emitter->DYNAREC_EMIT_INTERRUPT(X86_STATE::PREPARE_FOR_INDIRECT_JUMP, C8_STATE::opcode);
-	emitter->JMP_M_PTR_32((uint32_t*)&jumptbl->jump_table[tblindex].x86_address_to);
+	emitter->JMP_M_PTR_32((uint32_t*)&jumptbl->jump_list[tblindex].x86_address_to);
 
 	// Change C8 PC
 	C8_STATE::C8_incrementPC();
@@ -531,11 +481,11 @@ void Chip8Engine_Dynarec::handleOpcodeMSN_C() {
 
 void Chip8Engine_Dynarec::handleOpcodeMSN_D() {
 	// Only one subtype of opcode in this branch
-	/* 0xDXYN: Draws a sprite at coordinate (VX, VY) that has a width of 8 pixels and a height of N pixels.
-	Each row of 8 pixels is read as bit-coded starting from memory location I;
-	I value doesn’t change after the execution of this instruction.
-	As described above, VF is set to 1 if any screen pixels are flipped from
-	set to unset when the sprite is drawn, and to 0 if that doesn’t happen */
+	/* 0xDXYN:	Draws a sprite at coordinate (VX, VY) that has a width of 8 pixels and a height of N pixels.
+				Each row of 8 pixels is read as bit-coded starting from memory location I;
+				I value doesn’t change after the execution of this instruction.
+				As described above, VF is set to 1 if any screen pixels are flipped from
+				set to unset when the sprite is drawn, and to 0 if that doesn’t happen */
 	// TODO: check if correct. 
 	// check if in sync
 	emitter->DYNAREC_EMIT_INTERRUPT(X86_STATE::USE_INTERPRETER, C8_STATE::opcode);
@@ -554,7 +504,7 @@ void Chip8Engine_Dynarec::handleOpcodeMSN_E() {
 		//if (key->getKeyState(cpu.V[vx]) == 1) cpu.pc += 2;
 
 		// First record jump in jump table if DNE (so it will get updated on every translator loop)
-		jumptbl->recordConditionalJumpEntry(C8_STATE::cpu.pc, C8_STATE::cpu.pc + 4, 1, cache->getMemoryRegionCurrentx86Address() + 21 - 1); // address is located at current x86 pc + length of emitted code below (6 + 6 + 2 + 2 + 3 + 2 = 21 bytes) - 1 (relative takes up 1 byte)
+		jumptbl->recordConditionalJumpEntry(C8_STATE::cpu.pc, C8_STATE::cpu.pc + 4, 2, cache->getEndX86AddressCurrent() + 21 - 1); // address is located at current x86 pc + length of emitted code below (6 + 6 + 2 + 2 + 3 + 2 = 21 bytes) - 1 (relative takes up 1 byte)
 
 		// Emit conditional code
 		emitter->MOV_MtoR_8(cl, C8_STATE::cpu.V + vx);
@@ -577,7 +527,7 @@ void Chip8Engine_Dynarec::handleOpcodeMSN_E() {
 		//if (key->getKeyState(cpu.V[vx]) == 1) cpu.pc += 2;
 
 		// First record jump in jump table
-		jumptbl->recordConditionalJumpEntry(C8_STATE::cpu.pc, C8_STATE::cpu.pc + 4, 1, cache->getMemoryRegionCurrentx86Address() + 21 - 1); // address is located at current x86 pc + length of emitted code below (6 + 6 + 2 + 2 + 3 + 2 = 21 bytes) - 1 (relative takes up 1 byte)
+		jumptbl->recordConditionalJumpEntry(C8_STATE::cpu.pc, C8_STATE::cpu.pc + 4, 2, cache->getEndX86AddressCurrent() + 21 - 1); // address is located at current x86 pc + length of emitted code below (6 + 6 + 2 + 2 + 3 + 2 = 21 bytes) - 1 (relative takes up 1 byte)
 
 		// Emit conditional code
 		emitter->MOV_MtoR_8(cl, C8_STATE::cpu.V + vx);
@@ -675,6 +625,9 @@ void Chip8Engine_Dynarec::handleOpcodeMSN_F() {
 		//emitter->DYNAREC_EMIT_INTERRUPT(X86_STATE::USE_INTERPRETER, C8_STATE::opcode);
 		//emitter->DYNAREC_EMIT_INTERRUPT(X86_STATE::DEBUG, C8_STATE::opcode);
 
+		// This is self modifying code! Invalidate cache that the memory writes to
+		emitter->DYNAREC_EMIT_INTERRUPT(X86_STATE::SELF_MODIFYING_CODE, C8_STATE::opcode);
+
 		uint8_t vx = (C8_STATE::opcode & 0x0F00) >> 8; // Need to bit shift by 8 to get to a single base16 digit.
 		emitter->XOR_RwithR_32(eax, eax); // clear eax register
 		// Move the address from I into register edx (= starting address of memory array + offset from I)
@@ -705,7 +658,8 @@ void Chip8Engine_Dynarec::handleOpcodeMSN_F() {
 	case 0x0055:
 	{
 		// 0xFX55: Copies all current values in registers V0 -> Vx to memory starting at address I.
-		// YIKES! this could be self-modifying code!!! -> Idea: Invalidate cache that the memory writes to!
+
+		// This is self modifying code! Invalidate cache that the memory writes to
 		emitter->DYNAREC_EMIT_INTERRUPT(X86_STATE::SELF_MODIFYING_CODE, C8_STATE::opcode);
 
 		uint8_t vx = (C8_STATE::opcode & 0x0F00) >> 8; // Need to bit shift by 8 to get to a single base16 digit.
