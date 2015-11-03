@@ -1,9 +1,8 @@
 #pragma once
 
 #include <cstdint>
-#include <vector>
 #include <Windows.h>
-
+#include "FastArrayList.h"
 #include "Chip8Globals.h"
 
 #define  MAX_CACHE_SZ 0xFFF
@@ -20,8 +19,8 @@ struct CACHE_REGION {
 class Chip8Engine_CacheHandler
 {
 public:
-	int32_t selected_cache_index;
-	std::vector<CACHE_REGION> cache_list;
+	int32_t selected_cache_index = 0;
+	FastArrayList<CACHE_REGION> cache_list;
 
 	uint8_t * setup_cache_cdecl;
 	uint8_t setup_cache_cdecl_sz;
@@ -35,32 +34,30 @@ public:
 	void execCache_CDECL();
 	void initFirstCache();
 
-	int32_t getCacheByStartC8PC(uint16_t c8_jump_pc); // Used when a jump is made (see dynarec.cpp and jumphandler.cpp). Contains more code path logic and handles invalidation.
-	int32_t getCacheByC8PC(uint16_t c8_pc);
+	// BELOW FUNCTIONS HANDLE ALLOCATION
+	int32_t getCacheWritableByStartC8PC(uint16_t c8_jump_pc); // Used when a jump is made (see dynarec.cpp and jumphandler.cpp). Contains more code path logic and handles invalidation.
+	int32_t getCacheWritableByC8PC(uint16_t c8_pc);
 
-	void invalidateCacheCurrent();
 	void invalidateCacheByFlag();
-	void invalidateCacheByIndex(int32_t index);
-	void invalidateCacheByC8PC(uint16_t c8_start_pc_);
-
-	void setInvalidFlagCurrent();
-	uint8_t setInvalidFlagByIndex(int32_t index);
-	uint8_t setInvalidFlagByC8PC(uint16_t c8_pc_);
+	void setInvalidFlagByIndex(int32_t index);
+	void setInvalidFlagByC8PC(uint16_t c8_pc_);
 	void clearInvalidFlagByIndex(int32_t index);
 	uint8_t getInvalidFlagByIndex(int32_t index);
 
-	void setStopWriteFlagCurrent(uint8_t value);
-	void setStopWriteFlagByIndex(int32_t index, uint8_t value);
+	void setStopWriteFlagCurrent();
+	void setStopWriteFlagByIndex(int32_t index);
+	void clearStopWriteFlagByIndex(int32_t index);
 	uint8_t getStopWriteFlagByIndex(int32_t index);
-	uint8_t getStopWriteFlagByC8PC(uint16_t c8_pc_);
 
-	int32_t getCacheIndexCurrent();
-	int32_t getCacheIndexByC8PC(uint16_t c8_pc_);
-	int32_t getCacheIndexByStartC8PC(uint16_t c8_pc_);
-	int32_t getCacheIndexByX86Address(uint8_t * x86_address);
+	// BELOW FUNCTIONS DO NOT ALLOCATE CACHES, THESE ARE ONLY USED FOR FINDING
+	int32_t findCacheIndexCurrent();
+	int32_t findCacheIndexByC8PC(uint16_t c8_pc_);
+	int32_t findCacheIndexByStartC8PC(uint16_t c8_pc_);
+
 	void switchCacheByC8PC(uint16_t c8_pc_);
 	void switchCacheByIndex(uint32_t index);
 
+	void incrementCacheX86PC(uint8_t count);
 	void setCacheEndC8PCCurrent(uint16_t c8_end_pc_);
 	void setCacheEndC8PCByIndex(uint32_t index, uint16_t c8_end_pc_);
 	uint16_t getEndC8PCCurrent();
@@ -73,9 +70,6 @@ public:
 	void write8(uint8_t byte_);
 	void write16(uint16_t word_);
 	void write32(uint32_t dword_);
-	void incrementCacheX86PC(uint8_t count);
-
-	void formatCache(); // Sets cache contents to 0x90 NOP
 
 	void DEBUG_printCacheByIndex(int32_t index);
 	void DEBUG_printCacheList();

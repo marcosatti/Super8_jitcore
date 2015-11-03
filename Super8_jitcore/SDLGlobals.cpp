@@ -34,7 +34,7 @@ namespace SDLGlobals {
 		if ((renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED)) == NULL) exit(1);
 		if ((texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGB888, SDL_TEXTUREACCESS_STREAMING, 64, 32)) == NULL) exit(1);		
 		if (TTF_Init() != 0) exit(1);
-		if ((font = TTF_OpenFont("..\\verdana.ttf", 18)) == NULL) exit(1);
+		if ((font = TTF_OpenFont("..\\fonts\\OpenSans-Regular.ttf", 18)) == NULL) exit(1);
 	}
 	void exitSDLGraphics()
 	{

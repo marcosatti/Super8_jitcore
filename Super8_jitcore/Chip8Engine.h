@@ -19,16 +19,15 @@ using namespace Chip8Globals;
 class Chip8Engine {
 public:
 	Chip8Engine();
-	Chip8Engine(uint8_t * _memory, uint8_t * _gfxmem);
 	~Chip8Engine();
 
 	void initialise();
-
 	void loadProgram(std::string path);
+
 	void emulationLoop();
 	void translatorLoop();
 	void handleInterrupt();
-	int32_t translatorSelectCache();
+
 	void DEBUG_renderGFXText();
 
 private:

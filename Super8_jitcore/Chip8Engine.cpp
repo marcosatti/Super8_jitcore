@@ -115,7 +115,7 @@ void Chip8Engine::handleInterrupt()
 		// For determining between 1 and 3, we can check for an existing cache and emit jump code if there is
 		CACHE_REGION * region = cache->getCacheInfoByC8PC(X86_STATE::x86_resume_c8_pc);
 		X86_STATE::x86_resume_address = region->x86_mem_address + region->x86_pc;
-		if (cache->getCacheIndexByStartC8PC(region->c8_end_recompile_pc + 2) != -1 || region->stop_write_flag != 0) {
+		if (cache->findCacheIndexByStartC8PC(region->c8_end_recompile_pc + 2) != -1 || region->stop_write_flag != 0) {
 			// Case 2 & 3 - Absolute end of region reached -> Record & Emit jump to next region
 			// First record jump in jump table if DNE (so it will get updated on every translator loop)
 			int32_t tblindex = jumptbl->findJumpEntry(region->c8_end_recompile_pc + 2);
@@ -124,11 +124,11 @@ void Chip8Engine::handleInterrupt()
 			}
 
 			// Emit the jump
-			int32_t old_index = cache->getCacheIndexCurrent();
+			int32_t old_index = cache->findCacheIndexCurrent();
 			cache->switchCacheByC8PC(X86_STATE::x86_resume_c8_pc);
 			emitter->DYNAREC_EMIT_INTERRUPT(X86_STATE::PREPARE_FOR_JUMP, region->c8_end_recompile_pc + 2);
-			emitter->JMP_M_PTR_32((uint32_t*)&jumptbl->jump_list[tblindex].x86_address_to);
-			cache->setStopWriteFlagCurrent(1);
+			emitter->JMP_M_PTR_32((uint32_t*)&jumptbl->jump_list[tblindex]->x86_address_to);
+			cache->setStopWriteFlagCurrent();
 			cache->switchCacheByIndex(old_index);
 		} 
 		else {
@@ -148,16 +148,15 @@ void Chip8Engine::handleInterrupt()
 	{
 		// ! ! ! X86_STATE::x86_resume_c8_pc contains opcode from translator ! ! !
 		// Only 2 opcodes in the C8 specs that do this. For SMC, need to invalidate cache that the memory writes to
-		uint8_t result = 0;
 		switch (X86_STATE::x86_resume_c8_pc & 0xF0FF) {
 		case 0xF033:
 		{
 			// 0xFX33: Splits the decimal representation of Vx into 3 locations: hundreds stored in address I, tens in address I+1, and ones in I+2.
 			//cache->DEBUG_printCacheList();
 			uint16_t I = C8_STATE::cpu.I;
-			result = cache->setInvalidFlagByC8PC(C8_STATE::cpu.I);
-			result = cache->setInvalidFlagByC8PC(C8_STATE::cpu.I+1);
-			result = cache->setInvalidFlagByC8PC(C8_STATE::cpu.I+2);
+			cache->setInvalidFlagByC8PC(C8_STATE::cpu.I);
+			cache->setInvalidFlagByC8PC(C8_STATE::cpu.I+1);
+			cache->setInvalidFlagByC8PC(C8_STATE::cpu.I+2);
 			break;
 		}
 		case 0xF055:
@@ -165,7 +164,7 @@ void Chip8Engine::handleInterrupt()
 			// 0xFX55: Copies all current values in registers V0 -> Vx to memory starting at address I.
 			uint8_t vx = (X86_STATE::x86_resume_c8_pc & 0x0F00) >> 8; // Need to bit shift by 8 to get to a single base16 digit.
 			for (uint8_t i = 0; i <= vx; i++) {
-				result = cache->setInvalidFlagByC8PC(C8_STATE::cpu.I + i);
+				cache->setInvalidFlagByC8PC(C8_STATE::cpu.I + i);
 			}
 			break;
 		}
@@ -220,11 +219,11 @@ void Chip8Engine::handleInterrupt()
 			}
 
 			// Need to check/alloc jump location caches
-			cache->getCacheByStartC8PC(jump_c8_pc);
+			cache->getCacheWritableByStartC8PC(jump_c8_pc);
 			jumptbl->checkAndFillJumpsByStartC8PC();
 
 			// Set stack->x86_address_to equal to jumptable location
-			stack->x86_address_to = jumptbl->jump_list[tblindex].x86_address_to;
+			stack->x86_address_to = jumptbl->jump_list[tblindex]->x86_address_to;
 			break;
 		}
 		case 0x0000:
@@ -239,64 +238,16 @@ void Chip8Engine::handleInterrupt()
 			}
 
 			// Need to check/alloc jump location caches
-			cache->getCacheByStartC8PC(entry.c8_address);
+			cache->getCacheWritableByStartC8PC(entry.c8_address);
 			jumptbl->checkAndFillJumpsByStartC8PC();
 
 			// Set stack->x86_address_to equal to jumptable location
-			stack->x86_address_to = jumptbl->jump_list[tblindex].x86_address_to;
+			stack->x86_address_to = jumptbl->jump_list[tblindex]->x86_address_to;
 			break;
 		}
 		}
 	}
 	}
-}
-
-int32_t Chip8Engine::translatorSelectCache()
-{
-	// First check if memory region is ready/allocated (check for both current pc (indicates already recompiled), and check for pc-2 (ready to write to))
-	int32_t cache_index = cache->getCacheIndexByC8PC(C8_STATE::cpu.pc);
-	if (cache_index != -1) {
-		// Cache exists for current PC
-		// Check if its invalid
-		if (cache->getInvalidFlagByIndex(cache_index)) {
-			// Cache was invalid, so create a new cache at current PC
-			cache_index = cache->allocAndSwitchNewCacheByC8PC(C8_STATE::cpu.pc);
-		}
-		else {
-			// Cache was not marked as invalid, so next check for the do not write flag.
-			// However, it does not matter as later the pc will be moved to the end of the region (code must already exist in this logic block), so just switch to this cache for now
-			cache->switchCacheByIndex(cache_index);
-		}
-	}
-	else {
-		// Cache does not exist for current PC, so it hasnt been compiled before. Need to get region which is available to hold this recompiled code
-		// Check for cache with PC - 2 end PC.
-		cache_index = cache->getCacheIndexByC8PC(C8_STATE::cpu.pc - 2);
-		if (cache_index != -1) {
-			// Cache exists for current PC - 2
-			// Check if its invalid
-			if (cache->getInvalidFlagByIndex(cache_index)) {
-				// Cache was invalid, so create a new cache at current PC
-				cache_index = cache->allocAndSwitchNewCacheByC8PC(C8_STATE::cpu.pc);
-			}
-			else {
-				// Cache was not marked as invalid, so next check for the do not write flag.
-				if (cache->getStopWriteFlagByIndex(cache_index)) {
-					// Cache has do not write flag set, so allocate a new region
-					cache_index = cache->allocAndSwitchNewCacheByC8PC(C8_STATE::cpu.pc);
-				}
-				else {
-					// Cache does not have do not write flag set, so its safe to write to this cache
-					cache->switchCacheByIndex(cache_index);
-				}
-			}
-		}
-		else {
-			// No cache was found for PC - 2 as well, so allocate a new one for current pc
-			cache_index = cache->allocAndSwitchNewCacheByC8PC(C8_STATE::cpu.pc);
-		}
-	}
-	return cache_index;
 }
 
 void Chip8Engine::translatorLoop()
@@ -317,7 +268,7 @@ void Chip8Engine::translatorLoop()
 		}
 
 		// Select the right cache to use
-		int32_t cache_index = translatorSelectCache();
+		int32_t cache_index = cache->getCacheWritableByC8PC(C8_STATE::cpu.pc);
 
 		// Has code already been compiled? (only valid if start != end c8 pc)
 		CACHE_REGION * memory_region = cache->getCacheInfoByIndex(cache_index);

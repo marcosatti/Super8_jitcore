@@ -113,7 +113,7 @@ void Chip8Engine_Dynarec::handleOpcodeMSN_0() {
 		//emitter->DYNAREC_EMIT_INTERRUPT(X86_STATE::DEBUG, C8_STATE::opcode);
 
 		// Set stop write flag on current cache
-		cache->setStopWriteFlagCurrent(1);
+		cache->setStopWriteFlagCurrent();
 
 		// Emit jump
 		emitter->DYNAREC_EMIT_INTERRUPT(X86_STATE::PREPARE_FOR_STACK_JUMP, C8_STATE::opcode);
@@ -141,7 +141,7 @@ void Chip8Engine_Dynarec::handleOpcodeMSN_1() {
 	uint16_t jump_c8_pc = C8_STATE::opcode & 0x0FFF;
 
 	// Set stop write flag on current cache
-	cache->setStopWriteFlagCurrent(1);
+	cache->setStopWriteFlagCurrent();
 
 	// First record jump in jump table if DNE (so it will get updated on every translator loop)
 	int32_t tblindex = jumptbl->findJumpEntry(jump_c8_pc);
@@ -150,11 +150,11 @@ void Chip8Engine_Dynarec::handleOpcodeMSN_1() {
 	}
 
 	// Need to check/alloc jump location caches
-	cache->getCacheByStartC8PC(jump_c8_pc);
+	cache->getCacheWritableByStartC8PC(jump_c8_pc);
 
 	// Emit jump
 	emitter->DYNAREC_EMIT_INTERRUPT(X86_STATE::PREPARE_FOR_JUMP, jump_c8_pc);
-	emitter->JMP_M_PTR_32((uint32_t*)&jumptbl->jump_list[tblindex].x86_address_to);
+	emitter->JMP_M_PTR_32((uint32_t*)&jumptbl->jump_list[tblindex]->x86_address_to);
 
 	// Set region pc to current c8 pc
 	cache->setCacheEndC8PCCurrent(C8_STATE::cpu.pc);
@@ -170,7 +170,7 @@ void Chip8Engine_Dynarec::handleOpcodeMSN_2() {
 	//emitter->DYNAREC_EMIT_INTERRUPT(X86_STATE::DEBUG, C8_STATE::opcode);
 
 	// Set stop write flag on current cache
-	cache->setStopWriteFlagCurrent(1);
+	cache->setStopWriteFlagCurrent();
 
 	// Emit jump
 	emitter->DYNAREC_EMIT_INTERRUPT(X86_STATE::PREPARE_FOR_STACK_JUMP, C8_STATE::opcode, C8_STATE::cpu.pc + 2);
@@ -450,9 +450,9 @@ void Chip8Engine_Dynarec::handleOpcodeMSN_B() {
 	// Need to also interrupt so we can determine the cache where the jump should lead to.
 	emitter->MOV_ImmtoR_16(ax, num);
 	emitter->ADD_MtoR_8(al, &C8_STATE::cpu.V[0]);
-	emitter->MOV_RtoM_16(&jumptbl->jump_list[tblindex].c8_address_to, ax);
+	emitter->MOV_RtoM_16(&jumptbl->jump_list[tblindex]->c8_address_to, ax);
 	emitter->DYNAREC_EMIT_INTERRUPT(X86_STATE::PREPARE_FOR_INDIRECT_JUMP, C8_STATE::opcode);
-	emitter->JMP_M_PTR_32((uint32_t*)&jumptbl->jump_list[tblindex].x86_address_to);
+	emitter->JMP_M_PTR_32((uint32_t*)&jumptbl->jump_list[tblindex]->x86_address_to);
 
 	// Change C8 PC
 	C8_STATE::C8_incrementPC();

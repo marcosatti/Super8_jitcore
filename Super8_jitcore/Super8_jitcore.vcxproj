@@ -158,6 +158,7 @@
     <ClInclude Include="Chip8KeyEngine.h" />
     <ClInclude Include="Chip8TimersEngine.h" />
     <ClInclude Include="Chip8Engine_CodeEmitter_x86.h" />
+    <ClInclude Include="FastArrayList.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="SDLGlobals.h" />
     <ClInclude Include="stdafx.h" />
@@ -181,6 +182,7 @@
     <ClCompile Include="Chip8Engine_CodeEmitter_x86_Jump.cpp" />
     <ClCompile Include="Chip8Engine_CodeEmitter_x86_MOV.cpp" />
     <ClCompile Include="Chip8Engine_CodeEmitter_x86_SUB.cpp" />
+    <ClCompile Include="FastArrayList.cpp" />
     <ClCompile Include="SDLGlobals.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>

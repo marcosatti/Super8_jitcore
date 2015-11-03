@@ -28,6 +28,12 @@
     <Filter Include="Resource Files\chip8roms">
       <UniqueIdentifier>{d937cb8c-941d-42fb-acdc-24708e49048f}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\FastArrayList">
+      <UniqueIdentifier>{66f4a59c-c71a-42ca-ba5b-e33624cacd85}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\FastArrayList">
+      <UniqueIdentifier>{c3c4e838-5212-4e10-b86c-6c93838b2d73}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
@@ -79,6 +85,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="SDLGlobals.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="FastArrayList.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -142,6 +151,9 @@
     </ClCompile>
     <ClCompile Include="Chip8Engine_CodeEmitter_x86_SUB.cpp">
       <Filter>Source Files\Dynarec_x86</Filter>
+    </ClCompile>
+    <ClCompile Include="FastArrayList.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
