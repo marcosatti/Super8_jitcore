@@ -1,11 +1,9 @@
 #include "stdafx.h"
 #include "Chip8Engine_StackHandler.h"
 
-
 Chip8Engine_StackHandler::Chip8Engine_StackHandler()
 {
 }
-
 
 Chip8Engine_StackHandler::~Chip8Engine_StackHandler()
 {

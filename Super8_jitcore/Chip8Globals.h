@@ -8,16 +8,16 @@
 #include "Chip8Engine_Interpreter.h"
 #include "Chip8Engine_Dynarec.h"
 #include "Chip8Engine_CacheHandler.h"
-#include "Chip8TimersEngine.h"
+#include "Chip8Engine_Timers.h"
 #include "Chip8Engine_StackHandler.h"
 #include "Chip8Engine_JumpHandler.h"
-#include "Chip8KeyEngine.h"
+#include "Chip8Engine_Key.h"
 
 // Forward decl's
 class Chip8Engine_JumpHandler;
 class Chip8Engine_Interpreter;
 class Chip8Engine_Dynarec;
-class Chip8TimersEngine;
+class Chip8Engine_Timers;
 class Chip8Engine_CodeEmitter_x86;
 class Chip8Engine_CacheHandler;
 
@@ -29,12 +29,12 @@ namespace Chip8Globals {
 	extern Chip8Engine_CacheHandler * cache;
 	extern Chip8Engine_JumpHandler * jumptbl;
 	extern Chip8Engine_CodeEmitter_x86 * emitter;
-	extern Chip8KeyEngine * key;
-	extern Chip8TimersEngine * timers;
+	extern Chip8Engine_Key * key;
+	extern Chip8Engine_Timers * timers;
 
 	extern uint32_t translate_cycles;
 
 	extern bool drawflag;
-	bool getDrawFlag();
-	void setDrawFlag(bool isdraw);
+	extern bool getDrawFlag();
+	extern void setDrawFlag(bool isdraw);
 }

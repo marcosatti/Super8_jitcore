@@ -77,5 +77,5 @@ public:
 private:
 	int32_t allocNewCacheByC8PC(uint16_t c8_start_pc_); // The main allocation function
 	int32_t allocAndSwitchNewCacheByC8PC(uint16_t c8_start_pc_);
+	void deallocAllCacheExit();
 };
-

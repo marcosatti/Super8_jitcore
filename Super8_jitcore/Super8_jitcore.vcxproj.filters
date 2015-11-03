@@ -48,12 +48,6 @@
     <ClInclude Include="Chip8Engine.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Chip8KeyEngine.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Chip8TimersEngine.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Chip8Globals.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -88,7 +82,13 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="FastArrayList.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\FastArrayList</Filter>
+    </ClInclude>
+    <ClInclude Include="Chip8Engine_Key.h">
+      <Filter>Header Files\Dynarec_x86</Filter>
+    </ClInclude>
+    <ClInclude Include="Chip8Engine_Timers.h">
+      <Filter>Header Files\Dynarec_x86</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -96,12 +96,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Chip8Engine.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Chip8KeyEngine.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Chip8TimersEngine.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Super8.cpp">
@@ -153,6 +147,15 @@
       <Filter>Source Files\Dynarec_x86</Filter>
     </ClCompile>
     <ClCompile Include="FastArrayList.cpp">
+      <Filter>Source Files\FastArrayList</Filter>
+    </ClCompile>
+    <ClCompile Include="Chip8Engine_Key.cpp">
+      <Filter>Source Files\Dynarec_x86</Filter>
+    </ClCompile>
+    <ClCompile Include="Chip8Engine_Timers.cpp">
+      <Filter>Source Files\Dynarec_x86</Filter>
+    </ClCompile>
+    <ClCompile Include="Chip8Engine_HandleInterrupt.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

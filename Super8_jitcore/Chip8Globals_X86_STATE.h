@@ -23,6 +23,6 @@ namespace Chip8Globals {
 		extern uint16_t x86_resume_c8_return_pc; // used with stack interrupts
 		extern X86_STATUS_CODE x86_status_code;
 
-		void DEBUG_printX86_STATE();
+		extern void DEBUG_printX86_STATE();
 	}
 }

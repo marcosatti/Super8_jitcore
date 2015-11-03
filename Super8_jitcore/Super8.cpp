@@ -20,13 +20,13 @@ int main(int argc, char **argv) {
 	// Set up render system and register input callbacks
 	SDLGlobals::setupSDLGraphics();
 	//setupInput();
-	
+
 	// Setup chip8 jitcore emulator
 	Chip8Engine * mChip8 = new Chip8Engine();
 
-	// Initialize the Chip8 system and load the game into the memory  
+	// Initialize the Chip8 system and load the game into the memory
 	mChip8->initialise();
-	mChip8->loadProgram("..\\chip8roms\\PONG");
+	mChip8->loadProgram("..\\chip8roms\\INVADERS");
 
 	// Set keystate initially
 	for (int i = 0; i < 16; i++) {
@@ -61,11 +61,11 @@ int main(int argc, char **argv) {
 		// Print fps
 		ticks = SDL_GetTicks();
 		if ((ticks - ticks_old) > 1000) {
-			if(fps_tex != NULL) SDL_DestroyTexture(fps_tex);
+			if (fps_tex != NULL) SDL_DestroyTexture(fps_tex);
 			sprintf_s(fps_buffer, 255, "FPS: %4.0f fps", (drawcycles - drawcycles_old) * 1000.0 / (ticks - ticks_old));
 			fps_surf = TTF_RenderText_Blended(font, fps_buffer, SDL_COLOR_WHITE);
 			fps_tex = SDL_CreateTextureFromSurface(renderer, fps_surf);
-			SDL_QueryTexture(fps_tex, NULL, NULL, &fps_render_location.w, &fps_render_location.h);			
+			SDL_QueryTexture(fps_tex, NULL, NULL, &fps_render_location.w, &fps_render_location.h);
 			SDL_FreeSurface(fps_surf);
 			sdlgfxupdate = true;
 			drawcycles_old = drawcycles;

@@ -236,7 +236,7 @@ void Chip8Engine_Interpreter::handleOpcodeMSN_8() {
 		//uint8_t vx = (opcode & 0x0F00) >> 8; // Need to bit shift by 16 to get to a single base16 digit.
 		//uint8_t vy = (opcode & 0x00F0) >> 4; // Need to bit shift by 8 to get to a single base16 digit.
 		//if (cpu.V[vy] > cpu.V[vx]) cpu.V[0xF] = 0; // If Vy is larger than Vx, then the result will underflow and the carry flag will be set to 0.
-		//else cpu.V[0xF] = 1; // The result does not underflow and carry flag is set to 1. 
+		//else cpu.V[0xF] = 1; // The result does not underflow and carry flag is set to 1.
 		//cpu.V[vx] = cpu.V[vx] - cpu.V[vy]; // Perform opcode
 		//C8_incrementPC(); // Goto next opcode
 		break;
@@ -258,7 +258,7 @@ void Chip8Engine_Interpreter::handleOpcodeMSN_8() {
 		//uint8_t vx = (opcode & 0x0F00) >> 8; // Need to bit shift by 16 to get to a single base16 digit.
 		//uint8_t vy = (opcode & 0x00F0) >> 4; // Need to bit shift by 8 to get to a single base16 digit.
 		//if (cpu.V[vx] > cpu.V[vy]) cpu.V[0xF] = 0; // If Vx is larger than Vy, then the result will underflow and the carry flag will be set to 0.
-		//else cpu.V[0xF] = 1; // The result does not underflow and carry flag is set to 1. 
+		//else cpu.V[0xF] = 1; // The result does not underflow and carry flag is set to 1.
 		//cpu.V[vx] = cpu.V[vy] - cpu.V[vx]; // Perform opcode
 		//C8_incrementPC(); // Goto next opcode
 		break;
@@ -290,7 +290,7 @@ void Chip8Engine_Interpreter::handleOpcodeMSN_9() {
 		//// TODO: Check if correct
 		//uint8_t vx = (opcode & 0x0F00) >> 8; // Need to bit shift by 8 to get to a single base16 digit.
 		//uint8_t vy = (opcode & 0x00F0) >> 4; // Need to bit shift by 4 to get to a single base16 digit.
-		//if (cpu.V[vx] != cpu.V[vy]) C8_incrementPC(4); // Check if the two registers are not equal, and skip next instruction if true (skips next 2 bytes). 
+		//if (cpu.V[vx] != cpu.V[vy]) C8_incrementPC(4); // Check if the two registers are not equal, and skip next instruction if true (skips next 2 bytes).
 		//else C8_incrementPC(); // Else execute next instruction.
 		break;
 	}
@@ -335,7 +335,7 @@ void Chip8Engine_Interpreter::handleOpcodeMSN_D() {
 				I value doesn’t change after the execution of this instruction.
 				As described above, VF is set to 1 if any screen pixels are flipped from
 				set to unset when the sprite is drawn, and to 0 if that doesn’t happen */
-				// TODO: check if correct. 
+				// TODO: check if correct.
 	uint8_t vx = (opcode & 0x0F00) >> 8; // Need to bit shift by 8 to get to a single base16 digit.
 	uint8_t vy = (opcode & 0x00F0) >> 4; // Need to bit shift by 4 to get to a single base16 digit.
 
@@ -408,104 +408,104 @@ void Chip8Engine_Interpreter::handleOpcodeMSN_E() {
 }
 
 void Chip8Engine_Interpreter::handleOpcodeMSN_F() {
-		switch (opcode & 0x00FF) {
-		case 0x0007:
-		{
-			// 0xFX07: Sets Vx to the value of the delay timer.
-			//// TODO: check if correct.
-			//uint8_t vx = (opcode & 0x0F00) >> 8; // Need to bit shift by 8 to get to a single base16 digit.
-			//cpu.V[vx] = timers->getDelayTimer(); // Get delay timer and store it in Vx.
-			//C8_incrementPC(); // Update PC by 2 bytes
-			break;
-		}
-		case 0x000A:
-		{
-			// 0xFX0A: A key press is awaited, then stored in Vx.
-			// TODO: Check if correct.
-			//bool keypressed = false;
-			//uint8_t vx = (opcode & 0x0F00) >> 8; // Need to bit shift by 8 to get to a single base16 digit.
-			//for (int i = 0; i < NUM_KEYS; i++) {
-			//	uint8_t keystate = key->getKeyState(i); // Get the keystate from the key object.
-			//	if (keystate) {
-			//		C8_STATE::cpu.V[vx] = i; // Set Vx to the key pressed (0x0 -> 0xF).
-			//		keypressed = true;
-			//	}
-			//}
-			//if (!keypressed) return; // Dont update PC if no key was pressed.
-			//C8_incrementPC(); // Update PC by 2 bytes
-			break;
-		}
-		case 0x0015:
-		{
-			// 0xFX15: Sets the delay timer to Vx.
-			//// TODO: check if correct.
-			//uint8_t vx = (opcode & 0x0F00) >> 8; // Need to bit shift by 8 to get to a single base16 digit.
-			//timers->setDelayTimer(cpu.V[vx]);
-			//C8_incrementPC(); // Update PC by 2 bytes
-			break;
-		}
-		case 0x0018:
-		{
-			// 0xFX18: Sets the sound timer to Vx.
-			//// TODO: check if correct.
-			//uint8_t vx = (opcode & 0x0F00) >> 8; // Need to bit shift by 8 to get to a single base16 digit.
-			//timers->setSoundTimer(cpu.V[vx]);
-			//C8_incrementPC(); // Update PC by 2 bytes
-			break;
-		}
-		case 0x001E:
-		{
-			// 0xFX1E: Adds Vx to I.		
-			//// TODO: check if correct.
-			//uint8_t vx = (opcode & 0x0F00) >> 8; // Need to bit shift by 8 to get to a single base16 digit.
-			//cpu.I = cpu.I + cpu.V[vx];
-			//C8_incrementPC(); // Update PC by 2 bytes
-			break;
-		}
-		case 0x0029:
-		{
-			// 0xFX29: Sets I to the location of the sprite for the character in Vx. Chars 0-F (in hex) are represented by a 4x5 font.
-			//         ie: if V[x] = 0xA, set I to location of A in font sheet. Note that sprites are 8-bits wide, while fonts are 4-bits, so
-			//             the 4-bits at the end are padded (0's).
-			//// TODO: check if correct.
-			//uint8_t vx = (opcode & 0x0F00) >> 8; // Need to bit shift by 8 to get to a single base16 digit.
-			//cpu.I = cpu.V[vx] * FONT_WIDTH; // Set I to the location of the first byte of the font needed within the font set.
-			//C8_incrementPC(); // Update PC by 2 bytes
-			break;
-		}
-		case 0x0033:
-		{
-			// 0xFX33: Splits the decimal representation of Vx into 3 locations: hundreds stored in address I, tens in address I+1, and ones in I+2.
-			//uint8_t vx = (opcode & 0x0F00) >> 8; // Need to bit shift by 8 to get to a single base16 digit.
-			//C8_STATE::memory[C8_STATE::cpu.I] = C8_STATE::cpu.V[vx] / 100; // Hundreds go into address I
-			//C8_STATE::memory[C8_STATE::cpu.I + 1] = (C8_STATE::cpu.V[vx] % 100) / 10; // Tens go into address I+1
-			//C8_STATE::memory[C8_STATE::cpu.I + 2] = (C8_STATE::cpu.V[vx] % 100) % 10 /* / 1 */; // Ones go into address I+2
-			break;
-		}
-		case 0x0055:
-		{
-			// 0xFX55: Copies all current values in registers V0 -> Vx to memory starting at address I.
-			// TODO: check if correct.
-			//uint8_t vx = (opcode & 0x0F00) >> 8; // Need to bit shift by 8 to get to a single base16 digit.
-			//for (int i = 0x0; i <= vx; i++) {
-			//	C8_STATE::memory[C8_STATE::cpu.I + i] = C8_STATE::cpu.V[i];
-			//}
-			break;
-		}
-		case 0x0065:
-		{
-			// 0xFX65: Copies memory starting from address I to all registers V0 -> Vx.
-			// TODO: check if correct.
-			//uint8_t vx = (opcode & 0x0F00) >> 8; // Need to bit shift by 8 to get to a single base16 digit.
-			//for (int i = 0x0; i <= vx; i++) {
-			//	C8_STATE::cpu.V[i] = C8_STATE::memory[C8_STATE::cpu.I + i];
-			//}
-			break;
-		}
-		default:
-		{
-			std::cout << "Unknown Opcode detected (in 0xF000)" << std::endl;
-			break;
-		}
-		}
+	switch (opcode & 0x00FF) {
+	case 0x0007:
+	{
+		// 0xFX07: Sets Vx to the value of the delay timer.
+		//// TODO: check if correct.
+		//uint8_t vx = (opcode & 0x0F00) >> 8; // Need to bit shift by 8 to get to a single base16 digit.
+		//cpu.V[vx] = timers->getDelayTimer(); // Get delay timer and store it in Vx.
+		//C8_incrementPC(); // Update PC by 2 bytes
+		break;
 	}
+	case 0x000A:
+	{
+		// 0xFX0A: A key press is awaited, then stored in Vx.
+		// TODO: Check if correct.
+		//bool keypressed = false;
+		//uint8_t vx = (opcode & 0x0F00) >> 8; // Need to bit shift by 8 to get to a single base16 digit.
+		//for (int i = 0; i < NUM_KEYS; i++) {
+		//	uint8_t keystate = key->getKeyState(i); // Get the keystate from the key object.
+		//	if (keystate) {
+		//		C8_STATE::cpu.V[vx] = i; // Set Vx to the key pressed (0x0 -> 0xF).
+		//		keypressed = true;
+		//	}
+		//}
+		//if (!keypressed) return; // Dont update PC if no key was pressed.
+		//C8_incrementPC(); // Update PC by 2 bytes
+		break;
+	}
+	case 0x0015:
+	{
+		// 0xFX15: Sets the delay timer to Vx.
+		//// TODO: check if correct.
+		//uint8_t vx = (opcode & 0x0F00) >> 8; // Need to bit shift by 8 to get to a single base16 digit.
+		//timers->setDelayTimer(cpu.V[vx]);
+		//C8_incrementPC(); // Update PC by 2 bytes
+		break;
+	}
+	case 0x0018:
+	{
+		// 0xFX18: Sets the sound timer to Vx.
+		//// TODO: check if correct.
+		//uint8_t vx = (opcode & 0x0F00) >> 8; // Need to bit shift by 8 to get to a single base16 digit.
+		//timers->setSoundTimer(cpu.V[vx]);
+		//C8_incrementPC(); // Update PC by 2 bytes
+		break;
+	}
+	case 0x001E:
+	{
+		// 0xFX1E: Adds Vx to I.
+		//// TODO: check if correct.
+		//uint8_t vx = (opcode & 0x0F00) >> 8; // Need to bit shift by 8 to get to a single base16 digit.
+		//cpu.I = cpu.I + cpu.V[vx];
+		//C8_incrementPC(); // Update PC by 2 bytes
+		break;
+	}
+	case 0x0029:
+	{
+		// 0xFX29: Sets I to the location of the sprite for the character in Vx. Chars 0-F (in hex) are represented by a 4x5 font.
+		//         ie: if V[x] = 0xA, set I to location of A in font sheet. Note that sprites are 8-bits wide, while fonts are 4-bits, so
+		//             the 4-bits at the end are padded (0's).
+		//// TODO: check if correct.
+		//uint8_t vx = (opcode & 0x0F00) >> 8; // Need to bit shift by 8 to get to a single base16 digit.
+		//cpu.I = cpu.V[vx] * FONT_WIDTH; // Set I to the location of the first byte of the font needed within the font set.
+		//C8_incrementPC(); // Update PC by 2 bytes
+		break;
+	}
+	case 0x0033:
+	{
+		// 0xFX33: Splits the decimal representation of Vx into 3 locations: hundreds stored in address I, tens in address I+1, and ones in I+2.
+		//uint8_t vx = (opcode & 0x0F00) >> 8; // Need to bit shift by 8 to get to a single base16 digit.
+		//C8_STATE::memory[C8_STATE::cpu.I] = C8_STATE::cpu.V[vx] / 100; // Hundreds go into address I
+		//C8_STATE::memory[C8_STATE::cpu.I + 1] = (C8_STATE::cpu.V[vx] % 100) / 10; // Tens go into address I+1
+		//C8_STATE::memory[C8_STATE::cpu.I + 2] = (C8_STATE::cpu.V[vx] % 100) % 10 /* / 1 */; // Ones go into address I+2
+		break;
+	}
+	case 0x0055:
+	{
+		// 0xFX55: Copies all current values in registers V0 -> Vx to memory starting at address I.
+		// TODO: check if correct.
+		//uint8_t vx = (opcode & 0x0F00) >> 8; // Need to bit shift by 8 to get to a single base16 digit.
+		//for (int i = 0x0; i <= vx; i++) {
+		//	C8_STATE::memory[C8_STATE::cpu.I + i] = C8_STATE::cpu.V[i];
+		//}
+		break;
+	}
+	case 0x0065:
+	{
+		// 0xFX65: Copies memory starting from address I to all registers V0 -> Vx.
+		// TODO: check if correct.
+		//uint8_t vx = (opcode & 0x0F00) >> 8; // Need to bit shift by 8 to get to a single base16 digit.
+		//for (int i = 0x0; i <= vx; i++) {
+		//	C8_STATE::cpu.V[i] = C8_STATE::memory[C8_STATE::cpu.I + i];
+		//}
+		break;
+	}
+	default:
+	{
+		std::cout << "Unknown Opcode detected (in 0xF000)" << std::endl;
+		break;
+	}
+	}
+}

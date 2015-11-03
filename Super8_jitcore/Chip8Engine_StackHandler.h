@@ -23,6 +23,4 @@ public:
 	void setTopStack(STACK_ENTRY entry);
 	STACK_ENTRY getTopStack();
 private:
-
 };
-

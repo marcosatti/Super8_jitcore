@@ -49,13 +49,13 @@ namespace Chip8Globals {
 			0xF0, 0x80, 0x80, 0x80, 0xF0,		// C
 			0xE0, 0x90, 0x90, 0x90, 0xE0,		// D
 			0xF0, 0x80, 0xF0, 0x80, 0xF0,		// E
-			0xF0, 0x80, 0xF0, 0x80, 0x80		// F 
+			0xF0, 0x80, 0xF0, 0x80, 0x80		// F
 		};
-		#define FONT_WIDTH 5
-		#define FONTSET_SZ (sizeof(Chip8Globals::C8_STATE::chip8_fontset)/sizeof(Chip8Globals::C8_STATE::chip8_fontset[0]))
+#define FONT_WIDTH 5
+#define FONTSET_SZ (sizeof(Chip8Globals::C8_STATE::chip8_fontset)/sizeof(Chip8Globals::C8_STATE::chip8_fontset[0]))
 
 		extern uint16_t rom_sz;
 
-		void DEBUG_printC8_STATE();
+		extern void DEBUG_printC8_STATE();
 	}
 }

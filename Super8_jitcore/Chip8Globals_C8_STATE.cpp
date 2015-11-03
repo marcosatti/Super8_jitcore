@@ -5,7 +5,6 @@
 
 namespace Chip8Globals {
 	namespace C8_STATE {
-
 		C8_CPU cpu;
 		uint8_t * memory; // 4096 (0x1000) bytes of memory in total, assumed to be allocated before class initialisation.
 		uint8_t * gfxmem; // 2048 (64x32) array containing pixel data (1 or 0) TODO: might be able to change this into a bool array or multiple ints (efficiency)?

@@ -28,6 +28,6 @@ namespace SDLGlobals {
 
 	extern int pitch;
 
-	void setupSDLGraphics();
-	void exitSDLGraphics();
+	extern void setupSDLGraphics();
+	extern void exitSDLGraphics();
 }

@@ -126,4 +126,3 @@ private:
 	// Helper function for SIB (scale-index-base) byte of opcodes (TODO: make inline)
 	uint8_t SclIdxBase(uint8_t scale, X86Register index, X86Register base);
 };
-

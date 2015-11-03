@@ -7,7 +7,6 @@ Chip8Engine_JumpHandler::Chip8Engine_JumpHandler() : jump_list(1024), cond_jump_
 {
 }
 
-
 Chip8Engine_JumpHandler::~Chip8Engine_JumpHandler()
 {
 }
@@ -19,7 +18,7 @@ int32_t Chip8Engine_JumpHandler::recordJumpEntry(uint16_t c8_to_)
 	entry.x86_address_to = NULL; // JMP_M_PTR_32 uses this value (unknown at beginning)
 	entry.filled_flag = 0;
 	jump_list.push_back(entry);
-	printf("JumpHandler: Jump[%d] recorded. C8_to = 0x%.4X\n", jump_list.size()-1, c8_to_);
+	printf("JumpHandler: Jump[%d] recorded. C8_to = 0x%.4X\n", jump_list.size() - 1, c8_to_);
 	return (jump_list.size() - 1);
 }
 

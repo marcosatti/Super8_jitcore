@@ -16,7 +16,6 @@ namespace SDLGlobals {
 	SDL_Rect fps_render_location = { 0,0,0,0 };
 	SDL_Rect cycle_render_location = { 0,0,0,0 };
 
-
 	uint32_t * SDL_gfxmem; // Apparently SDL is using 32bit pixels always even though its RGB888 (24)? Anyway, the higher order bits are unused (remember: little-endian on intel x86, number stored in memory back to front)
 	int pitch;
 
@@ -32,7 +31,7 @@ namespace SDLGlobals {
 		// init window, renderer, memory and texture
 		if ((window = SDL_CreateWindow("Super8_jitcore", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 1024, 768, SDL_WINDOW_SHOWN)) == NULL) exit(1);
 		if ((renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED)) == NULL) exit(1);
-		if ((texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGB888, SDL_TEXTUREACCESS_STREAMING, 64, 32)) == NULL) exit(1);		
+		if ((texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGB888, SDL_TEXTUREACCESS_STREAMING, 64, 32)) == NULL) exit(1);
 		if (TTF_Init() != 0) exit(1);
 		if ((font = TTF_OpenFont("..\\fonts\\OpenSans-Regular.ttf", 18)) == NULL) exit(1);
 	}

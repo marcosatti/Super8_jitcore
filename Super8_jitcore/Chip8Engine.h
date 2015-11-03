@@ -31,5 +31,12 @@ public:
 	void DEBUG_renderGFXText();
 
 private:
-	
+	void handleInterrupt_PREPARE_FOR_JUMP();
+	void handleInterrupt_USE_INTERPRETER();
+	void handleInterrupt_OUT_OF_CODE();
+	void handleInterrupt_PREPARE_FOR_INDIRECT_JUMP();
+	void handleInterrupt_SELF_MODIFYING_CODE();
+	void handleInterrupt_DEBUG();
+	void handleInterrupt_WAIT_FOR_KEYPRESS();
+	void handleInterrupt_PREPARE_FOR_STACK_JUMP();
 };

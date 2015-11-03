@@ -31,5 +31,4 @@ public:
 	void handleOpcodeMSN_E();
 	void handleOpcodeMSN_F();
 private:
-	
 };

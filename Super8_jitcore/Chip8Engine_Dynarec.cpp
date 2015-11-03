@@ -72,8 +72,6 @@ void Chip8Engine_Dynarec::emulateTranslatorCycle() {
 		std::cout << "Unknown Opcode detected! Skipping.";
 		break;
 	}
-
-
 }
 
 void Chip8Engine_Dynarec::emulateTranslatorTimers()
@@ -160,12 +158,12 @@ void Chip8Engine_Dynarec::handleOpcodeMSN_1() {
 	cache->setCacheEndC8PCCurrent(C8_STATE::cpu.pc);
 	// Change PC to jump location
 	C8_STATE::cpu.pc = jump_c8_pc;
-} 
+}
 
 void Chip8Engine_Dynarec::handleOpcodeMSN_2() {
 	// Only one subtype of opcode in this branch
 	// 0x2NNN calls the subroutine at address 0xNNN - direct jump, however handle using stack
-	
+
 	// Debug
 	//emitter->DYNAREC_EMIT_INTERRUPT(X86_STATE::DEBUG, C8_STATE::opcode);
 
@@ -195,7 +193,7 @@ void Chip8Engine_Dynarec::handleOpcodeMSN_3() {
 	// Emit conditional code
 	emitter->MOV_MtoR_8(al, &C8_STATE::cpu.V[vx]);
 	emitter->CMP_RwithImm_8(al, num);
-	emitter->JE_8(0x00); // to fill in by jump table	
+	emitter->JE_8(0x00); // to fill in by jump table
 
 	// Change C8 PC
 	C8_STATE::C8_incrementPC();
@@ -211,11 +209,11 @@ void Chip8Engine_Dynarec::handleOpcodeMSN_4() {
 
 	// First record jump in jump table if DNE (so it will get updated on every translator loop)
 	jumptbl->recordConditionalJumpEntry(C8_STATE::cpu.pc, C8_STATE::cpu.pc + 4, 2, cache->getEndX86AddressCurrent() + 11 - 1); // address is located at current x86 pc + length of emitted code below (6 + 3 + 2 = 11 bytes) - 1 (relative takes up 1 byte)
-	
+
 	// Emit conditional code
 	emitter->MOV_MtoR_8(al, &C8_STATE::cpu.V[vx]);
 	emitter->CMP_RwithImm_8(al, num);
-	emitter->JNE_8(0x00); // to fill in by jump table	
+	emitter->JNE_8(0x00); // to fill in by jump table
 
 	// Change C8 PC
 	C8_STATE::C8_incrementPC();
@@ -236,7 +234,7 @@ void Chip8Engine_Dynarec::handleOpcodeMSN_5() {
 	emitter->MOV_MtoR_8(al, &C8_STATE::cpu.V[vx]);
 	emitter->MOV_MtoR_8(cl, &C8_STATE::cpu.V[vy]);
 	emitter->CMP_RwithR_8(al, cl);
-	emitter->JE_8(0x00); // to fill in by jump table	
+	emitter->JE_8(0x00); // to fill in by jump table
 
 	// Change C8 PC
 	C8_STATE::C8_incrementPC();
@@ -403,12 +401,12 @@ void Chip8Engine_Dynarec::handleOpcodeMSN_9() {
 
 		// First record jump in jump table if DNE (so it will get updated on every translator loop)
 		jumptbl->recordConditionalJumpEntry(C8_STATE::cpu.pc, C8_STATE::cpu.pc + 4, 2, cache->getEndX86AddressCurrent() + 16 - 1); // address is located at current x86 pc + length of emitted code below (6 + 6 + 2 + 2 = 16 bytes) - 1 (relative takes up 1 byte)
-		
+
 		// Emit conditional code
 		emitter->MOV_MtoR_8(al, &C8_STATE::cpu.V[vx]);
 		emitter->MOV_MtoR_8(cl, &C8_STATE::cpu.V[vy]);
 		emitter->CMP_RwithR_8(al, cl);
-		emitter->JNE_8(0x00); // to fill in by jump table	
+		emitter->JNE_8(0x00); // to fill in by jump table
 
 		// Change C8 PC
 		C8_STATE::C8_incrementPC();
@@ -451,6 +449,7 @@ void Chip8Engine_Dynarec::handleOpcodeMSN_B() {
 	emitter->MOV_ImmtoR_16(ax, num);
 	emitter->ADD_MtoR_8(al, &C8_STATE::cpu.V[0]);
 	emitter->MOV_RtoM_16(&jumptbl->jump_list[tblindex]->c8_address_to, ax);
+	emitter->MOV_ImmtoM_8(&jumptbl->jump_list[tblindex]->filled_flag, 0); // Need to reset filled flag to 0
 	emitter->DYNAREC_EMIT_INTERRUPT(X86_STATE::PREPARE_FOR_INDIRECT_JUMP, C8_STATE::opcode);
 	emitter->JMP_M_PTR_32((uint32_t*)&jumptbl->jump_list[tblindex]->x86_address_to);
 
@@ -480,8 +479,8 @@ void Chip8Engine_Dynarec::handleOpcodeMSN_D() {
 				I value doesn’t change after the execution of this instruction.
 				As described above, VF is set to 1 if any screen pixels are flipped from
 				set to unset when the sprite is drawn, and to 0 if that doesn’t happen */
-	// TODO: check if correct. 
-	// check if in sync
+				// TODO: check if correct.
+				// check if in sync
 	emitter->DYNAREC_EMIT_INTERRUPT(X86_STATE::USE_INTERPRETER, C8_STATE::opcode);
 	C8_STATE::C8_incrementPC();
 }
@@ -506,7 +505,7 @@ void Chip8Engine_Dynarec::handleOpcodeMSN_E() {
 		emitter->ADD_RtoR_8(al, cl); // CAREFUL! No bounds checking, so cl must be less than 16 (dec) in order to stay in array bounds
 		emitter->MOV_PTRtoR_8(dl, eax);
 		emitter->CMP_RwithImm_8(dl, 1);
-		emitter->JE_8(0x00); // to fill in by jump table	
+		emitter->JE_8(0x00); // to fill in by jump table
 
 		// Change C8 PC
 		C8_STATE::C8_incrementPC();
@@ -529,7 +528,7 @@ void Chip8Engine_Dynarec::handleOpcodeMSN_E() {
 		emitter->ADD_RtoR_8(al, cl); // CAREFUL! No bounds checking, so cl must be less than 16 (dec) in order to stay in array bounds
 		emitter->MOV_PTRtoR_8(dl, eax);
 		emitter->CMP_RwithImm_8(dl, 0);
-		emitter->JE_8(0x00); // to fill in by jump table	
+		emitter->JE_8(0x00); // to fill in by jump table
 
 		// Change C8 PC
 		C8_STATE::C8_incrementPC();
@@ -590,7 +589,7 @@ void Chip8Engine_Dynarec::handleOpcodeMSN_F() {
 	}
 	case 0x001E:
 	{
-		// 0xFX1E: Adds Vx to I.		
+		// 0xFX1E: Adds Vx to I.
 		// TODO: check if correct.
 		uint8_t vx = (C8_STATE::opcode & 0x0F00) >> 8; // Need to bit shift by 8 to get to a single base16 digit.
 		emitter->MOV_MtoR_16(ax, &C8_STATE::cpu.I);

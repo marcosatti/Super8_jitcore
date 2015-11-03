@@ -28,6 +28,7 @@ FastArrayList<T>::FastArrayList(uint32_t sz)
 template<typename T>
 FastArrayList<T>::~FastArrayList()
 {
+	delete list;
 }
 
 template<typename T>
@@ -50,7 +51,7 @@ int32_t FastArrayList<T>::remove(int32_t index)
 	if (index == list_size - 1) list_size -= 1; // Dont have to copy anything
 	else if (index >= list_size || index < 0) return -1; // Not a valid index
 	else {
-		for (int32_t i = index; i < list_size-1; i++) {
+		for (int32_t i = index; i < list_size - 1; i++) {
 			memcpy(list + i, list + i + 1, sizeof(T));
 		}
 		list_size -= 1;

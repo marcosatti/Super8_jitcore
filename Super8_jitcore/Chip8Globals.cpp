@@ -10,8 +10,8 @@ namespace Chip8Globals {
 	Chip8Engine_CacheHandler * cache;
 	Chip8Engine_JumpHandler * jumptbl;
 	Chip8Engine_CodeEmitter_x86 * emitter;
-	Chip8KeyEngine * key;
-	Chip8TimersEngine * timers;
+	Chip8Engine_Key * key;
+	Chip8Engine_Timers * timers;
 
 	uint32_t translate_cycles;
 

@@ -21,14 +21,14 @@ void Chip8Engine_CodeEmitter_x86::ADD_MtoR_8(X86Register dest, uint8_t* source)
 {
 	cache->write8(0x02);
 	cache->write8(ModRegRM(0, dest, (X86Register)MODREGRM_RM_DISP32));
-	cache->write32((uint32_t)source); 
+	cache->write32((uint32_t)source);
 }
 
 void Chip8Engine_CodeEmitter_x86::ADD_MtoR_32(X86Register dest, uint32_t* source)
 {
 	cache->write8(0x03);
 	cache->write8(ModRegRM(0, dest, (X86Register)MODREGRM_RM_DISP32));
-	cache->write32((uint32_t)source); 
+	cache->write32((uint32_t)source);
 }
 
 void Chip8Engine_CodeEmitter_x86::ADD_RtoR_8(X86Register dest, X86Register source)
