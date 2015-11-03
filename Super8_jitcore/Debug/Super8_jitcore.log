@@ -1,9 +1,23 @@
-﻿Build started 3/11/2015 5:13:17 PM.
+﻿Build started 3/11/2015 5:23:36 PM.
      1>Project "C:\Shared\Dev\Projects\Super8_jitcore\Super8_jitcore\Super8_jitcore.vcxproj" on node 2 (Build target(s)).
      1>ClCompile:
-         C:\Shared\Dev\IDE\Microsoft Visual Studio 14.0\VC\bin\CL.exe /c /ZI /nologo /W3 /WX- /sdl /Od /Oy- /D WIN32 /D _DEBUG /D _CONSOLE /D _UNICODE /D UNICODE /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Yu"stdafx.h" /Fp"Debug\Super8_jitcore.pch" /Fo"Debug\\" /Fd"Debug\vc140.pdb" /Gd /TP /analyze- /errorReport:prompt Chip8Engine.cpp Chip8Engine_Dynarec.cpp Chip8Engine_JumpHandler.cpp
+         C:\Shared\Dev\IDE\Microsoft Visual Studio 14.0\VC\bin\CL.exe /c /ZI /nologo /W3 /WX- /sdl /Od /Oy- /D WIN32 /D _DEBUG /D _CONSOLE /D _UNICODE /D UNICODE /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Yu"stdafx.h" /Fp"Debug\Super8_jitcore.pch" /Fo"Debug\\" /Fd"Debug\vc140.pdb" /Gd /TP /analyze- /errorReport:prompt Chip8Engine.cpp Chip8Engine_CacheHandler.cpp Chip8Engine_CodeEmitter_x86.cpp Chip8Engine_CodeEmitter_x86_ADD.cpp Chip8Engine_CodeEmitter_x86_Bitwise.cpp Chip8Engine_CodeEmitter_x86_Jump.cpp Chip8Engine_CodeEmitter_x86_MOV.cpp Chip8Engine_CodeEmitter_x86_SUB.cpp Chip8Engine_Dynarec.cpp Chip8Engine_Interpreter.cpp Chip8Engine_JumpHandler.cpp Chip8Globals.cpp Chip8Globals_C8_STATE.cpp Chip8TimersEngine.cpp Super8.cpp
          Chip8Engine_JumpHandler.cpp
+         Generating Code...
+         Compiling...
+         Super8.cpp
+         Chip8TimersEngine.cpp
+         Chip8Globals_C8_STATE.cpp
+         Chip8Globals.cpp
+         Chip8Engine_Interpreter.cpp
          Chip8Engine_Dynarec.cpp
+         Chip8Engine_CodeEmitter_x86_SUB.cpp
+         Chip8Engine_CodeEmitter_x86_MOV.cpp
+         Chip8Engine_CodeEmitter_x86_Jump.cpp
+         Chip8Engine_CodeEmitter_x86_Bitwise.cpp
+         Chip8Engine_CodeEmitter_x86_ADD.cpp
+         Chip8Engine_CodeEmitter_x86.cpp
+         Chip8Engine_CacheHandler.cpp
          Chip8Engine.cpp
          Generating Code...
        Link:
@@ -38,4 +52,4 @@
 
 Build succeeded.
 
-Time Elapsed 00:00:02.27
+Time Elapsed 00:00:09.67

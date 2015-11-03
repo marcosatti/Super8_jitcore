@@ -1,7 +1,6 @@
 #pragma once
 
 #include <cstdint>
-#include <vector>
 #include "Chip8Globals.h"
 
 struct JUMP_ENTRY {
