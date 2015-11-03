@@ -15,12 +15,6 @@ Chip8Engine_Dynarec::~Chip8Engine_Dynarec()
 	delete emitter;
 }
 
-void Chip8Engine_Dynarec::initialiseFirstMemoryRegion()
-{
-	cache->allocAndSwitchNewCacheByC8PC(C8_STATE::cpu.pc);
-	X86_STATE::x86_resume_address = cache->getCacheInfoCurrent()->x86_mem_address;
-}
-
 void Chip8Engine_Dynarec::emulateTranslatorCycle() {
 	// Decode Opcode
 	// Initially work out what type of opcode it is by AND with 0xF000 and branch from that (looks at MSB)
@@ -156,7 +150,7 @@ void Chip8Engine_Dynarec::handleOpcodeMSN_1() {
 	}
 
 	// Need to check/alloc jump location caches
-	cache->allocNewCacheByJumpC8PC(jump_c8_pc);
+	cache->getCacheByStartC8PC(jump_c8_pc);
 
 	// Emit jump
 	emitter->DYNAREC_EMIT_INTERRUPT(X86_STATE::PREPARE_FOR_JUMP, jump_c8_pc);
@@ -504,13 +498,13 @@ void Chip8Engine_Dynarec::handleOpcodeMSN_E() {
 		//if (key->getKeyState(cpu.V[vx]) == 1) cpu.pc += 2;
 
 		// First record jump in jump table if DNE (so it will get updated on every translator loop)
-		jumptbl->recordConditionalJumpEntry(C8_STATE::cpu.pc, C8_STATE::cpu.pc + 4, 2, cache->getEndX86AddressCurrent() + 21 - 1); // address is located at current x86 pc + length of emitted code below (6 + 6 + 2 + 2 + 3 + 2 = 21 bytes) - 1 (relative takes up 1 byte)
+		jumptbl->recordConditionalJumpEntry(C8_STATE::cpu.pc, C8_STATE::cpu.pc + 4, 2, cache->getEndX86AddressCurrent() + 20 - 1); // address is located at current x86 pc + length of emitted code below (6 + 6 + 2 + 2 + 3 + 2 = 20 bytes) - 1 (relative takes up 1 byte)
 
 		// Emit conditional code
 		emitter->MOV_MtoR_8(cl, C8_STATE::cpu.V + vx);
-		emitter->MOV_MtoR_8(al, key->key);
+		emitter->MOV_ImmtoR_32(eax, (uint32_t)key->key);
 		emitter->ADD_RtoR_8(al, cl); // CAREFUL! No bounds checking, so cl must be less than 16 (dec) in order to stay in array bounds
-		emitter->MOV_PTRtoR_8(dl, al);
+		emitter->MOV_PTRtoR_8(dl, eax);
 		emitter->CMP_RwithImm_8(dl, 1);
 		emitter->JE_8(0x00); // to fill in by jump table	
 
@@ -527,13 +521,13 @@ void Chip8Engine_Dynarec::handleOpcodeMSN_E() {
 		//if (key->getKeyState(cpu.V[vx]) == 1) cpu.pc += 2;
 
 		// First record jump in jump table
-		jumptbl->recordConditionalJumpEntry(C8_STATE::cpu.pc, C8_STATE::cpu.pc + 4, 2, cache->getEndX86AddressCurrent() + 21 - 1); // address is located at current x86 pc + length of emitted code below (6 + 6 + 2 + 2 + 3 + 2 = 21 bytes) - 1 (relative takes up 1 byte)
+		jumptbl->recordConditionalJumpEntry(C8_STATE::cpu.pc, C8_STATE::cpu.pc + 4, 2, cache->getEndX86AddressCurrent() + 20 - 1); // address is located at current x86 pc + length of emitted code below (6 + 5 + 2 + 2 + 3 + 2 = 20 bytes) - 1 (relative takes up 1 byte)
 
 		// Emit conditional code
 		emitter->MOV_MtoR_8(cl, C8_STATE::cpu.V + vx);
-		emitter->MOV_MtoR_8(al, key->key);
+		emitter->MOV_ImmtoR_32(eax, (uint32_t)key->key);
 		emitter->ADD_RtoR_8(al, cl); // CAREFUL! No bounds checking, so cl must be less than 16 (dec) in order to stay in array bounds
-		emitter->MOV_PTRtoR_8(dl, al);
+		emitter->MOV_PTRtoR_8(dl, eax);
 		emitter->CMP_RwithImm_8(dl, 0);
 		emitter->JE_8(0x00); // to fill in by jump table	
 

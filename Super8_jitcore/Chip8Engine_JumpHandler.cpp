@@ -96,7 +96,7 @@ void Chip8Engine_JumpHandler::checkAndFillJumpsByStartC8PC()
 	for (int32_t i = 0; i < (int32_t)jump_list.size(); i++) {
 		// Jump cache handling done by CacheHandler, so this function just updates the jump table locations
 		CACHE_REGION * region = NULL;
-		int32_t index = cache->allocNewCacheByJumpC8PC(jump_list[i].c8_address_to);
+		int32_t index = cache->getCacheByStartC8PC(jump_list[i].c8_address_to);
 		region = cache->getCacheInfoByIndex(index);
 		jump_list[i].x86_address_to = region->x86_mem_address;
 		//printf("JumpHandler: C8 Jump[%d] Updated: 0x%.4X--> 0x%.4X. Address 0x%.8X written to x86_address_to (jump to cache[%d])\n", i, jump_list[i].c8_address_from, jump_list[i].c8_address_to, (uint32_t)region->x86_mem_address, index);

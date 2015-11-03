@@ -32,12 +32,9 @@ namespace Chip8Globals {
 	extern Chip8KeyEngine * key;
 	extern Chip8TimersEngine * timers;
 
-	extern bool drawflag;
-
 	extern uint32_t translate_cycles;
-	extern bool dynarec_break_loop;
 
-	extern uint64_t drawcycles;
+	extern bool drawflag;
 	bool getDrawFlag();
 	void setDrawFlag(bool isdraw);
 }

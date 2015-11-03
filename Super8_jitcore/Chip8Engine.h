@@ -8,6 +8,7 @@
 #include <iostream>
 
 #include "Chip8Globals.h"
+#include "SDLGlobals.h"
 
 ////////////////////////////////////////////////////////////////////////////
 // Chip8Engine is the entry class into the Chip8 functions and emulation! //
@@ -26,17 +27,9 @@ public:
 	void loadProgram(std::string path);
 	void emulationLoop();
 	void translatorLoop();
-	void handleX86Interrupt();
+	void handleInterrupt();
 	int32_t translatorSelectCache();
-
-	void setKeyState(uint8_t keyindex, KEY_STATE state);
-
-	void DEBUG_render();
-
-	void DEBUG_printCPUState();
 	void DEBUG_renderGFXText();
-	void DEBUG_printSoundTimer();
-	void DEBUG_printKeyState();
 
 private:
 	

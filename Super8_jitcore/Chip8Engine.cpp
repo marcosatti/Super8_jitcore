@@ -26,15 +26,15 @@ void Chip8Engine::initialise() {
 	jumptbl = new Chip8Engine_JumpHandler();
 
 	translate_cycles = 0;
-	dynarec_break_loop = false;
 
 	C8_STATE::C8_allocMem();
 	C8_STATE::cpu.pc = (uint16_t)0x200;					// Program counter starts at 0x200
 	C8_STATE::opcode = (uint16_t)0x0000;				// Reset current opcode	
 	C8_STATE::cpu.I = (uint16_t)0x000;					// Reset index register
 	stack->resetStack();								// Reset stack pointer
-
+#ifndef USE_SDL
 	C8_STATE::C8_clearGFXMem();							// Clear display	
+#endif
 	C8_STATE::C8_clearRegV();							// Clear registers V0-VF
 	C8_STATE::C8_clearMem();							// Clear memory
 
@@ -45,7 +45,7 @@ void Chip8Engine::initialise() {
 	cache->setupCache_CDECL();
 
 	// Setup first memory region
-	dynarec->initialiseFirstMemoryRegion();
+	cache->initFirstCache();
 }
 
 void Chip8Engine::loadProgram(std::string path) {
@@ -68,33 +68,17 @@ void Chip8Engine::emulationLoop()
 {
 	// The heart and soul of this emulator
 	// Exec cache and cleanup & handle return interrupt code (first run will produce OUT_OF_CODE)
-	while (true) {
-		// Exec caches
-		//cache->DEBUG_printCacheList();
-		//jumptbl->DEBUG_printJumpList();
-		//jumptbl->DEBUG_printCondJumpList();
-		cache->execCache_CDECL();
-		//printf("Chip8Engine: Ran cache ok. Interrupt code = %d, (optional) C8 handle opcode = 0x%.4X\n", X86_STATE::x86_status_code, X86_STATE::x86_resume_c8_pc); 
-		// Flush caches that are marked
-		cache->invalidateCacheByFlag();
-		// Handle Interrupts
-		handleX86Interrupt();
-		//printf("Chip8Engine: NEW X86_RESUME_ADDRESS = 0x%.8X (in cache[%d])\n", (uint32_t)X86_STATE::x86_resume_address, cache->getCacheIndexByX86Address(X86_STATE::x86_resume_address));
-	}
+	cache->execCache_CDECL();
+	//printf("Chip8Engine: Ran cache ok. Interrupt code = %d, (optional) C8 handle opcode = 0x%.4X\n", X86_STATE::x86_status_code, X86_STATE::x86_resume_c8_pc); 
+	// Flush caches that are marked
+	cache->invalidateCacheByFlag();
+	// Handle Interrupts
+	handleInterrupt();
+	//printf("Chip8Engine: NEW X86_RESUME_ADDRESS = 0x%.8X (in cache[%d])\n", (uint32_t)X86_STATE::x86_resume_address, cache->getCacheIndexByX86Address(X86_STATE::x86_resume_address));
 }
 
-void Chip8Engine::handleX86Interrupt()
+void Chip8Engine::handleInterrupt()
 {
-	// DEBUG: change key states everytime an interrupt is generated
-	if (drawcycles % 32 == 0) {
-		uint8_t randstate = 0;
-		srand((unsigned int)time(NULL) + (unsigned int)drawcycles);
-		for (int i = 0; i < 0x10; i++) {
-			randstate = rand() % 0x2;
-			setKeyState(i, (KEY_STATE)randstate);
-		}
-	}
-
 	switch (X86_STATE::x86_status_code) {
 	case X86_STATE::PREPARE_FOR_JUMP:
 	{
@@ -113,7 +97,7 @@ void Chip8Engine::handleX86Interrupt()
 		interpreter->setOpcode(X86_STATE::x86_resume_c8_pc);
 		interpreter->emulateCycle();
 		//cache->DEBUG_printCacheList();
-		DEBUG_render();
+		//DEBUG_render();
 		break;
 	}
 	case X86_STATE::OUT_OF_CODE:
@@ -131,8 +115,7 @@ void Chip8Engine::handleX86Interrupt()
 		// For determining between 1 and 3, we can check for an existing cache and emit jump code if there is
 		CACHE_REGION * region = cache->getCacheInfoByC8PC(X86_STATE::x86_resume_c8_pc);
 		X86_STATE::x86_resume_address = region->x86_mem_address + region->x86_pc;
-		//cache->DEBUG_printCacheList();
-		if (cache->getCacheIndexByStartC8PC(region->c8_end_recompile_pc + 2) != -1 || region->stop_write_flag > 0) {
+		if (cache->getCacheIndexByStartC8PC(region->c8_end_recompile_pc + 2) != -1 || region->stop_write_flag != 0) {
 			// Case 2 & 3 - Absolute end of region reached -> Record & Emit jump to next region
 			// First record jump in jump table if DNE (so it will get updated on every translator loop)
 			int32_t tblindex = jumptbl->findJumpEntry(region->c8_end_recompile_pc + 2);
@@ -193,23 +176,22 @@ void Chip8Engine::handleX86Interrupt()
 	{
 		printf("!!! Debug Interrupt, Opcode = 0x%.4X !!!\n", X86_STATE::x86_resume_c8_pc);
 		C8_STATE::DEBUG_printC8_STATE();
-		printf("Memory values at 0x02F2(+ 0,1,2) = 0x%.2X, 0x%.2X, 0x%.2X\n", C8_STATE::memory[0x02F2], C8_STATE::memory[0x02F3], C8_STATE::memory[0x02F4]);
-
-		//X86_STATE::DEBUG_printX86_STATE();
+		X86_STATE::DEBUG_printX86_STATE();
 		cache->DEBUG_printCacheList();
-		//jumptbl->DEBUG_printJumpList();
-		//jumptbl->DEBUG_printCondJumpList();
+		jumptbl->DEBUG_printJumpList();
+		jumptbl->DEBUG_printCondJumpList();
 		break;
 	}
 	case X86_STATE::WAIT_FOR_KEYPRESS:
 	{
-		// ! ! ! X86_STATE::x86_resume_c8_pc contains NO USEFUL INFO ! ! !
+		// ! ! ! X86_STATE::x86_resume_c8_pc contains the C8 opcode ! ! !
+		// Only one opcode: 0xFX0A: A key press is awaited, then stored in Vx.
 		// For now this will do, however it should be handled by the parent object to the C8Engine
 		// Check if there has been a key press, and if so, store it in key->x86_key_pressed
 		uint8_t keystate = 0;
 		for (int i = 0; i < NUM_KEYS; i++) {
 			keystate = key->getKeyState(i); // Get the keystate from the key object.
-			if (keystate) {
+			if (keystate == 1) {
 				key->X86_KEY_PRESSED = i; // Set Vx to the key pressed (0x0 -> 0xF). See dynarec
 				break;
 			}
@@ -238,12 +220,11 @@ void Chip8Engine::handleX86Interrupt()
 			}
 
 			// Need to check/alloc jump location caches
-			cache->allocNewCacheByJumpC8PC(jump_c8_pc);
+			cache->getCacheByStartC8PC(jump_c8_pc);
 			jumptbl->checkAndFillJumpsByStartC8PC();
 
 			// Set stack->x86_address_to equal to jumptable location
 			stack->x86_address_to = jumptbl->jump_list[tblindex].x86_address_to;
-			//printf("stack->x86_address_to = 0x%.8X\n", (uint32_t)stack->x86_address_to);
 			break;
 		}
 		case 0x0000:
@@ -258,12 +239,11 @@ void Chip8Engine::handleX86Interrupt()
 			}
 
 			// Need to check/alloc jump location caches
-			cache->allocNewCacheByJumpC8PC(entry.c8_address);
+			cache->getCacheByStartC8PC(entry.c8_address);
 			jumptbl->checkAndFillJumpsByStartC8PC();
 
 			// Set stack->x86_address_to equal to jumptable location
 			stack->x86_address_to = jumptbl->jump_list[tblindex].x86_address_to;
-			//printf("stack->x86_address_to = 0x%.8X\n", (uint32_t)stack->x86_address_to);
 			break;
 		}
 		}
@@ -321,7 +301,6 @@ int32_t Chip8Engine::translatorSelectCache()
 
 void Chip8Engine::translatorLoop()
 {
-	uint8_t translator_cycles_offset = 0;
 	do {
 		//printf("\nChip8Engine: Running translator cycle: %d\n", translate_cycles);
 
@@ -336,12 +315,6 @@ void Chip8Engine::translatorLoop()
 			translate_cycles++;
 			break;
 		}
-
-		// DEBUG
-		/*if (translate_cycles == 100) {
-			printf("BREAKPOINT\n");
-			cache->DEBUG_printCacheList();
-		}*/
 
 		// Select the right cache to use
 		int32_t cache_index = translatorSelectCache();
@@ -373,56 +346,7 @@ void Chip8Engine::translatorLoop()
 		// Update cycle number
 		translate_cycles++;
 
-		// for if the dynarec needs to run cache
-		if (dynarec_break_loop) {
-			dynarec_break_loop = false;
-			break;
-		}
 	} while (translate_cycles % 16 != 0 || jumptbl->checkConditionalCycle() > 0); // Limit a cache update to 16 c8 opcodes at a time, but do not exit if there is a conditional cycle waiting to be updated
-}
-
-void Chip8Engine::setKeyState(uint8_t keyindex, KEY_STATE state)
-{
-	key->setKeyState(keyindex, state);
-}
-
-void Chip8Engine::DEBUG_render()
-{
-	if (getDrawFlag()) {
-		//mChip8->DEBUG_printCPUState();
-		//mChip8->DEBUG_printSoundTimer();
-		if (drawcycles % 16 == 0) DEBUG_renderGFXText();
-		setDrawFlag(false);
-		drawcycles++;
-	}
-}
-
-void Chip8Engine::DEBUG_printCPUState()
-{
-	using namespace std;
-	using namespace C8_STATE;
-	// Opcode
-	cout << "Opcode: " << endl;
-	printf("Opcode: 0x%.4x", opcode);
-	cout << endl << endl;
-
-	// PC register
-	cout << "PC Register: " << endl;
-	printf("PC: 0x%.4x", cpu.pc);
-	cout << endl << endl;
-
-	// I Register
-	cout << "I Register: " << endl;
-	printf("I: 0x%.4x", cpu.I);
-	cout << endl << endl;
-
-	// V registers
-	cout << "V Registers: " << endl;
-	for (int i = 0; i < NUM_V_REG; i++) {
-		printf("V[%x]: 0x%.2x, ", i, cpu.V[i]);
-	}
-	cout << endl << "--------------------------" << endl << endl;
-	
 }
 
 void Chip8Engine::DEBUG_renderGFXText()
@@ -444,18 +368,4 @@ void Chip8Engine::DEBUG_renderGFXText()
 	}
 	printf("\n");
 	printf("--- END RENDER ---\n\n");
-}
-
-void Chip8Engine::DEBUG_printSoundTimer()
-{
-	if (timers->getSoundTimer() > 0) printf("\n\n*****BEEP!*****\n\n");
-}
-
-void Chip8Engine::DEBUG_printKeyState()
-{
-	printf("Key States: \n");
-	for (int i = 0; i < 0x10; i++) {
-		printf("Key[%x]: %u, ", i, key->getKeyState(i));
-	}
-	printf("\n\n");
 }

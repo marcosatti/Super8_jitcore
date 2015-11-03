@@ -12,12 +12,6 @@ public:
 
 	Chip8TimersEngine();
 	~Chip8TimersEngine();
-
-	void updateTimers_Interpreter();
-	void setSoundTimer(uint8_t num);
-	void setDelayTimer(uint8_t num);
-	uint8_t getSoundTimer();
-	uint8_t getDelayTimer();
 private:
 	
 };

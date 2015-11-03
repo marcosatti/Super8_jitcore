@@ -71,6 +71,7 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
+    <IncludePath>C:\Shared\Dev\Projects\SDL2_ttf-2.0.12;C:\Shared\Dev\Projects\SDL2-2.0.3\include\;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
@@ -155,10 +156,10 @@
     <ClInclude Include="Chip8Globals_C8_STATE.h" />
     <ClInclude Include="Chip8Globals_X86_STATE.h" />
     <ClInclude Include="Chip8KeyEngine.h" />
-    <ClInclude Include="Chip8StackEngine.h" />
     <ClInclude Include="Chip8TimersEngine.h" />
     <ClInclude Include="Chip8Engine_CodeEmitter_x86.h" />
     <ClInclude Include="resource.h" />
+    <ClInclude Include="SDLGlobals.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
   </ItemGroup>
@@ -173,14 +174,14 @@
     <ClCompile Include="Chip8Globals_C8_STATE.cpp" />
     <ClCompile Include="Chip8Globals_X86_STATE.cpp" />
     <ClCompile Include="Chip8KeyEngine.cpp" />
-    <ClCompile Include="Chip8StackEngine.cpp" />
     <ClCompile Include="Chip8TimersEngine.cpp" />
     <ClCompile Include="Chip8Engine_CodeEmitter_x86.cpp" />
-    <ClCompile Include="CodeEmitter_x86_ADD.cpp" />
-    <ClCompile Include="CodeEmitter_x86_Bitwise.cpp" />
-    <ClCompile Include="CodeEmitter_x86_Jump.cpp" />
-    <ClCompile Include="CodeEmitter_x86_MOV.cpp" />
-    <ClCompile Include="CodeEmitter_x86_SUB.cpp" />
+    <ClCompile Include="Chip8Engine_CodeEmitter_x86_ADD.cpp" />
+    <ClCompile Include="Chip8Engine_CodeEmitter_x86_Bitwise.cpp" />
+    <ClCompile Include="Chip8Engine_CodeEmitter_x86_Jump.cpp" />
+    <ClCompile Include="Chip8Engine_CodeEmitter_x86_MOV.cpp" />
+    <ClCompile Include="Chip8Engine_CodeEmitter_x86_SUB.cpp" />
+    <ClCompile Include="SDLGlobals.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
@@ -222,6 +223,11 @@
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Super8_jitcore.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Library Include="..\..\SDL2-2.0.3\VisualC\SDLmain\Win32\Debug\SDL2main.lib" />
+    <Library Include="..\..\SDL2-2.0.3\VisualC\SDL\Win32\Debug\SDL2.lib" />
+    <Library Include="..\..\SDL2_ttf-2.0.12\VisualC\Win32\Debug\SDL2_ttf.lib" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

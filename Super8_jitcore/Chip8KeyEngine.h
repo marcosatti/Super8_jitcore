@@ -14,7 +14,7 @@ class Chip8KeyEngine
 {
 public:
 	uint8_t X86_KEY_PRESSED;
-	uint8_t key[NUM_KEYS]; // Array to store 0 -> F key states.
+	uint8_t key[16]; // Array to store 0 -> F key states.
 
 	Chip8KeyEngine();
 	~Chip8KeyEngine();

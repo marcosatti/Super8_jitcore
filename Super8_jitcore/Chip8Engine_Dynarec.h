@@ -10,8 +10,6 @@ public:
 	Chip8Engine_Dynarec();
 	~Chip8Engine_Dynarec();
 
-	void initialiseFirstMemoryRegion();
-
 	void emulateTranslatorCycle();
 	void emulateTranslatorTimers();
 private:

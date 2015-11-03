@@ -14,10 +14,8 @@ namespace Chip8Globals {
 	Chip8TimersEngine * timers;
 
 	uint32_t translate_cycles;
-	bool dynarec_break_loop;
 
 	bool drawflag;
-	uint64_t drawcycles;
 
 	bool getDrawFlag() {
 		return drawflag;

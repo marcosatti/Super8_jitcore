@@ -60,9 +60,6 @@
     <ClInclude Include="Chip8Engine_CacheHandler.h">
       <Filter>Header Files\Dynarec_x86</Filter>
     </ClInclude>
-    <ClInclude Include="Chip8StackEngine.h">
-      <Filter>Header Files\Interpreter</Filter>
-    </ClInclude>
     <ClInclude Include="Chip8Engine_StackHandler.h">
       <Filter>Header Files\Dynarec_x86</Filter>
     </ClInclude>
@@ -79,6 +76,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Chip8Globals_X86_STATE.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SDLGlobals.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -98,21 +98,6 @@
     <ClCompile Include="Super8.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="CodeEmitter_x86_ADD.cpp">
-      <Filter>Source Files\Dynarec_x86</Filter>
-    </ClCompile>
-    <ClCompile Include="CodeEmitter_x86_Bitwise.cpp">
-      <Filter>Source Files\Dynarec_x86</Filter>
-    </ClCompile>
-    <ClCompile Include="CodeEmitter_x86_Jump.cpp">
-      <Filter>Source Files\Dynarec_x86</Filter>
-    </ClCompile>
-    <ClCompile Include="CodeEmitter_x86_MOV.cpp">
-      <Filter>Source Files\Dynarec_x86</Filter>
-    </ClCompile>
-    <ClCompile Include="CodeEmitter_x86_SUB.cpp">
-      <Filter>Source Files\Dynarec_x86</Filter>
-    </ClCompile>
     <ClCompile Include="Chip8Globals.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -124,9 +109,6 @@
     </ClCompile>
     <ClCompile Include="Chip8Engine_CacheHandler.cpp">
       <Filter>Source Files\Dynarec_x86</Filter>
-    </ClCompile>
-    <ClCompile Include="Chip8StackEngine.cpp">
-      <Filter>Source Files\Interpreter</Filter>
     </ClCompile>
     <ClCompile Include="Chip8Engine_StackHandler.cpp">
       <Filter>Source Files\Dynarec_x86</Filter>
@@ -142,6 +124,24 @@
     </ClCompile>
     <ClCompile Include="Chip8Globals_X86_STATE.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SDLGlobals.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Chip8Engine_CodeEmitter_x86_ADD.cpp">
+      <Filter>Source Files\Dynarec_x86</Filter>
+    </ClCompile>
+    <ClCompile Include="Chip8Engine_CodeEmitter_x86_Bitwise.cpp">
+      <Filter>Source Files\Dynarec_x86</Filter>
+    </ClCompile>
+    <ClCompile Include="Chip8Engine_CodeEmitter_x86_Jump.cpp">
+      <Filter>Source Files\Dynarec_x86</Filter>
+    </ClCompile>
+    <ClCompile Include="Chip8Engine_CodeEmitter_x86_MOV.cpp">
+      <Filter>Source Files\Dynarec_x86</Filter>
+    </ClCompile>
+    <ClCompile Include="Chip8Engine_CodeEmitter_x86_SUB.cpp">
+      <Filter>Source Files\Dynarec_x86</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -227,5 +227,10 @@
     <ResourceCompile Include="Super8_jitcore.rc">
       <Filter>Resource Files</Filter>
     </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Library Include="..\..\SDL2-2.0.3\VisualC\SDL\Win32\Debug\SDL2.lib" />
+    <Library Include="..\..\SDL2-2.0.3\VisualC\SDLmain\Win32\Debug\SDL2main.lib" />
+    <Library Include="..\..\SDL2_ttf-2.0.12\VisualC\Win32\Debug\SDL2_ttf.lib" />
   </ItemGroup>
 </Project>

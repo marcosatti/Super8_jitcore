@@ -33,10 +33,10 @@ public:
 
 	void setupCache_CDECL();
 	void execCache_CDECL();
+	void initFirstCache();
 
-	int32_t allocNewCacheByC8PC(uint16_t c8_start_pc_); // The main allocation function
-	int32_t allocNewCacheByJumpC8PC(uint16_t c8_jump_pc); // Used when a jump is made (see dynarec.cpp and jumphandler.cpp). Contains more code path logic and handles invalidation.
-	int32_t allocAndSwitchNewCacheByC8PC(uint16_t c8_start_pc_);
+	int32_t getCacheByStartC8PC(uint16_t c8_jump_pc); // Used when a jump is made (see dynarec.cpp and jumphandler.cpp). Contains more code path logic and handles invalidation.
+	int32_t getCacheByC8PC(uint16_t c8_pc);
 
 	void invalidateCacheCurrent();
 	void invalidateCacheByFlag();
@@ -79,5 +79,9 @@ public:
 
 	void DEBUG_printCacheByIndex(int32_t index);
 	void DEBUG_printCacheList();
+
+private:
+	int32_t allocNewCacheByC8PC(uint16_t c8_start_pc_); // The main allocation function
+	int32_t allocAndSwitchNewCacheByC8PC(uint16_t c8_start_pc_);
 };
 

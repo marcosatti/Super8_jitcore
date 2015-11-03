@@ -75,6 +75,12 @@ void Chip8Engine_CacheHandler::execCache_CDECL()
 	exec();
 }
 
+void Chip8Engine_CacheHandler::initFirstCache()
+{
+	allocAndSwitchNewCacheByC8PC(C8_STATE::cpu.pc);
+	X86_STATE::x86_resume_address = getCacheInfoCurrent()->x86_mem_address;
+}
+
 int32_t Chip8Engine_CacheHandler::getCacheIndexByC8PC(uint16_t c8_pc_)
 {
 	int32_t index = -1;
@@ -143,13 +149,8 @@ int32_t Chip8Engine_CacheHandler::allocNewCacheByC8PC(uint16_t c8_start_pc_)
 	uint8_t sz = sizeof(bytes) / sizeof(bytes[0]);
 	memcpy(cache_mem + MAX_CACHE_SZ - sz, bytes, sz); // Write this to last bytes of cache
 
-	CACHE_REGION memoryblock;
-	memoryblock.c8_start_recompile_pc = c8_start_pc_;
-	memoryblock.c8_end_recompile_pc = c8_start_pc_; // most likely unknown at allocation, so set to parsed pc as well.
-	memoryblock.x86_mem_address = cache_mem;
-	memoryblock.x86_pc = 0;
-	memoryblock.invalid_flag = 0;
-	memoryblock.stop_write_flag = 0;
+	// cache end pc is unknown at allocation, so set to start pc too (it is known if its a new cache by checking start==end pc)
+	CACHE_REGION memoryblock = { c8_start_pc_ ,c8_start_pc_ , cache_mem, 0, 0, 0 };
 	cache_list.push_back(memoryblock);
 
 	// DEBUG
@@ -158,7 +159,7 @@ int32_t Chip8Engine_CacheHandler::allocNewCacheByC8PC(uint16_t c8_start_pc_)
 	return (cache_list.size() - 1);
 }
 
-int32_t Chip8Engine_CacheHandler::allocNewCacheByJumpC8PC(uint16_t c8_jump_pc)
+int32_t Chip8Engine_CacheHandler::getCacheByStartC8PC(uint16_t c8_jump_pc)
 {
 	int32_t index = cache->getCacheIndexByStartC8PC(c8_jump_pc);
 	if (index == -1) {
@@ -348,7 +349,7 @@ uint8_t Chip8Engine_CacheHandler::getStopWriteFlagByC8PC(uint16_t c8_pc_)
 			return cache_list[i].stop_write_flag;
 		}
 	}
-	return 0xFFFF;
+	return 0xFF;
 }
 
 void Chip8Engine_CacheHandler::switchCacheByC8PC(uint16_t c8_pc_)
