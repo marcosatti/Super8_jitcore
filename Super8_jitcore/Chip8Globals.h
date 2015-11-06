@@ -13,6 +13,12 @@
 #include "Chip8Engine_JumpHandler.h"
 #include "Chip8Engine_Key.h"
 
+//#define USE_DEBUG
+
+#ifdef USE_DEBUG_EXTRA
+#define USE_DEBUG
+#endif
+
 // Forward decl's
 class Chip8Engine_JumpHandler;
 class Chip8Engine_Interpreter;

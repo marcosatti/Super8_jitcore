@@ -16,12 +16,13 @@ namespace Chip8Globals {
 			DEBUG = 5,
 			WAIT_FOR_KEYPRESS = 6,
 			PREPARE_FOR_STACK_JUMP = 7
-		} X86_STATUS_CODE;
+		} X86_INT_STATUS_CODE;
 
 		extern uint8_t * x86_resume_address;
-		extern uint16_t x86_resume_c8_pc;
-		extern uint16_t x86_resume_c8_return_pc; // used with stack interrupts
-		extern X86_STATUS_CODE x86_status_code;
+		extern uint16_t x86_interrupt_c8_param1;
+		extern uint16_t x86_interrupt_c8_param2; // used with stack interrupts
+		extern uint8_t * x86_interrupt_x86_param1; // used with out of code interrupts (to determine which cache needs more code)
+		extern X86_INT_STATUS_CODE x86_interrupt_status_code;
 
 		extern void DEBUG_printX86_STATE();
 	}

@@ -5,11 +5,16 @@
 #include "FastArrayList.h"
 #include "Chip8Globals.h"
 
+#ifdef USE_DEBUG_EXTRA
+#define  MAX_CACHE_SZ 0xFFFF
+#else
 #define  MAX_CACHE_SZ 0xFFF
+#endif
 
 struct CACHE_REGION {
 	uint16_t c8_start_recompile_pc;
 	uint16_t c8_end_recompile_pc;
+	uint8_t c8_pc_alignement;
 	uint8_t * x86_mem_address;
 	uint32_t x86_pc;
 	uint8_t invalid_flag; // used with jumps. 1 means marked for deletion after run once, 2 means marked for deletion asap.
@@ -53,18 +58,19 @@ public:
 	int32_t findCacheIndexCurrent();
 	int32_t findCacheIndexByC8PC(uint16_t c8_pc_);
 	int32_t findCacheIndexByStartC8PC(uint16_t c8_pc_);
+	int32_t findCacheIndexByX86Address(uint8_t * x86_address);
 
 	void switchCacheByC8PC(uint16_t c8_pc_);
-	void switchCacheByIndex(uint32_t index);
+	void switchCacheByIndex(int32_t index);
 
 	void incrementCacheX86PC(uint8_t count);
 	void setCacheEndC8PCCurrent(uint16_t c8_end_pc_);
-	void setCacheEndC8PCByIndex(uint32_t index, uint16_t c8_end_pc_);
+	void setCacheEndC8PCByIndex(int32_t index, uint16_t c8_end_pc_);
 	uint16_t getEndC8PCCurrent();
 	uint8_t * getEndX86AddressCurrent();
 
 	CACHE_REGION * getCacheInfoCurrent();
-	CACHE_REGION * getCacheInfoByIndex(uint32_t index);
+	CACHE_REGION * getCacheInfoByIndex(int32_t index);
 	CACHE_REGION * getCacheInfoByC8PC(uint16_t c8_pc_);
 
 	void write8(uint8_t byte_);

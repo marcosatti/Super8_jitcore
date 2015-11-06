@@ -23,10 +23,24 @@ void Chip8Engine_CodeEmitter_x86::JC_8(int8_t relative)
 	cache->write8(relative);
 }
 
+void Chip8Engine_CodeEmitter_x86::JC_32(int32_t relative)
+{
+	cache->write8(0x0F);
+	cache->write8(0x82);
+	cache->write32(relative);
+}
+
 void Chip8Engine_CodeEmitter_x86::JNC_8(int8_t relative)
 {
 	cache->write8(0x73);
 	cache->write8(relative);
+}
+
+void Chip8Engine_CodeEmitter_x86::JNC_32(int32_t relative)
+{
+	cache->write8(0x0F);
+	cache->write8(0x83);
+	cache->write32(relative);
 }
 
 void Chip8Engine_CodeEmitter_x86::JE_8(int8_t relative)
@@ -35,10 +49,24 @@ void Chip8Engine_CodeEmitter_x86::JE_8(int8_t relative)
 	cache->write8(relative);
 }
 
+void Chip8Engine_CodeEmitter_x86::JE_32(int32_t relative)
+{
+	cache->write8(0x0F);
+	cache->write8(0x84);
+	cache->write32(relative);
+}
+
 void Chip8Engine_CodeEmitter_x86::JNE_8(int8_t relative)
 {
 	cache->write8(0x75);
 	cache->write8(relative);
+}
+
+void Chip8Engine_CodeEmitter_x86::JNE_32(int32_t relative)
+{
+	cache->write8(0x0F);
+	cache->write8(0x85);
+	cache->write32(relative);
 }
 
 void Chip8Engine_CodeEmitter_x86::JNG_8(int8_t relative)
@@ -46,4 +74,11 @@ void Chip8Engine_CodeEmitter_x86::JNG_8(int8_t relative)
 	// Same as JLE opcode
 	cache->write8(0x7E);
 	cache->write8(relative);
+}
+
+void Chip8Engine_CodeEmitter_x86::JNG_32(int32_t relative)
+{
+	cache->write8(0x0F);
+	cache->write8(0x8E);
+	cache->write32(relative);
 }

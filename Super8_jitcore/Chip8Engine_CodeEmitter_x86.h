@@ -23,8 +23,8 @@ public:
 	~Chip8Engine_CodeEmitter_x86();
 
 	// DYNAREC HELPER FUNCTIONS
-	void DYNAREC_EMIT_INTERRUPT(Chip8Globals::X86_STATE::X86_STATUS_CODE code, uint16_t c8_opcode);
-	void DYNAREC_EMIT_INTERRUPT(Chip8Globals::X86_STATE::X86_STATUS_CODE code, uint16_t c8_opcode, uint16_t c8_return_pc);
+	void DYNAREC_EMIT_INTERRUPT(Chip8Globals::X86_STATE::X86_INT_STATUS_CODE code, uint16_t c8_opcode);
+	void DYNAREC_EMIT_INTERRUPT(Chip8Globals::X86_STATE::X86_INT_STATUS_CODE code, uint16_t c8_opcode, uint16_t c8_return_pc);
 	void DYNAREC_EMIT_MOV_EAX_EIP();
 	void DYNAREC_EMIT_RETURN_CDECL_JUMP();
 
@@ -106,10 +106,15 @@ public:
 	void JMP_REL_32(int32_t relative);
 	void JMP_M_PTR_32(uint32_t * address);
 	void JC_8(int8_t relative);
+	void JC_32(int32_t relative); // near jump
 	void JNC_8(int8_t relative);
+	void JNC_32(int32_t relative); // near jump
 	void JE_8(int8_t relative);
+	void JE_32(int32_t relative); // near jump
 	void JNE_8(int8_t relative);
+	void JNE_32(int32_t relative); // near jump
 	void JNG_8(int8_t relative);
+	void JNG_32(int32_t relative); // near jump
 
 	// Misc opcode functions
 	void MUL_RwithR_8(X86Register source);

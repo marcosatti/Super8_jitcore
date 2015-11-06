@@ -79,7 +79,7 @@ void Chip8Engine::emulationLoop()
 
 void Chip8Engine::handleInterrupt()
 {
-	switch (X86_STATE::x86_status_code) {
+	switch (X86_STATE::x86_interrupt_status_code) {
 	case X86_STATE::PREPARE_FOR_JUMP:
 	{
 		handleInterrupt_PREPARE_FOR_JUMP();
@@ -140,12 +140,13 @@ void Chip8Engine::translatorLoop()
 			break;
 		}
 
-		// Select the right cache to use
+		// Select the right cache to use & switch
 		int32_t cache_index = cache->getCacheWritableByC8PC(C8_STATE::cpu.pc);
+		cache->switchCacheByIndex(cache_index);
 
-		// Has code already been compiled? (only valid if start != end c8 pc)
+		// Has code already been compiled? (only valid if x86_pc > 0)
 		CACHE_REGION * memory_region = cache->getCacheInfoByIndex(cache_index);
-		if (C8_STATE::cpu.pc <= memory_region->c8_end_recompile_pc && memory_region->c8_start_recompile_pc != memory_region->c8_end_recompile_pc) {
+		if (C8_STATE::cpu.pc <= memory_region->c8_end_recompile_pc && memory_region->x86_pc > 0) {
 			// This is when we have entered a block that already has compiled code in it... need to switch to end of the region/change region and recompile from there.
 			// Update cpu.pc to the end C8 PC of region
 			// End C8 PC is defined to be already compiled, so need to plus 2 for next opcode. However, if next opcode is in a different region, we need to select the correct one. Place a continue here so we keep getting the REAL end memory region.
@@ -164,8 +165,13 @@ void Chip8Engine::translatorLoop()
 
 		// Update Timers
 		dynarec->emulateTranslatorTimers();
+#ifdef USE_DEBUG
+		// DEBUG
+		emitter->DYNAREC_EMIT_INTERRUPT(X86_STATE::DEBUG, C8_STATE::opcode, C8_STATE::cpu.pc);
+#endif
 		// Translate
 		dynarec->emulateTranslatorCycle();
+
 
 		// Update cycle number
 		translate_cycles++;

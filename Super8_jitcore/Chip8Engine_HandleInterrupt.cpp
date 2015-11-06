@@ -15,13 +15,19 @@ void Chip8Engine::handleInterrupt_USE_INTERPRETER()
 	// ! ! ! X86_STATE::x86_resume_c8_pc contains interpreter opcode ! ! !
 
 	// Opcode hasnt been implemented in the dynarec yet, need to use interpreter
-	interpreter->setOpcode(X86_STATE::x86_resume_c8_pc);
+	interpreter->setOpcode(X86_STATE::x86_interrupt_c8_param1);
 	interpreter->emulateCycle();
+#ifndef USE_SDL
+	if (getDrawFlag()) {
+		DEBUG_renderGFXText();
+		setDrawFlag(false);
+	}
+#endif
 }
 
 void Chip8Engine::handleInterrupt_OUT_OF_CODE()
 {
-	// ! ! ! X86_STATE::x86_resume_c8_pc contains start pc of cache ! ! !
+	// ! ! ! X86_STATE::x86_resume_c8_pc contains start pc of cache, X86_STATE::x86_resume_start_address contains starting x86 address of cache ! ! !
 
 	// End of cache was reached, because of 3 posibilities:
 	// 1. The cache is genuinely out of code due to translator loop exiting on X many cycles
@@ -32,7 +38,9 @@ void Chip8Engine::handleInterrupt_OUT_OF_CODE()
 
 	// We can determine which case it is by looking at the do not write flag, where 1 and 3. will have false, and 2. will have true.
 	// For determining between 1 and 3, we can check for an existing cache and emit jump code if there is
-	CACHE_REGION * region = cache->getCacheInfoByC8PC(X86_STATE::x86_resume_c8_pc);
+	//cache->DEBUG_printCacheList();
+	int32_t cache_index = cache->findCacheIndexByX86Address(X86_STATE::x86_interrupt_x86_param1);
+	CACHE_REGION * region = cache->getCacheInfoByIndex(cache_index);
 	X86_STATE::x86_resume_address = region->x86_mem_address + region->x86_pc;
 	if (cache->findCacheIndexByStartC8PC(region->c8_end_recompile_pc + 2) != -1 || region->stop_write_flag != 0) {
 		// Case 2 & 3 - Absolute end of region reached -> Record & Emit jump to next region
@@ -44,7 +52,7 @@ void Chip8Engine::handleInterrupt_OUT_OF_CODE()
 
 		// Emit the jump
 		int32_t old_index = cache->findCacheIndexCurrent();
-		cache->switchCacheByC8PC(X86_STATE::x86_resume_c8_pc);
+		cache->switchCacheByIndex(cache_index);
 		emitter->DYNAREC_EMIT_INTERRUPT(X86_STATE::PREPARE_FOR_JUMP, region->c8_end_recompile_pc + 2);
 		emitter->JMP_M_PTR_32((uint32_t*)&jumptbl->jump_list[tblindex]->x86_address_to);
 		cache->setStopWriteFlagCurrent();
@@ -71,7 +79,7 @@ void Chip8Engine::handleInterrupt_SELF_MODIFYING_CODE()
 {
 	// ! ! ! X86_STATE::x86_resume_c8_pc contains opcode from translator ! ! !
 	// Only 2 opcodes in the C8 specs that do this. For SMC, need to invalidate cache that the memory writes to
-	switch (X86_STATE::x86_resume_c8_pc & 0xF0FF) {
+	switch (X86_STATE::x86_interrupt_c8_param1 & 0xF0FF) {
 	case 0xF033:
 	{
 		// 0xFX33: Splits the decimal representation of Vx into 3 locations: hundreds stored in address I, tens in address I+1, and ones in I+2.
@@ -85,7 +93,7 @@ void Chip8Engine::handleInterrupt_SELF_MODIFYING_CODE()
 	case 0xF055:
 	{
 		// 0xFX55: Copies all current values in registers V0 -> Vx to memory starting at address I.
-		uint8_t vx = (X86_STATE::x86_resume_c8_pc & 0x0F00) >> 8; // Need to bit shift by 8 to get to a single base16 digit.
+		uint8_t vx = (X86_STATE::x86_interrupt_c8_param1 & 0x0F00) >> 8; // Need to bit shift by 8 to get to a single base16 digit.
 		for (uint8_t i = 0; i <= vx; i++) {
 			cache->setInvalidFlagByC8PC(C8_STATE::cpu.I + i);
 		}
@@ -96,12 +104,12 @@ void Chip8Engine::handleInterrupt_SELF_MODIFYING_CODE()
 
 void Chip8Engine::handleInterrupt_DEBUG()
 {
-	printf("!!! Debug Interrupt, Opcode = 0x%.4X !!!\n", X86_STATE::x86_resume_c8_pc);
+	printf("\n!!! Debug Interrupt, Opcode = 0x%.4X, C8PC = 0x%.4X !!!\n", X86_STATE::x86_interrupt_c8_param1, X86_STATE::x86_interrupt_c8_param2);
 	C8_STATE::DEBUG_printC8_STATE();
-	X86_STATE::DEBUG_printX86_STATE();
-	cache->DEBUG_printCacheList();
-	jumptbl->DEBUG_printJumpList();
-	jumptbl->DEBUG_printCondJumpList();
+	//X86_STATE::DEBUG_printX86_STATE();
+	//cache->DEBUG_printCacheList();
+	//jumptbl->DEBUG_printJumpList();
+	//jumptbl->DEBUG_printCondJumpList();
 }
 
 void Chip8Engine::handleInterrupt_WAIT_FOR_KEYPRESS()
@@ -123,12 +131,12 @@ void Chip8Engine::handleInterrupt_WAIT_FOR_KEYPRESS()
 void Chip8Engine::handleInterrupt_PREPARE_FOR_STACK_JUMP()
 {
 	// ! ! ! X86_STATE::x86_resume_c8_pc contains either: 0x2NNN (call, address = NNN) or 0x00EE (ret) ! ! !
-	switch (X86_STATE::x86_resume_c8_pc & 0xF000) {
+	switch (X86_STATE::x86_interrupt_c8_param1 & 0xF000) {
 	case 0x2000:
 	{
 		// get jump location & return location
-		uint16_t jump_c8_pc = X86_STATE::x86_resume_c8_pc & 0x0FFF;
-		uint16_t return_c8_pc = X86_STATE::x86_resume_c8_return_pc;
+		uint16_t jump_c8_pc = X86_STATE::x86_interrupt_c8_param1 & 0x0FFF;
+		uint16_t return_c8_pc = X86_STATE::x86_interrupt_c8_param2;
 
 		// Record stack entry for the return point - which will be the next opcode!
 		STACK_ENTRY entry;
