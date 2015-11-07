@@ -42,7 +42,9 @@ void Chip8Engine::handleInterrupt_OUT_OF_CODE()
 	int32_t cache_index = cache->findCacheIndexByX86Address(X86_STATE::x86_interrupt_x86_param1);
 	CACHE_REGION * region = cache->getCacheInfoByIndex(cache_index);
 	X86_STATE::x86_resume_address = region->x86_mem_address + region->x86_pc;
-	if (cache->findCacheIndexByStartC8PC(region->c8_end_recompile_pc + 2) != -1 || region->stop_write_flag != 0) {
+	if (region->x86_pc > 0 
+		&& (cache->findCacheIndexByStartC8PC(region->c8_end_recompile_pc + 2) != -1 
+		|| region->stop_write_flag != 0)) {
 		// Case 2 & 3 - Absolute end of region reached -> Record & Emit jump to next region
 		// First record jump in jump table if DNE (so it will get updated on every translator loop)
 		int32_t tblindex = jumptbl->findJumpEntry(region->c8_end_recompile_pc + 2);
@@ -131,6 +133,8 @@ void Chip8Engine::handleInterrupt_WAIT_FOR_KEYPRESS()
 void Chip8Engine::handleInterrupt_PREPARE_FOR_STACK_JUMP()
 {
 	// ! ! ! X86_STATE::x86_resume_c8_pc contains either: 0x2NNN (call, address = NNN) or 0x00EE (ret) ! ! !
+	//cache->DEBUG_printCacheList();
+	//stack->DEBUG_printStack();
 	switch (X86_STATE::x86_interrupt_c8_param1 & 0xF000) {
 	case 0x2000:
 	{

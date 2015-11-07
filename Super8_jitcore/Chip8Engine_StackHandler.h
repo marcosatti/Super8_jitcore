@@ -22,5 +22,7 @@ public:
 	void resetStack();
 	void setTopStack(STACK_ENTRY entry);
 	STACK_ENTRY getTopStack();
+
+	void DEBUG_printStack();
 private:
 };

@@ -345,9 +345,7 @@ void Chip8Engine_Interpreter::handleOpcodeMSN_D() {
 	uint32_t gfxarraypos = 0x0; // Variable used to calculate position within gfx memory array based on x and y positions.
 
 	uint8_t newpixeldata = 0x0; // Variable used to hold the new pixel data from memory[I, I+1] etc.
-#ifndef USE_SDL
 	uint8_t oldpixelbit = 0x0; // Variable used to hold old pixel bit currently on screen.
-#endif
 	uint8_t newpixelbit = 0x0; // Variable used to hold new pixel bit, grabbed from the newpixeldata variable.
 
 	C8_STATE::cpu.V[0xF] = 0; // Set VF to 0 initially (from specs).
@@ -361,12 +359,13 @@ void Chip8Engine_Interpreter::handleOpcodeMSN_D() {
 #ifdef USE_SDL
 				// Apparently SDL is using 32bit pixels always even though its RGB888 (24)? Anyway, the higher order bits are unused (remember: little-endian on intel x86, number stored in memory back to front)
 				SDL_LockTexture(SDLGlobals::texture, NULL, (void**)&SDLGlobals::SDL_gfxmem, &SDLGlobals::pitch);
-				(SDLGlobals::SDL_gfxmem[gfxarraypos] > 0) ? C8_STATE::cpu.V[0xF] = 1 : C8_STATE::cpu.V[0xF] = 0; // Get the previous pixel value (already in the form of 1 or 0). Set VF to 1 if pixel will be unset (from specs, used for collision detection).
+				(SDLGlobals::SDL_gfxmem[gfxarraypos] > 0) ? oldpixelbit = 1 : oldpixelbit = 0;
+				if (oldpixelbit == 1) C8_STATE::cpu.V[0xF] = 1; // Get the previous pixel value (already in the form of 1 or 0). Set VF to 1 if ANY pixel will be unset (from specs, used for collision detection).
 				SDLGlobals::SDL_gfxmem[gfxarraypos] ^= 0x00FFFFFF;
 				SDL_UnlockTexture(SDLGlobals::texture);
 #else
 				oldpixelbit = C8_STATE::gfxmem[gfxarraypos]; // Get the previous pixel value (already in the form of 1 or 0).
-				if (oldpixelbit == 1) C8_STATE::cpu.V[0xF] = 1; // Set VF to 1 if pixel will be unset (from specs, used for collision detection).
+				if (oldpixelbit == 1) C8_STATE::cpu.V[0xF] = 1; // Set VF to 1 if ANY pixel will be unset (from specs, used for collision detection).
 				C8_STATE::gfxmem[gfxarraypos] = C8_STATE::gfxmem[gfxarraypos] ^ 0x01; // Toggle pixel using XOR.
 #endif
 			}
