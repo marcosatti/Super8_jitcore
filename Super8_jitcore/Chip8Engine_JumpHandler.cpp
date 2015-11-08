@@ -3,7 +3,7 @@
 
 using namespace Chip8Globals;
 
-Chip8Engine_JumpHandler::Chip8Engine_JumpHandler() : jump_list(1024), cond_jump_list(1024)
+Chip8Engine_JumpHandler::Chip8Engine_JumpHandler() : jump_list(1024), jump_fill_list(1024), cond_jump_list(1024)
 {
 }
 
@@ -16,9 +16,9 @@ int32_t Chip8Engine_JumpHandler::recordJumpEntry(uint16_t c8_to_)
 	JUMP_ENTRY entry;
 	entry.c8_address_to = c8_to_;
 	entry.x86_address_to = NULL; // JMP_M_PTR_32 uses this value (unknown at beginning)
-	entry.filled_flag = 0;
 	jump_list.push_back(entry);
 	printf("JumpHandler: Jump[%d] recorded. C8_to = 0x%.4X\n", jump_list.size() - 1, c8_to_);
+	jump_fill_list.push_back(jump_list.size() - 1);
 	return (jump_list.size() - 1);
 }
 
@@ -84,29 +84,34 @@ int32_t Chip8Engine_JumpHandler::findJumpEntry(uint16_t c8_to_)
 
 void Chip8Engine_JumpHandler::checkAndFillJumpsByStartC8PC()
 {
-	CACHE_REGION * region = NULL;
-	for (int32_t i = 0; i < (int32_t)jump_list.size(); i++) {
-		if (jump_list[i]->filled_flag == 0) {
+	// Function designed to be fast as it will be called many times.
+	int32_t list_sz = jump_fill_list.size();
+	if (list_sz > 0) {
+		CACHE_REGION * region = NULL;
+		int32_t jump_list_index;
+		int32_t cache_index;
+
+		for (int32_t i = 0; i < list_sz; i++) {
+			jump_list_index = *jump_fill_list[i];
 			// Jump cache handling done by CacheHandler, so this function just updates the jump table locations
-			int32_t index = cache->getCacheWritableByStartC8PC(jump_list[i]->c8_address_to);
-			region = cache->getCacheInfoByIndex(index);
-			jump_list[i]->x86_address_to = region->x86_mem_address;
-			printf("JumpHandler: C8 Jump[%d] Updated: 0x%.4X. Address 0x%.8X written to x86_address_to (jump to cache[%d])\n", i, jump_list[i]->c8_address_to, (uint32_t)region->x86_mem_address, index);
-			jump_list[i]->filled_flag = 1;
+			cache_index = cache->getCacheWritableByStartC8PC(jump_list[jump_list_index]->c8_address_to);
+			region = cache->getCacheInfoByIndex(cache_index);
+			jump_list[jump_list_index]->x86_address_to = region->x86_mem_address;
+			printf("JumpHandler: C8 Jump[%d] Updated: 0x%.4X. Address 0x%.8X written to x86_address_to (jump to cache[%d])\n", jump_list_index, jump_list[jump_list_index]->c8_address_to, (uint32_t)region->x86_mem_address, cache_index);
+
+			// remove entry after its been filled
+			jump_fill_list.remove(i);
+			list_sz = jump_fill_list.size(); // update list size again
+			i -= 1; // decrease i by 1 so it rechecks the current i'th value in the list (which would have been i+1 if there was no remove).
 		}
 	}
-}
-
-void Chip8Engine_JumpHandler::invalidateJumpByIndex(int32_t index)
-{
-	jump_list.remove(index);
 }
 
 void Chip8Engine_JumpHandler::clearFilledFlagByC8PC(uint16_t c8_pc)
 {
 	for (int32_t i = 0; i < (int32_t)jump_list.size(); i++) {
 		if (jump_list[i]->c8_address_to == c8_pc) {
-			jump_list[i]->filled_flag = 0;
+			jump_fill_list.push_back(i);
 		}
 	}
 }

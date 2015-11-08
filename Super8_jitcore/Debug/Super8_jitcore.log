@@ -1,8 +1,8 @@
-﻿Build started 8/11/2015 4:07:06 PM.
+﻿Build started 9/11/2015 1:46:46 AM.
      1>Project "C:\Shared\Dev\Projects\Super8_jitcore\Super8_jitcore\Super8_jitcore.vcxproj" on node 2 (Build target(s)).
      1>ClCompile:
-         C:\Shared\Dev\IDE\Microsoft Visual Studio 14.0\VC\bin\CL.exe /c /ZI /nologo /W3 /WX- /sdl /Od /Oy- /D WIN32 /D _DEBUG /D _CONSOLE /D _UNICODE /D UNICODE /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Yu"stdafx.h" /Fp"Debug\Super8_jitcore.pch" /Fo"Debug\\" /Fd"Debug\vc140.pdb" /Gd /TP /analyze- /errorReport:prompt Super8.cpp
-         Super8.cpp
+         C:\Shared\Dev\IDE\Microsoft Visual Studio 14.0\VC\bin\CL.exe /c /ZI /nologo /W3 /WX- /sdl /Od /Oy- /D WIN32 /D _DEBUG /D _CONSOLE /D _UNICODE /D UNICODE /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Yu"stdafx.h" /Fp"Debug\Super8_jitcore.pch" /Fo"Debug\\" /Fd"Debug\vc140.pdb" /Gd /TP /analyze- /errorReport:prompt Chip8Engine_CacheHandler.cpp
+         Chip8Engine_CacheHandler.cpp
        Link:
          C:\Shared\Dev\IDE\Microsoft Visual Studio 14.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"C:\Shared\Dev\Projects\Super8_jitcore\Debug\Super8_jitcore.exe" /INCREMENTAL /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /Debug /PDB:"C:\Shared\Dev\Projects\Super8_jitcore\Debug\Super8_jitcore.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\Shared\Dev\Projects\Super8_jitcore\Debug\Super8_jitcore.lib" /MACHINE:X86 Debug\Super8_jitcore.res
          Debug\Chip8Engine.obj
@@ -35,4 +35,4 @@
 
 Build succeeded.
 
-Time Elapsed 00:00:01.05
+Time Elapsed 00:00:00.89

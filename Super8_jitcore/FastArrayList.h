@@ -14,6 +14,7 @@ public:
 	int32_t push_back(T item);
 	int32_t remove(int32_t index);
 	int32_t size();
+	int32_t find(T item);
 private:
 	T * list;
 	int32_t list_size;
@@ -42,7 +43,7 @@ int32_t FastArrayList<T>::push_back(T item)
 {
 	list[list_size] = item;
 	list_size++;
-	return list_size;
+	return list_size - 1;
 }
 
 template<typename T>
@@ -63,4 +64,15 @@ template<typename T>
 int32_t FastArrayList<T>::size()
 {
 	return list_size;
+}
+
+template<typename T>
+int32_t FastArrayList<T>::find(T item)
+{
+	for (int32_t i = 0; i < list_size; i++) {
+		if (memcmp(&item, &list[i], sizeof(T)) == 0) {
+			return i;
+		}
+	}
+	return -1;
 }

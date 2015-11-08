@@ -17,13 +17,13 @@ struct CACHE_REGION {
 	uint8_t c8_pc_alignement;
 	uint8_t * x86_mem_address;
 	uint32_t x86_pc;
-	uint8_t invalid_flag; // used with jumps. 1 means marked for deletion after run once, 2 means marked for deletion asap.
 	uint8_t stop_write_flag; // used to signify that no more code should be emitted to this cache (usually because it ends in a jump)
 };
 
 class Chip8Engine_CacheHandler
 {
 public:
+	FastArrayList<int32_t> cache_invalidate_list;
 	int32_t selected_cache_index = 0;
 	FastArrayList<CACHE_REGION> cache_list;
 
@@ -46,7 +46,6 @@ public:
 	void invalidateCacheByFlag();
 	void setInvalidFlagByIndex(int32_t index);
 	void setInvalidFlagByC8PC(uint16_t c8_pc_);
-	void clearInvalidFlagByIndex(int32_t index);
 	uint8_t getInvalidFlagByIndex(int32_t index);
 
 	void setStopWriteFlagCurrent();

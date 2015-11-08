@@ -438,7 +438,8 @@ void Chip8Engine_Dynarec::handleOpcodeMSN_A() {
 void Chip8Engine_Dynarec::handleOpcodeMSN_B() {
 	// Only one subtype of opcode in this branch
 	// 0xBNNN: Sets PC to the address (NNN + V0) aka INDIRECT JUMP!
-	// TODO: Implement properly!!
+
+	// TODO: Implement properly!! DOES NOT WORK CURRENTLY!
 
 	// Get values
 	uint16_t num = (C8_STATE::opcode & 0x0FFF);
@@ -455,7 +456,7 @@ void Chip8Engine_Dynarec::handleOpcodeMSN_B() {
 	emitter->MOV_ImmtoR_16(ax, num);
 	emitter->ADD_MtoR_8(al, &C8_STATE::cpu.V[0]);
 	emitter->MOV_RtoM_16(&jumptbl->jump_list[tblindex]->c8_address_to, ax);
-	emitter->MOV_ImmtoM_8(&jumptbl->jump_list[tblindex]->filled_flag, 0); // Need to reset filled flag to 0
+	//emitter->MOV_ImmtoM_8(&jumptbl->jump_list[tblindex]->filled_flag, 0); // Need to reset filled flag to 0
 	emitter->DYNAREC_EMIT_INTERRUPT(X86_STATE::PREPARE_FOR_INDIRECT_JUMP, C8_STATE::opcode);
 	emitter->JMP_M_PTR_32((uint32_t*)&jumptbl->jump_list[tblindex]->x86_address_to);
 
