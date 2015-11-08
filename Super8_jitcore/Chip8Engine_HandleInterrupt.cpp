@@ -17,12 +17,6 @@ void Chip8Engine::handleInterrupt_USE_INTERPRETER()
 	// Opcode hasnt been implemented in the dynarec yet, need to use interpreter
 	interpreter->setOpcode(X86_STATE::x86_interrupt_c8_param1);
 	interpreter->emulateCycle();
-#ifndef USE_SDL
-	if (getDrawFlag()) {
-		DEBUG_renderGFXText();
-		setDrawFlag(false);
-	}
-#endif
 }
 
 void Chip8Engine::handleInterrupt_OUT_OF_CODE()

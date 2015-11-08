@@ -18,7 +18,9 @@ using namespace SDLGlobals;
 
 int main(int argc, char **argv) {
 	// Set up render system and register input callbacks
+#ifdef USE_SDL
 	SDLGlobals::setupSDLGraphics();
+#endif
 	//setupInput();
 
 	// Setup chip8 jitcore emulator
@@ -34,6 +36,7 @@ int main(int argc, char **argv) {
 	}
 	Chip8Globals::key->key[0x4] = 1;
 
+#ifdef USE_SDL
 	// Emulate
 	char fps_buffer[255];
 	char cycle_buffer[255];
@@ -99,9 +102,34 @@ int main(int argc, char **argv) {
 		}
 		cycles++;
 	}
+#else
+	if (SDL_Init(SDL_INIT_EVERYTHING) != 0) exit(1);
+	uint64_t cycles_old = 0;
+	while (1) {
+		// Emulation loop
+		mChip8->emulationLoop();
+
+		// C8 Render
+		if (getDrawFlag()) {
+			//mChip8->DEBUG_renderGFXText();
+			drawcycles++;
+			setDrawFlag(false);
+		}
+
+		ticks = SDL_GetTicks();
+		if ((ticks - ticks_old) > 1000) {
+			printf("Cycle: %llu, Cycles per second: %8.0f\n", cycles, (cycles - cycles_old) * 1000.0 / (ticks - ticks_old));
+			ticks_old = ticks;
+			cycles_old = cycles;
+		}
+		cycles++;
+	}
+#endif
 
 	// deconstruct graphics & emulator
+#ifdef USE_SDL
 	SDLGlobals::exitSDLGraphics();
+#endif
 	delete mChip8;
 
 	return 0;
