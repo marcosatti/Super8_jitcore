@@ -162,7 +162,7 @@ void Chip8Engine::translatorLoop()
 		// We are now in a valid memory region and at the end of the block (ready to recompile again)
 		// Fetch Opcode
 		C8_STATE::opcode = C8_STATE::memory[C8_STATE::cpu.pc] << 8 | C8_STATE::memory[C8_STATE::cpu.pc + 1]; // We have 8-bit memory, but an opcode is 16-bits long. Need to construct opcode from 2 successive memory locations.
-
+		
 		// Update Timers
 		dynarec->emulateTranslatorTimers();
 #ifdef USE_DEBUG

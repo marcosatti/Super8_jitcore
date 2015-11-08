@@ -26,13 +26,13 @@ int main(int argc, char **argv) {
 
 	// Initialize the Chip8 system and load the game into the memory
 	mChip8->initialise();
-	mChip8->loadProgram("..\\chip8roms\\TETRIS");
+	mChip8->loadProgram("..\\chip8roms\\BRIX_test");
 
 	// Set keystate initially
 	for (int i = 0; i < 16; i++) {
 		Chip8Globals::key->key[i] = 0;
 	}
-	//Chip8Globals::key->key[0x5] = 1;
+	Chip8Globals::key->key[0x4] = 1;
 
 	// Emulate
 	char fps_buffer[255];
@@ -72,8 +72,8 @@ int main(int argc, char **argv) {
 			ticks_old = ticks;
 
 			// cahnge key state
-			//Chip8Globals::key->key[0x4] ^= 1;
-			//Chip8Globals::key->key[0x6] ^= 1;
+			Chip8Globals::key->key[0x4] ^= 1;
+			Chip8Globals::key->key[0x6] ^= 1;
 		}
 
 		// Print cycles

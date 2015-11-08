@@ -150,9 +150,6 @@ void Chip8Engine_Dynarec::handleOpcodeMSN_1() {
 		tblindex = jumptbl->recordJumpEntry(jump_c8_pc);
 	}
 
-	// Need to check/alloc jump location caches
-	cache->getCacheWritableByStartC8PC(jump_c8_pc);
-
 	// Emit jump
 	emitter->DYNAREC_EMIT_INTERRUPT(X86_STATE::PREPARE_FOR_JUMP, jump_c8_pc);
 	emitter->JMP_M_PTR_32((uint32_t*)&jumptbl->jump_list[tblindex]->x86_address_to);
@@ -162,6 +159,9 @@ void Chip8Engine_Dynarec::handleOpcodeMSN_1() {
 	cache->setCacheEndC8PCCurrent(C8_STATE::cpu.pc);
 	// Change PC to jump location
 	C8_STATE::cpu.pc = jump_c8_pc;
+
+	// Need to check/alloc jump location caches
+	//cache->getCacheWritableByStartC8PC(jump_c8_pc);
 }
 
 void Chip8Engine_Dynarec::handleOpcodeMSN_2() {
