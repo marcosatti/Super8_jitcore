@@ -37,6 +37,9 @@ FastArrayList<T>::~FastArrayList()
 template<typename T>
 inline int32_t FastArrayList<T>::push_back(T item)
 {
+	// Slower ? 
+	//list[list_size] = item;
+	// Faster ? might be due to something else ie: memory layout
 	memcpy(list + list_size, &item, sizeof(T));
 	list_size++;
 	return list_size - 1;
