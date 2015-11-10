@@ -104,6 +104,7 @@ int main(int argc, char **argv) {
 	}
 #else
 	if (SDL_Init(SDL_INIT_EVERYTHING) != 0) exit(1);
+	printf("Performance test mode. No graphics or sound!\n");
 	uint64_t cycles_old = 0;
 	while (1) {
 		// Emulation loop

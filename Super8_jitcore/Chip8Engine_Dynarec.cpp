@@ -69,7 +69,9 @@ void Chip8Engine_Dynarec::emulateTranslatorCycle() {
 		break;
 	default:
 		// Unknown opcode encountered
-		std::cout << "Unknown Opcode detected! Skipping.";
+#ifdef USE_VERBOSE
+		printf("Dynarec: Unknown Opcode detected! Skipping (0x%.4X)\n", C8_STATE::opcode);
+#endif
 		break;
 	}
 }
@@ -126,7 +128,9 @@ void Chip8Engine_Dynarec::handleOpcodeMSN_0() {
 	{
 		// 0x0NNN: Calls RCA 1802 program at address 0xNNN. (?)
 		// TODO: Implement?. Skips instruction for now.
-		std::cout << "RCA call happened, but no code implemented! Skipping." << std::endl;
+#ifdef USE_VERBOSE
+		printf("Dynarec: RCA call happened but no code! Skipping (0x%.4X)\n", C8_STATE::opcode);
+#endif
 		C8_STATE::C8_incrementPC(); // Update PC by 2 bytes
 		break;
 	}
@@ -144,15 +148,12 @@ void Chip8Engine_Dynarec::handleOpcodeMSN_1() {
 	// Set stop write flag on current cache
 	cache->setStopWriteFlagCurrent();
 
-	// First record jump in jump table if DNE (so it will get updated on every translator loop)
-	int32_t tblindex = jumptbl->findJumpEntry(jump_c8_pc);
-	if (tblindex == -1) {
-		tblindex = jumptbl->recordJumpEntry(jump_c8_pc);
-	}
+	// Get jump table entry
+	int32_t tblindex = jumptbl->getJumpIndexByC8PC(jump_c8_pc);
 
 	// Emit jump
 	emitter->DYNAREC_EMIT_INTERRUPT(X86_STATE::PREPARE_FOR_JUMP, jump_c8_pc);
-	emitter->JMP_M_PTR_32((uint32_t*)&jumptbl->jump_list[tblindex]->x86_address_to);
+	emitter->JMP_M_PTR_32((uint32_t*)&jumptbl->getJumpInfoByIndex(tblindex)->x86_address_to);
 
 	// Need to change pc to jump address as it will cause problems if its not pc-aligned to 0 throughout the whole program
 	// Set region pc to current c8 pc
@@ -389,7 +390,9 @@ void Chip8Engine_Dynarec::handleOpcodeMSN_8() {
 	}
 	default:
 	{
-		std::cout << "Unknown Opcode detected (in 0x8000)" << std::endl;
+#ifdef USE_VERBOSE
+		printf("Dynarec: Unknown Opcode detected! Skipping (0x%.4X)\n", C8_STATE::opcode);
+#endif
 		C8_STATE::C8_incrementPC(); // Update PC by 2 bytes
 		break;
 	}
@@ -420,7 +423,9 @@ void Chip8Engine_Dynarec::handleOpcodeMSN_9() {
 	}
 	default:
 	{
-		std::cout << "Unknown Opcode detected (in 0x9000)" << std::endl;
+#ifdef USE_VERBOSE
+		printf("Dynarec: Unknown Opcode detected! Skipping (0x%.4X)\n", C8_STATE::opcode);
+#endif
 		C8_STATE::C8_incrementPC(); // Update PC by 2 bytes
 		break;
 	}
@@ -439,28 +444,13 @@ void Chip8Engine_Dynarec::handleOpcodeMSN_B() {
 	// Only one subtype of opcode in this branch
 	// 0xBNNN: Sets PC to the address (NNN + V0) aka INDIRECT JUMP!
 
-	// TODO: Implement properly!! DOES NOT WORK CURRENTLY!
-
-	// Get values
-	uint16_t num = (C8_STATE::opcode & 0x0FFF);
-
-	// First record jump in jump table if DNE (so it will get updated on every translator loop)
-	int32_t tblindex = jumptbl->findJumpEntry(0xFFFF);
-	if (tblindex == -1) {
-		tblindex = jumptbl->recordJumpEntry(0xFFFF);
-	}
-
 	// Emit jump
 	// Need to determine jump location - move the num to register, then add v0 to it, then write back to the jump table.
 	// Need to also interrupt so we can determine the cache where the jump should lead to.
-	emitter->MOV_ImmtoR_16(ax, num);
-	emitter->ADD_MtoR_8(al, &C8_STATE::cpu.V[0]);
-	emitter->MOV_RtoM_16(&jumptbl->jump_list[tblindex]->c8_address_to, ax);
-	//emitter->MOV_ImmtoM_8(&jumptbl->jump_list[tblindex]->filled_flag, 0); // Need to reset filled flag to 0
 	emitter->DYNAREC_EMIT_INTERRUPT(X86_STATE::PREPARE_FOR_INDIRECT_JUMP, C8_STATE::opcode);
-	emitter->JMP_M_PTR_32((uint32_t*)&jumptbl->jump_list[tblindex]->x86_address_to);
+	emitter->JMP_M_PTR_32((uint32_t*)&jumptbl->x86_indirect_jump_address);
 
-	// Change C8 PC
+	// Change C8 PC (do not know where to jump to, so just +2)
 	C8_STATE::C8_incrementPC();
 }
 
@@ -540,7 +530,9 @@ void Chip8Engine_Dynarec::handleOpcodeMSN_E() {
 	}
 	default:
 	{
-		std::cout << "Unknown Opcode detected (in 0xE000)" << std::endl;
+#ifdef USE_VERBOSE
+		printf("Dynarec: Unknown Opcode detected! Skipping (0x%.4X)\n", C8_STATE::opcode);
+#endif
 		C8_STATE::C8_incrementPC(); // Update PC by 2 bytes
 		break;
 	}
@@ -709,7 +701,9 @@ void Chip8Engine_Dynarec::handleOpcodeMSN_F() {
 	}
 	default:
 	{
-		std::cout << "Unknown Opcode detected (in 0xF000)" << std::endl;
+#ifdef USE_VERBOSE
+		printf("Dynarec: Unknown Opcode detected! Skipping (0x%.4X)\n", C8_STATE::opcode);
+#endif
 		C8_STATE::C8_incrementPC(); // Update PC by 2 bytes
 		break;
 	}

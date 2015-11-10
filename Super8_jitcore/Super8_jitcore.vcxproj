@@ -71,13 +71,14 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>C:\Shared\Dev\Projects\SDL2_ttf-2.0.12;C:\Shared\Dev\Projects\SDL2-2.0.3\include\;$(IncludePath)</IncludePath>
+    <IncludePath>C:\Shared\Dev\Projects\SDL2_ttf-2.0.12;C:\Shared\Dev\Projects\SDL2-2.0.3\include\;$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <LinkIncremental>false</LinkIncremental>
+    <LinkIncremental>true</LinkIncremental>
+    <IncludePath>C:\Shared\Dev\Projects\SDL2_ttf-2.0.12;C:\Shared\Dev\Projects\SDL2-2.0.3\include\;$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
@@ -86,8 +87,18 @@
     <ClCompile>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
-      <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <InlineFunctionExpansion>Default</InlineFunctionExpansion>
+      <IntrinsicFunctions>false</IntrinsicFunctions>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <MinimalRebuild>true</MinimalRebuild>
+      <EnableEnhancedInstructionSet>NotSet</EnableEnhancedInstructionSet>
+      <BufferSecurityCheck>true</BufferSecurityCheck>
+      <ControlFlowGuard>false</ControlFlowGuard>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <StructMemberAlignment>Default</StructMemberAlignment>
+      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
       <SDLCheck>true</SDLCheck>
     </ClCompile>
     <Link>
@@ -116,13 +127,22 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <SDLCheck>true</SDLCheck>
+      <DebugInformationFormat>None</DebugInformationFormat>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <OmitFramePointers>true</OmitFramePointers>
+      <EnableFiberSafeOptimizations>true</EnableFiberSafeOptimizations>
+      <StructMemberAlignment>1Byte</StructMemberAlignment>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <ControlFlowGuard>false</ControlFlowGuard>
+      <EnableEnhancedInstructionSet>AdvancedVectorExtensions2</EnableEnhancedInstructionSet>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
+      <LinkTimeCodeGeneration>Default</LinkTimeCodeGeneration>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -192,37 +212,6 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="Super8.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="..\Debug\chip8roms\15PUZZLE" />
-    <None Include="..\Debug\chip8roms\BLINKY" />
-    <None Include="..\Debug\chip8roms\BLITZ" />
-    <None Include="..\Debug\chip8roms\BRIX" />
-    <None Include="..\Debug\chip8roms\CONNECT4" />
-    <None Include="..\Debug\chip8roms\GUESS" />
-    <None Include="..\Debug\chip8roms\HIDDEN" />
-    <None Include="..\Debug\chip8roms\INVADERS" />
-    <None Include="..\Debug\chip8roms\KALEID" />
-    <None Include="..\Debug\chip8roms\MAZE" />
-    <None Include="..\Debug\chip8roms\MERLIN" />
-    <None Include="..\Debug\chip8roms\MISSILE" />
-    <Resource Include="..\Debug\chip8roms\PONG">
-      <FileType>Document</FileType>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</DeploymentContent>
-    </Resource>
-    <None Include="..\Debug\chip8roms\PONG2" />
-    <None Include="..\Debug\chip8roms\PUZZLE" />
-    <None Include="..\Debug\chip8roms\SYZYGY" />
-    <None Include="..\Debug\chip8roms\TANK" />
-    <None Include="..\Debug\chip8roms\TETRIS" />
-    <None Include="..\Debug\chip8roms\TICTAC" />
-    <None Include="..\Debug\chip8roms\UFO" />
-    <None Include="..\Debug\chip8roms\VBRIX" />
-    <None Include="..\Debug\chip8roms\VERS" />
-    <None Include="..\Debug\chip8roms\WIPEOFF" />
-    <None Include="..\Dynarec Project Info.xlsx" />
-    <None Include="..\x86 Coder32 Reference.xlsx" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Super8_jitcore.rc" />

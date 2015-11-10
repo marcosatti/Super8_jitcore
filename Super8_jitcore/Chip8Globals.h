@@ -13,10 +13,17 @@
 #include "Chip8Engine_JumpHandler.h"
 #include "Chip8Engine_Key.h"
 
+//#define USE_VERBOSE
 //#define USE_DEBUG
 
 #ifdef USE_DEBUG_EXTRA
-#define USE_DEBUG
+	#define USE_DEBUG
+#endif
+
+#ifdef USE_DEBUG
+	#ifndef USE_VERBOSE
+		#define USE_VERBOSE
+	#endif
 #endif
 
 // Forward decl's

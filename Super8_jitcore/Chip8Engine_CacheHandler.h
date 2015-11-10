@@ -23,9 +23,9 @@ struct CACHE_REGION {
 class Chip8Engine_CacheHandler
 {
 public:
-	FastArrayList<int32_t> cache_invalidate_list;
+	FastArrayList<int32_t> * cache_invalidate_list;
 	int32_t selected_cache_index = 0;
-	FastArrayList<CACHE_REGION> cache_list;
+	FastArrayList<CACHE_REGION> * cache_list;
 
 	uint8_t * setup_cache_cdecl;
 	uint8_t setup_cache_cdecl_sz;
@@ -78,7 +78,6 @@ public:
 
 	void DEBUG_printCacheByIndex(int32_t index);
 	void DEBUG_printCacheList();
-
 private:
 	int32_t allocNewCacheByC8PC(uint16_t c8_start_pc_); // The main allocation function
 	int32_t allocAndSwitchNewCacheByC8PC(uint16_t c8_start_pc_);

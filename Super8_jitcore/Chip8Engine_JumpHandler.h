@@ -18,16 +18,16 @@ struct COND_JUMP_ENTRY {
 class Chip8Engine_JumpHandler
 {
 public:
-	FastArrayList<int32_t> jump_fill_list;
-	FastArrayList<JUMP_ENTRY> jump_list;
-	FastArrayList<COND_JUMP_ENTRY> cond_jump_list;
+	FastArrayList<int32_t> * jump_fill_list;
+	FastArrayList<JUMP_ENTRY> * jump_list;
+	FastArrayList<COND_JUMP_ENTRY> * cond_jump_list;
+	uint8_t * x86_indirect_jump_address; // USED ONLY FOR INDIRECT JUMPS! (as address to jump to might change, but we have already emitted a jump.. This is the easiest way to update the jump location).
 
 	Chip8Engine_JumpHandler();
 	~Chip8Engine_JumpHandler();
 
-	int32_t recordJumpEntry(uint16_t c8_to_);
-	int32_t findJumpEntry(uint16_t c8_to_);
-	JUMP_ENTRY * getJumpEntryByIndex(uint32_t index);
+	int32_t getJumpIndexByC8PC(uint16_t c8_to);
+	JUMP_ENTRY * getJumpInfoByIndex(uint32_t index);
 	void clearFilledFlagByC8PC(uint16_t c8_pc);
 
 	int32_t recordConditionalJumpEntry(uint16_t c8_from_, uint16_t c8_to_, uint8_t translator_cycles_, uint32_t * x86_address_jump_value_);
@@ -39,4 +39,8 @@ public:
 
 	void DEBUG_printJumpList();
 	void DEBUG_printCondJumpList();
+
+private:
+	int32_t recordJumpEntry(uint16_t c8_to_);
+	int32_t findJumpEntry(uint16_t c8_to_);
 };

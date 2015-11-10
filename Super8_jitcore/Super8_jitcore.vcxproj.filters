@@ -25,9 +25,6 @@
     <Filter Include="Header Files\Interpreter">
       <UniqueIdentifier>{55eae07e-ee58-4330-87eb-17de9e00a6dc}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Resource Files\chip8roms">
-      <UniqueIdentifier>{d937cb8c-941d-42fb-acdc-24708e49048f}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Header Files\FastArrayList">
       <UniqueIdentifier>{66f4a59c-c71a-42ca-ba5b-e33624cacd85}</UniqueIdentifier>
     </Filter>
@@ -158,85 +155,6 @@
     <ClCompile Include="Chip8Engine_HandleInterrupt.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="..\Dynarec Project Info.xlsx">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="..\x86 Coder32 Reference.xlsx">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="..\Debug\chip8roms\15PUZZLE">
-      <Filter>Resource Files\chip8roms</Filter>
-    </None>
-    <None Include="..\Debug\chip8roms\BLINKY">
-      <Filter>Resource Files\chip8roms</Filter>
-    </None>
-    <None Include="..\Debug\chip8roms\BLITZ">
-      <Filter>Resource Files\chip8roms</Filter>
-    </None>
-    <None Include="..\Debug\chip8roms\BRIX">
-      <Filter>Resource Files\chip8roms</Filter>
-    </None>
-    <None Include="..\Debug\chip8roms\CONNECT4">
-      <Filter>Resource Files\chip8roms</Filter>
-    </None>
-    <None Include="..\Debug\chip8roms\GUESS">
-      <Filter>Resource Files\chip8roms</Filter>
-    </None>
-    <None Include="..\Debug\chip8roms\HIDDEN">
-      <Filter>Resource Files\chip8roms</Filter>
-    </None>
-    <None Include="..\Debug\chip8roms\INVADERS">
-      <Filter>Resource Files\chip8roms</Filter>
-    </None>
-    <None Include="..\Debug\chip8roms\KALEID">
-      <Filter>Resource Files\chip8roms</Filter>
-    </None>
-    <None Include="..\Debug\chip8roms\MAZE">
-      <Filter>Resource Files\chip8roms</Filter>
-    </None>
-    <None Include="..\Debug\chip8roms\MERLIN">
-      <Filter>Resource Files\chip8roms</Filter>
-    </None>
-    <None Include="..\Debug\chip8roms\MISSILE">
-      <Filter>Resource Files\chip8roms</Filter>
-    </None>
-    <None Include="..\Debug\chip8roms\PONG2">
-      <Filter>Resource Files\chip8roms</Filter>
-    </None>
-    <None Include="..\Debug\chip8roms\PUZZLE">
-      <Filter>Resource Files\chip8roms</Filter>
-    </None>
-    <None Include="..\Debug\chip8roms\SYZYGY">
-      <Filter>Resource Files\chip8roms</Filter>
-    </None>
-    <None Include="..\Debug\chip8roms\TANK">
-      <Filter>Resource Files\chip8roms</Filter>
-    </None>
-    <None Include="..\Debug\chip8roms\TETRIS">
-      <Filter>Resource Files\chip8roms</Filter>
-    </None>
-    <None Include="..\Debug\chip8roms\TICTAC">
-      <Filter>Resource Files\chip8roms</Filter>
-    </None>
-    <None Include="..\Debug\chip8roms\UFO">
-      <Filter>Resource Files\chip8roms</Filter>
-    </None>
-    <None Include="..\Debug\chip8roms\VBRIX">
-      <Filter>Resource Files\chip8roms</Filter>
-    </None>
-    <None Include="..\Debug\chip8roms\VERS">
-      <Filter>Resource Files\chip8roms</Filter>
-    </None>
-    <None Include="..\Debug\chip8roms\WIPEOFF">
-      <Filter>Resource Files\chip8roms</Filter>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="..\Debug\chip8roms\PONG">
-      <Filter>Resource Files\chip8roms</Filter>
-    </Resource>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Super8_jitcore.rc">

@@ -40,17 +40,15 @@ void Chip8Engine::handleInterrupt_OUT_OF_CODE()
 		&& (cache->findCacheIndexByStartC8PC(region->c8_end_recompile_pc + 2) != -1 
 		|| region->stop_write_flag != 0)) {
 		// Case 2 & 3 - Absolute end of region reached -> Record & Emit jump to next region
-		// First record jump in jump table if DNE (so it will get updated on every translator loop)
-		int32_t tblindex = jumptbl->findJumpEntry(region->c8_end_recompile_pc + 2);
-		if (tblindex == -1) {
-			tblindex = jumptbl->recordJumpEntry(region->c8_end_recompile_pc + 2);
-		}
+
+		// First get jump table entry
+		int32_t tblindex = jumptbl->getJumpIndexByC8PC(region->c8_end_recompile_pc + 2);
 
 		// Emit the jump
 		int32_t old_index = cache->findCacheIndexCurrent();
 		cache->switchCacheByIndex(cache_index);
 		emitter->DYNAREC_EMIT_INTERRUPT(X86_STATE::PREPARE_FOR_JUMP, region->c8_end_recompile_pc + 2);
-		emitter->JMP_M_PTR_32((uint32_t*)&jumptbl->jump_list[tblindex]->x86_address_to);
+		emitter->JMP_M_PTR_32((uint32_t*)&jumptbl->getJumpInfoByIndex(tblindex)->x86_address_to);
 		cache->setStopWriteFlagCurrent();
 		cache->switchCacheByIndex(old_index);
 	}
@@ -68,7 +66,20 @@ void Chip8Engine::handleInterrupt_PREPARE_FOR_INDIRECT_JUMP()
 
 	// Need to update the jump table/cache before the jumps are made.
 	//cache->DEBUG_printCacheList();
-	jumptbl->checkAndFillJumpsByStartC8PC();
+	switch (X86_STATE::x86_interrupt_c8_param1 & 0xF000) {
+	case 0xB000: {
+		uint16_t c8_address = X86_STATE::x86_interrupt_c8_param1 & 0x0FFF;
+		c8_address += C8_STATE::cpu.V[0]; // get address to jump to
+
+		CACHE_REGION * region = NULL;
+		int32_t cache_index;
+		// Jump cache handling done by CacheHandler, so this function just updates the jump table locations
+		cache_index = cache->getCacheWritableByStartC8PC(c8_address);
+		region = cache->getCacheInfoByIndex(cache_index);
+		jumptbl->x86_indirect_jump_address = region->x86_mem_address;
+	}
+	}
+	
 }
 
 void Chip8Engine::handleInterrupt_SELF_MODIFYING_CODE()
@@ -141,18 +152,15 @@ void Chip8Engine::handleInterrupt_PREPARE_FOR_STACK_JUMP()
 		entry.c8_address = return_c8_pc;
 		stack->setTopStack(entry);
 
-		// First record jump in jump table if DNE (so it will get updated on every translator loop)
-		int32_t tblindex = jumptbl->findJumpEntry(jump_c8_pc);
-		if (tblindex == -1) {
-			tblindex = jumptbl->recordJumpEntry(jump_c8_pc);
-		}
+		// First get jump table entry
+		int32_t tblindex = jumptbl->getJumpIndexByC8PC(jump_c8_pc);
 
 		// Need to check/alloc jump location caches
 		cache->getCacheWritableByStartC8PC(jump_c8_pc);
 		jumptbl->checkAndFillJumpsByStartC8PC();
 
 		// Set stack->x86_address_to equal to jumptable location
-		stack->x86_address_to = jumptbl->jump_list[tblindex]->x86_address_to;
+		stack->x86_address_to = jumptbl->getJumpInfoByIndex(tblindex)->x86_address_to;
 		break;
 	}
 	case 0x0000:
@@ -160,18 +168,15 @@ void Chip8Engine::handleInterrupt_PREPARE_FOR_STACK_JUMP()
 		// Get stack entry & set jump location
 		STACK_ENTRY entry = stack->getTopStack();
 
-		// First record jump in jump table if DNE (so it will get updated on every translator loop)
-		int32_t tblindex = jumptbl->findJumpEntry(entry.c8_address);
-		if (tblindex == -1) {
-			tblindex = jumptbl->recordJumpEntry(entry.c8_address);
-		}
+		// First get jump table entry
+		int32_t tblindex = jumptbl->getJumpIndexByC8PC(entry.c8_address);
 
 		// Need to check/alloc jump location caches
 		cache->getCacheWritableByStartC8PC(entry.c8_address);
 		jumptbl->checkAndFillJumpsByStartC8PC();
 
 		// Set stack->x86_address_to equal to jumptable location
-		stack->x86_address_to = jumptbl->jump_list[tblindex]->x86_address_to;
+		stack->x86_address_to = jumptbl->getJumpInfoByIndex(tblindex)->x86_address_to;
 		break;
 	}
 	}

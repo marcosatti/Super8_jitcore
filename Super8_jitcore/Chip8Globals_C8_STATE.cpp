@@ -44,7 +44,7 @@ namespace Chip8Globals {
 			delete[] memory;
 			delete[] gfxmem;
 		}
-		uint8_t C8_getPCByteAlignmentOffset(uint16_t c8_pc)
+		inline uint8_t C8_getPCByteAlignmentOffset(uint16_t c8_pc)
 		{
 			// PC always starts at 0x0200, and each opcode is ALWAYS 2 bytes long. So if there is a jump to eg: 0x0211, then it has an alignment offset of 1 (alignment of 0 would be 0x0210 or 0x0212). This is used in INVADERS rom.
 			// Result will always be 0 or 1 for the C8 specs.
