@@ -3,7 +3,7 @@
 #include <SDL.h>
 #include <SDL_ttf.h>
 
-//#define USE_SDL
+#define USE_SDL
 
 namespace SDLGlobals {
 	extern SDL_Window * window;

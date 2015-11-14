@@ -34,7 +34,7 @@ int main(int argc, char **argv) {
 	for (int i = 0; i < 16; i++) {
 		Chip8Globals::key->key[i] = 0;
 	}
-	Chip8Globals::key->key[0x4] = 1;
+	Chip8Globals::key->key[0x5] = 1;
 
 #ifdef USE_SDL
 	// Emulate

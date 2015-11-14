@@ -4,6 +4,8 @@
 void Chip8Engine::handleInterrupt_PREPARE_FOR_JUMP()
 {
 	// ! ! ! X86_STATE::x86_resume_c8_pc contains jump location ! ! !
+	// Flush caches that are marked
+	cache->invalidateCacheByFlag();
 
 	// Need to update the jump table/cache before the jumps are made.
 	//cache->DEBUG_printCacheList();
@@ -22,6 +24,8 @@ void Chip8Engine::handleInterrupt_USE_INTERPRETER()
 void Chip8Engine::handleInterrupt_OUT_OF_CODE()
 {
 	// ! ! ! X86_STATE::x86_resume_c8_pc contains start pc of cache, X86_STATE::x86_resume_start_address contains starting x86 address of cache ! ! !
+	// Flush caches that are marked
+	cache->invalidateCacheByFlag();
 
 	// End of cache was reached, because of 3 posibilities:
 	// 1. The cache is genuinely out of code due to translator loop exiting on X many cycles
@@ -63,6 +67,8 @@ void Chip8Engine::handleInterrupt_OUT_OF_CODE()
 void Chip8Engine::handleInterrupt_PREPARE_FOR_INDIRECT_JUMP()
 {
 	// ! ! ! X86_STATE::x86_resume_c8_pc contains opcode ! ! !
+	// Flush caches that are marked
+	cache->invalidateCacheByFlag();
 
 	// Need to update the jump table/cache before the jumps are made.
 	//cache->DEBUG_printCacheList();
@@ -85,6 +91,9 @@ void Chip8Engine::handleInterrupt_PREPARE_FOR_INDIRECT_JUMP()
 void Chip8Engine::handleInterrupt_SELF_MODIFYING_CODE()
 {
 	// ! ! ! X86_STATE::x86_resume_c8_pc contains opcode from translator ! ! !
+	// Flush caches that are marked
+	cache->invalidateCacheByFlag();
+
 	// Only 2 opcodes in the C8 specs that do this. For SMC, need to invalidate cache that the memory writes to
 	switch (X86_STATE::x86_interrupt_c8_param1 & 0xF0FF) {
 	case 0xF033:
@@ -138,6 +147,9 @@ void Chip8Engine::handleInterrupt_WAIT_FOR_KEYPRESS()
 void Chip8Engine::handleInterrupt_PREPARE_FOR_STACK_JUMP()
 {
 	// ! ! ! X86_STATE::x86_resume_c8_pc contains either: 0x2NNN (call, address = NNN) or 0x00EE (ret) ! ! !
+	// Flush caches that are marked
+	cache->invalidateCacheByFlag();
+
 	//cache->DEBUG_printCacheList();
 	//stack->DEBUG_printStack();
 	switch (X86_STATE::x86_interrupt_c8_param1 & 0xF000) {

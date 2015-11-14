@@ -70,8 +70,6 @@ void Chip8Engine::emulationLoop()
 	// Exec cache and cleanup & handle return interrupt code (first run will produce OUT_OF_CODE)
 	cache->execCache_CDECL();
 	//printf("Chip8Engine: Ran cache ok. Interrupt code = %d, (optional) C8 handle opcode = 0x%.4X\n", X86_STATE::x86_status_code, X86_STATE::x86_resume_c8_pc);
-	// Flush caches that are marked
-	cache->invalidateCacheByFlag();
 	// Handle Interrupts
 	handleInterrupt();
 	//printf("Chip8Engine: NEW X86_RESUME_ADDRESS = 0x%.8X (in cache[%d])\n", (uint32_t)X86_STATE::x86_resume_address, cache->getCacheIndexByX86Address(X86_STATE::x86_resume_address));
