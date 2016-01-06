@@ -18,35 +18,48 @@ Chip8Engine_CacheHandler::~Chip8Engine_CacheHandler()
 
 void Chip8Engine_CacheHandler::setupCache_CDECL()
 {
-	// A small cache which is used to handle the CDECL call convention before passing off to the main cache execution point
-	// WIN32 specific
+	// A small cache which is used to handle the CDECL call convention before passing off to the main cache execution point.
+	// Also contains the x86 EIP hack used to get the current EIP address and store it in the eax register.
 	if (setup_cache_cdecl == NULL) {
-		// Alloc cdecl setup cache for first time. will not change after this
+		// Alloc cdecl setup cache for first time. Will not change after this.
 		uint8_t	bytes[] = {
+			// Below code is used to 1. start CDECL calling convention, 2. goto emulation resume point, then 3. cleanup (return point).
+			// 1.
 			0x55,					//0x0 PUSH ebp
 			0x89,					//0x1 (1) MOV ebp, esp
 			0b11100101,				//0x2 (2, MODRM) MOV ebp, esp
+
+			// 2.
 			0xFF,					//0x3 (1) JMP r/m32
 			0b00100101,				//0x4 (2, MODRM) JMP r/m32
 			0x00,					//0x5 (3, DISP32)
 			0x00,					//0x6 (4, DISP32)
 			0x00,					//0x7 (5, DISP32)
 			0x00,					//0x8 (6, DISP32)
+
+			// 3.
 			0x5D,					//0x9 POP ebp
 			0xC3,					//0xA RET
 
-									// HACK: ASM BELOW USED TO GET EIP ADDRESS AND RETURN IN EAX. SEE CodeEmitter_x86->DYNAREC_MOV_EAX_EIP
+			// HACK: ASM BELOW USED TO GET EIP ADDRESS AND RETURN IN EAX. SEE CodeEmitter_x86->DYNAREC_MOV_EAX_EIP.
 			0x58,					//0xB POP eax
 			0x50,					//0xC PUSH eax
 			0xC3					//0xD RET
 		};
-
 		setup_cache_cdecl_sz = sizeof(bytes) / sizeof(bytes[0]);
 
+		// WIN32 specific
 		if ((setup_cache_cdecl = (uint8_t *)VirtualAlloc(0, setup_cache_cdecl_sz, MEM_COMMIT, PAGE_EXECUTE_READWRITE)) == NULL) exit(2);
+
+		// Copy above raw x86 code into executable memory page.
 		memcpy(setup_cache_cdecl, bytes, setup_cache_cdecl_sz);
+
+		// Update variables needed throughout program.
 		setup_cache_return_jmp_address = (setup_cache_cdecl + 0x9);
 		setup_cache_eip_hack = (setup_cache_cdecl + 0xB);
+
+		// Update cdecl cache with location of x86_resume_address variable (will jump to address contained in x86_resume_address).
+		*(uint32_t *)(setup_cache_cdecl + 0x5) = (uint32_t)&X86_STATE::x86_resume_address;
 
 		// DEBUG
 #ifdef USE_VERBOSE
@@ -56,29 +69,11 @@ void Chip8Engine_CacheHandler::setupCache_CDECL()
 		printf("       x86_resume_address @ location 0x%.8X\n", (uint32_t)&X86_STATE::x86_resume_address);
 #endif
 	}
-
-	// Update cdecl cache with location of x86_resume_address variable
-	*(uint32_t *)(setup_cache_cdecl + 0x5) = (uint32_t)&X86_STATE::x86_resume_address;
-#ifdef USE_VERBOSE
-	printf("Cache: updated CDECL Cache. Bytes: ");
-	for (int i = 0; i < setup_cache_cdecl_sz; i++) {
-		printf("0x%.2X,", *(setup_cache_cdecl + i));
-	}
-	printf("\n");
-#endif
 }
 
 void Chip8Engine_CacheHandler::execCache_CDECL()
 {
-	// DEBUG
-	//printf("\n!!!Printing cache to screen!!!\n");
-	//for (int i = 0; i < cache_pc; i++) {
-	//	printf("0x%.2X, ", *(cache_mem + i));
-	//}
-	//printf("\n");
-	//printf("\nCache: Attempting to execute cdecl cache. x86_resume_address = 0x%.8X (cache[%d])\n", (uint32_t)X86_STATE::x86_resume_address, cache->getCacheIndexByX86Address(X86_STATE::x86_resume_address));
-	
-	// Old method, doesnt work with optimisations turned on.
+	// Old method, doesnt work with optimisations turned on (optimises to JMP instead of CALL).
 	//void(__cdecl *exec)() = (void(__cdecl *)())setup_cache_cdecl;
 	//exec();
 

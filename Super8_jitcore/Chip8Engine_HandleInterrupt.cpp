@@ -98,12 +98,10 @@ void Chip8Engine::handleInterrupt_PREPARE_FOR_INDIRECT_JUMP()
 	case 0xB000: {
 		uint16_t c8_address = X86_STATE::x86_interrupt_c8_param1 & 0x0FFF;
 		c8_address += C8_STATE::cpu.V[0]; // get address to jump to
-
-		CACHE_REGION * region = NULL;
-		int32_t cache_index;
+										  
 		// Jump cache handling done by CacheHandler, so this function just updates the jump table locations
-		cache_index = cache->getCacheWritableByStartC8PC(c8_address);
-		region = cache->getCacheInfoByIndex(cache_index);
+		int32_t cache_index = cache->getCacheWritableByStartC8PC(c8_address);
+		CACHE_REGION * region = cache->getCacheInfoByIndex(cache_index);
 		jumptbl->x86_indirect_jump_address = region->x86_mem_address;
 	}
 	}

@@ -12,9 +12,9 @@ Chip8Engine_CodeEmitter_x86::~Chip8Engine_CodeEmitter_x86()
 {
 }
 
-void Chip8Engine_CodeEmitter_x86::DYNAREC_EMIT_INTERRUPT(Chip8Globals::X86_STATE::X86_INT_STATUS_CODE code, uint16_t c8_opcode)
+void Chip8Engine_CodeEmitter_x86::DYNAREC_EMIT_INTERRUPT(X86_INT_STATUS_CODE code, uint16_t c8_opcode)
 {
-	MOV_ImmtoM_8((uint8_t *)(&x86_interrupt_status_code), code); // Store status code into global variable.
+	MOV_ImmtoM_8((uint8_t *)(&x86_interrupt_status_code), code); // Store status code into global variable (x86_resume_address).
 	MOV_ImmtoM_16(&x86_interrupt_c8_param1, c8_opcode); // Store optional parameter c8_opcode into global variable. USE 0xFFFF IF NOT NEEDED.
 	DYNAREC_EMIT_MOV_EAX_EIP(); // move current eip into eax (uses a 32-bit hack method)
 	ADD_ImmtoR_32(eax, 18); // 18 is length of next two x86 opcodes
@@ -23,7 +23,7 @@ void Chip8Engine_CodeEmitter_x86::DYNAREC_EMIT_INTERRUPT(Chip8Globals::X86_STATE
 
 void Chip8Engine_CodeEmitter_x86::DYNAREC_EMIT_INTERRUPT(X86_INT_STATUS_CODE code, uint16_t c8_opcode, uint16_t c8_return_pc)
 {
-	MOV_ImmtoM_8((uint8_t *)(&x86_interrupt_status_code), code); // Store status code into global variable.
+	MOV_ImmtoM_8((uint8_t *)(&x86_interrupt_status_code), code); // Store status code into global variable (x86_resume_address).
 	MOV_ImmtoM_16(&x86_interrupt_c8_param1, c8_opcode); // Store optional parameter c8_opcode into global variable. USE 0xFFFF IF NOT NEEDED.
 	MOV_ImmtoM_16(&x86_interrupt_c8_param2, c8_return_pc); // Used with stack interrupts, contains location of return c8 pc (in 0x2NNN calls)
 	DYNAREC_EMIT_MOV_EAX_EIP(); // move current eip into eax (uses a 32-bit hack method)

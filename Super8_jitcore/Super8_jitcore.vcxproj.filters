@@ -146,13 +146,13 @@
     <ClCompile Include="FastArrayList.cpp">
       <Filter>Source Files\FastArrayList</Filter>
     </ClCompile>
-    <ClCompile Include="Chip8Engine_Key.cpp">
-      <Filter>Source Files\Dynarec_x86</Filter>
-    </ClCompile>
     <ClCompile Include="Chip8Engine_Timers.cpp">
       <Filter>Source Files\Dynarec_x86</Filter>
     </ClCompile>
     <ClCompile Include="Chip8Engine_HandleInterrupt.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Chip8Engine_Key.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

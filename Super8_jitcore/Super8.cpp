@@ -28,7 +28,7 @@ int main(int argc, char **argv) {
 
 	// Initialize the Chip8 system and load the game into the memory
 	mChip8->initialise();
-	mChip8->loadProgram("..\\chip8roms\\BRIX_test");
+	mChip8->loadProgram("..\\chip8roms\\BLITZ");
 
 	// Set keystate initially
 	for (int i = 0; i < 16; i++) {
