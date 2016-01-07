@@ -44,11 +44,11 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Normal|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>C:\Shared\Dev\Projects\SDL2_ttf-2.0.12;C:\Shared\Dev\Projects\SDL2-2.0.3\include\;$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
+    <IncludePath>C:\Shared\Dev\Projects\SDL2-2.0.3\include;C:\Shared\Dev\Projects\SDL2_ttf-2.0.12;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Speed Optimised|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>C:\Shared\Dev\Projects\SDL2_ttf-2.0.12;C:\Shared\Dev\Projects\SDL2-2.0.3\include\;$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
+    <IncludePath>C:\Shared\Dev\Projects\SDL2-2.0.3\include;C:\Shared\Dev\Projects\SDL2_ttf-2.0.12;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Normal|Win32'">
     <ClCompile>
@@ -161,9 +161,9 @@
     <None Include="zlib1.dll" />
   </ItemGroup>
   <ItemGroup>
-    <Library Include="..\..\SDL2-2.0.3\VisualC\SDLmain\Win32\Debug\SDL2main.lib" />
-    <Library Include="..\..\SDL2-2.0.3\VisualC\SDL\Win32\Debug\SDL2.lib" />
-    <Library Include="..\..\SDL2_ttf-2.0.12\VisualC\Win32\Debug\SDL2_ttf.lib" />
+    <Library Include="Libs\SDL2.lib" />
+    <Library Include="Libs\SDL2main.lib" />
+    <Library Include="Libs\SDL2_ttf.lib" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

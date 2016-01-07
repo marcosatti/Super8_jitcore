@@ -174,14 +174,8 @@
     <None Include="zlib1.dll" />
   </ItemGroup>
   <ItemGroup>
-    <Library Include="..\..\SDL2_ttf-2.0.12\VisualC\Win32\Debug\SDL2_ttf.lib">
-      <Filter>Libs</Filter>
-    </Library>
-    <Library Include="..\..\SDL2-2.0.3\VisualC\SDL\Win32\Debug\SDL2.lib">
-      <Filter>Libs</Filter>
-    </Library>
-    <Library Include="..\..\SDL2-2.0.3\VisualC\SDLmain\Win32\Debug\SDL2main.lib">
-      <Filter>Libs</Filter>
-    </Library>
+    <Library Include="Libs\SDL2.lib" />
+    <Library Include="Libs\SDL2_ttf.lib" />
+    <Library Include="Libs\SDL2main.lib" />
   </ItemGroup>
 </Project>
