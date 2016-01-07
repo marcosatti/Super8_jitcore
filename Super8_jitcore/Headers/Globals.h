@@ -2,9 +2,12 @@
 
 // Globals.h is used to define global macros etc.
 
-//#define USE_SDL
-//#define USE_VERBOSE
-//#define USE_DEBUG
+// SDL
+#define USE_SDL
+
+// Logging
+#define USE_VERBOSE
+#define USE_DEBUG
 //#define USE_DEBUG_EXTRA
 //#define USE_SDL
 

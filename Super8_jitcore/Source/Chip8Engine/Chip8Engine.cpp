@@ -70,14 +70,14 @@ void Chip8Engine::emulationLoop()
 	cache->execCache_CDECL();
 
 #ifdef USE_DEBUG
-	printf("Chip8Engine: Ran cache ok. Interrupt code = %d, x86_interrupt_c8_param1 = 0x%.4X\n", X86_STATE::x86_status_code, X86_STATE::x86_interrupt_c8_param1);
+	printf("Chip8Engine: Ran cache ok. Interrupt code = %d (%s).", X86_STATE::x86_interrupt_status_code, X86_STATE::x86_int_status_code_strings[(uint8_t)X86_STATE::x86_interrupt_status_code]);
 #endif
 
 	// Handle Interrupts
 	handleInterrupt();
 
 #ifdef USE_DEBUG
-	printf("Chip8Engine: NEW X86_RESUME_ADDRESS = 0x%.8X (in cache[%d])\n", (uint32_t)X86_STATE::x86_resume_address, cache->getCacheIndexByX86Address(X86_STATE::x86_resume_address));
+	printf("Chip8Engine: New x86_resume_address = 0x%.8X (in cache[%d])\n", (uint32_t)X86_STATE::x86_resume_address, cache->findCacheIndexByX86Address(X86_STATE::x86_resume_address));
 #endif
 }
 
@@ -134,7 +134,7 @@ void Chip8Engine::translatorLoop()
 	do {
 #ifdef USE_VERBOSE
 		// Print number of translator cycles parsed.
-		printf("\nChip8Engine: Running translator cycle: %d\n", translate_cycles);
+		printf("Chip8Engine: Running translator cycle: %d\n", translate_cycles);
 #endif
 
 		// Check and fill in conditional jumps & decrease num of cycles
@@ -144,7 +144,7 @@ void Chip8Engine::translatorLoop()
 		// Bounds checking (do not translate outside of rom location)
 		if (C8_STATE::cpu.pc > C8_STATE::rom_sz) {
 #ifdef USE_VERBOSE
-			printf("Chip8Engine: Warning: C8 PC was outside of rom location! Running cache again as there is no code to translate (reset pc to 0x0200).\n");
+			printf("Chip8Engine: Warning: C8 PC was outside of rom location! Running from start again as there is no code to translate (reset pc to 0x0200).\n");
 #endif
 			C8_STATE::cpu.pc = 0x0200;
 			translate_cycles++;

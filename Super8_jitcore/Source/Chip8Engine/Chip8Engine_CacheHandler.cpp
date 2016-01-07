@@ -55,7 +55,7 @@ void Chip8Engine_CacheHandler::setupCache_CDECL()
 
 		// Check if memory was actually allocated.
 		if (setup_cache_cdecl == NULL) {
-			printf("CacheHandler: FATAL: Could not allocate memory for a cache. Exiting.");
+			printf("\nCacheHandler: FATAL: Could not allocate memory for a cache. Exiting.\n");
 			exit(2);
 		}
 
@@ -153,7 +153,7 @@ int32_t Chip8Engine_CacheHandler::allocNewCacheByC8PC(uint16_t c8_start_pc_)
 
 	// Check if memory was actually allocated.
 	if (setup_cache_cdecl == NULL) {
-		printf("CacheHandler: FATAL: Could not allocate memory for a cache. Exiting.");
+		printf("\nCacheHandler: FATAL: Could not allocate memory for a cache. Exiting.\n");
 		exit(2);
 	}
 
@@ -334,7 +334,7 @@ void Chip8Engine_CacheHandler::invalidateCacheByFlag()
 					selected_cache_index = -1;
 				}
 #ifdef USE_VERBOSE
-				printf("               New selected_cache_index = %d\n", selected_cache_index);
+				printf("              New selected_cache_index = %d\n", selected_cache_index);
 #endif
 
 				// remove entry after its been filled

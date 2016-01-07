@@ -105,9 +105,7 @@ void Chip8Engine_JumpHandler::checkAndFillJumpsByStartC8PC()
 			cache_index = cache->getCacheWritableByStartC8PC(jump_list->get_ptr(jump_list_index)->c8_address_to);
 			region = cache->getCacheInfoByIndex(cache_index);
 			jump_list->get_ptr(jump_list_index)->x86_address_to = region->x86_mem_address;
-#ifdef USE_VERBOSE
-			printf("JumpHandler: C8 Jump[%d] Updated: 0x%.4X. Address 0x%.8X written to x86_address_to (jump to cache[%d])\n", jump_list_index, jump_list[jump_list_index]->c8_address_to, (uint32_t)region->x86_mem_address, cache_index);
-#endif
+
 			// remove entry after its been filled
 			jump_fill_list->remove(i);
 			list_sz = jump_fill_list->size(); // update list size again

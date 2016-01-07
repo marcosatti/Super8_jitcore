@@ -12,7 +12,6 @@
 #include "../Chip8Engine/Chip8Engine_JumpHandler.h"
 #include "../Chip8Engine/Chip8Engine_Key.h"
 
-
 // Forward decl's
 class Chip8Engine_JumpHandler;
 class Chip8Engine_Interpreter;
@@ -20,6 +19,8 @@ class Chip8Engine_Dynarec;
 class Chip8Engine_Timers;
 class Chip8Engine_CodeEmitter_x86;
 class Chip8Engine_CacheHandler;
+class Chip8Engine_Key;
+class Chip8Engine_StackHandler;
 
 namespace Chip8Globals {
 	// Declare Globals for C8
