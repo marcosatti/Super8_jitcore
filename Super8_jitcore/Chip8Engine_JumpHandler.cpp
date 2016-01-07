@@ -139,6 +139,7 @@ JUMP_ENTRY * Chip8Engine_JumpHandler::getJumpInfoByIndex(uint32_t index)
 	return jump_list->get_ptr(index);
 }
 
+#ifdef USE_DEBUG
 void Chip8Engine_JumpHandler::DEBUG_printJumpList()
 {
 	for (int32_t i = 0; i < jump_list->size(); i++) {
@@ -156,3 +157,4 @@ void Chip8Engine_JumpHandler::DEBUG_printCondJumpList()
 			cond_jump_list->get_ptr(i)->translator_cycles);
 	}
 }
+#endif

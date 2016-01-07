@@ -12,12 +12,12 @@
 #endif
 
 struct CACHE_REGION {
-	uint16_t c8_start_recompile_pc;
-	uint16_t c8_end_recompile_pc;
-	uint8_t c8_pc_alignement;
-	uint8_t * x86_mem_address;
-	uint32_t x86_pc;
-	uint8_t stop_write_flag; // used to signify that no more code should be emitted to this cache (usually because it ends in a jump)
+	uint16_t c8_start_recompile_pc; // The start C8 pc for this cache (code inclusive).
+	uint16_t c8_end_recompile_pc; // The end C8 pc for this cache (code inclusive).
+	uint8_t c8_pc_alignement; // TESTING: used to signify the byte alignment of this cache. For chip8 roms, this is always either 0 (pc % 2 == 0) or 1 (pc % 2 == 1) as each opcode is always 2 bytes long.
+	uint8_t * x86_mem_address; // Used to store the base address of where the cache is stored in memory.
+	uint32_t x86_pc; // Used to tell how much code has been emitted to the cache (code size).
+	uint8_t stop_write_flag; // Used to signify that no more code should be emitted to this cache (usually because it ends in a jump).
 };
 
 class Chip8Engine_CacheHandler
@@ -76,8 +76,11 @@ public:
 	void write16(uint16_t word_);
 	void write32(uint32_t dword_);
 
+#ifdef USE_DEBUG
 	void DEBUG_printCacheByIndex(int32_t index);
 	void DEBUG_printCacheList();
+#endif
+
 private:
 	int32_t allocNewCacheByC8PC(uint16_t c8_start_pc_); // The main allocation function
 	int32_t allocAndSwitchNewCacheByC8PC(uint16_t c8_start_pc_);

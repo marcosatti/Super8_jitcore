@@ -48,8 +48,16 @@ void Chip8Engine_CacheHandler::setupCache_CDECL()
 		};
 		setup_cache_cdecl_sz = sizeof(bytes) / sizeof(bytes[0]);
 
-		// WIN32 specific
-		if ((setup_cache_cdecl = (uint8_t *)VirtualAlloc(0, setup_cache_cdecl_sz, MEM_COMMIT, PAGE_EXECUTE_READWRITE)) == NULL) exit(2);
+		// WIN32 specific. Allocate cache memory with read, write and execute permissions.
+#ifdef _WIN32
+		setup_cache_cdecl = (uint8_t *)VirtualAlloc(0, setup_cache_cdecl_sz, MEM_COMMIT, PAGE_EXECUTE_READWRITE);
+#endif
+
+		// Check if memory was actually allocated.
+		if (setup_cache_cdecl == NULL) {
+			printf("CacheHandler: FATAL: Could not allocate memory for a cache. Exiting.");
+			exit(2);
+		}
 
 		// Copy above raw x86 code into executable memory page.
 		memcpy(setup_cache_cdecl, bytes, setup_cache_cdecl_sz);
@@ -134,15 +142,25 @@ int32_t Chip8Engine_CacheHandler::findCacheIndexByX86Address(uint8_t * x86_addre
 
 int32_t Chip8Engine_CacheHandler::allocNewCacheByC8PC(uint16_t c8_start_pc_)
 {
-	// WIN32 specific
+	// Attempt to allocate memory for cache first.
 	uint8_t * cache_mem = NULL;
-	if ((cache_mem = (uint8_t *)VirtualAlloc(0, MAX_CACHE_SZ, MEM_COMMIT, PAGE_EXECUTE_READWRITE)) == NULL) exit(2); // Do not continue if this does not work. Critical part of app.
 
-	// set to NOP 0x90
+	// WIN32 specific. Allocate cache memory with read, write and execute permissions.
+#ifdef _WIN32
+	cache_mem = (uint8_t *)VirtualAlloc(0, MAX_CACHE_SZ, MEM_COMMIT, PAGE_EXECUTE_READWRITE);
+#endif
+
+	// Check if memory was actually allocated.
+	if (setup_cache_cdecl == NULL) {
+		printf("CacheHandler: FATAL: Could not allocate memory for a cache. Exiting.");
+		exit(2);
+	}
+
+	// Set cache to NOP 0x90. Allows for OUT_OF_CODE to be reached without changing anything.
 	memset(cache_mem, 0x90, MAX_CACHE_SZ);
 	
 	// set last memory bytes to OUT_OF_CODE interrupt
-	// Emits change x86_status_code to 2 (out of code) & x86_resume_c8_pc = c8_start_pc then jump back to cdecl return address
+	// Emits change x86_status_code to 2 (out of code) & x86_interrupt_c8_param1 = c8_start_pc then jump back to cdecl return address
 	uint8_t bytes[] = {
 		0xC6,		// (0) MOV m, Imm8
 		0b00000101, // (1) MOV m, Imm8
@@ -158,10 +176,10 @@ int32_t Chip8Engine_CacheHandler::allocNewCacheByC8PC(uint16_t c8_start_pc_)
 		0x00,		// (10) PTR 32
 		0x00,		// (11) PTR 32
 		0x00,		// (12) PTR 32
-		0x00,		// (13) X86_RESUME_START_ADDRESS
-		0x00,		// (14) X86_RESUME_START_ADDRESS
-		0x00,		// (15) X86_RESUME_START_ADDRESS
-		0x00,		// (16) X86_RESUME_START_ADDRESS
+		0x00,		// (13) cache_mem address
+		0x00,		// (14) cache_mem address
+		0x00,		// (15) cache_mem address
+		0x00,		// (16) cache_mem address
 		//-----------------------------------------------------
 		0xFF,		// (17) JMP PTR 32
 		0b00100101, // (18) JMP PTR 32
@@ -450,6 +468,7 @@ CACHE_REGION * Chip8Engine_CacheHandler::getCacheInfoByC8PC(uint16_t c8_pc_)
 	return cache_list->get_ptr(idx);
 }
 
+#ifdef USE_DEBUG
 void Chip8Engine_CacheHandler::DEBUG_printCacheByIndex(int32_t index)
 {
 	printf("CacheHandler: Cache[%d]: C8_start_pc = 0x%.4X, C8_end_pc = 0x%.4X, X86_mem_address = 0x%.8X, X86_pc = 0x%.8X\n",
@@ -469,6 +488,7 @@ void Chip8Engine_CacheHandler::DEBUG_printCacheList()
 			(cache_invalidate_list->find(i) != -1), cache_list->get_ptr(i)->stop_write_flag);
 	}
 }
+#endif
 
 void Chip8Engine_CacheHandler::incrementCacheX86PC(uint8_t count)
 {

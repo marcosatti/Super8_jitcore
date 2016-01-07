@@ -3,7 +3,7 @@
 
 void Chip8Engine::handleInterrupt_PREPARE_FOR_JUMP()
 {
-	// ! ! ! X86_STATE::x86_resume_c8_pc contains jump location ! ! !
+	// ! ! ! X86_STATE::x86_interrupt_c8_param1 contains jump location ! ! !
 	// Flush caches that are marked
 	cache->invalidateCacheByFlag();
 
@@ -14,7 +14,7 @@ void Chip8Engine::handleInterrupt_PREPARE_FOR_JUMP()
 
 void Chip8Engine::handleInterrupt_USE_INTERPRETER()
 {
-	// ! ! ! X86_STATE::x86_resume_c8_pc contains interpreter opcode ! ! !
+	// ! ! ! X86_STATE::x86_interrupt_c8_param1 contains interpreter opcode ! ! !
 
 	// Opcode hasnt been implemented in the dynarec yet, need to use interpreter
 	interpreter->setOpcode(X86_STATE::x86_interrupt_c8_param1);
@@ -23,7 +23,7 @@ void Chip8Engine::handleInterrupt_USE_INTERPRETER()
 
 void Chip8Engine::handleInterrupt_OUT_OF_CODE()
 {
-	// ! ! ! X86_STATE::x86_resume_c8_pc contains start pc of cache, X86_STATE::x86_resume_start_address contains starting x86 address of cache ! ! !
+	// ! ! ! X86_STATE::x86_interrupt_c8_param1 contains start pc of cache, X86_STATE::x86_resume_start_address contains starting x86 address of cache ! ! !
 	// Flush caches that are marked
 	cache->invalidateCacheByFlag();
 
@@ -88,7 +88,7 @@ void Chip8Engine::handleInterrupt_OUT_OF_CODE()
 
 void Chip8Engine::handleInterrupt_PREPARE_FOR_INDIRECT_JUMP()
 {
-	// ! ! ! X86_STATE::x86_resume_c8_pc contains opcode ! ! !
+	// ! ! ! X86_STATE::x86_interrupt_c8_param1 contains opcode ! ! !
 	// Flush caches that are marked
 	cache->invalidateCacheByFlag();
 
@@ -110,7 +110,7 @@ void Chip8Engine::handleInterrupt_PREPARE_FOR_INDIRECT_JUMP()
 
 void Chip8Engine::handleInterrupt_SELF_MODIFYING_CODE()
 {
-	// ! ! ! X86_STATE::x86_resume_c8_pc contains opcode from translator ! ! !
+	// ! ! ! X86_STATE::x86_interrupt_c8_param1 contains opcode from translator ! ! !
 	// Flush caches that are marked
 	cache->invalidateCacheByFlag();
 
@@ -138,6 +138,7 @@ void Chip8Engine::handleInterrupt_SELF_MODIFYING_CODE()
 	}
 }
 
+#ifdef USE_DEBUG
 void Chip8Engine::handleInterrupt_DEBUG()
 {
 	printf("\n!!! Debug Interrupt, Opcode = 0x%.4X, C8PC = 0x%.4X !!!\n", X86_STATE::x86_interrupt_c8_param1, X86_STATE::x86_interrupt_c8_param2);
@@ -147,10 +148,11 @@ void Chip8Engine::handleInterrupt_DEBUG()
 	//jumptbl->DEBUG_printJumpList();
 	//jumptbl->DEBUG_printCondJumpList();
 }
+#endif
 
 void Chip8Engine::handleInterrupt_WAIT_FOR_KEYPRESS()
 {
-	// ! ! ! X86_STATE::x86_resume_c8_pc contains the C8 opcode ! ! !
+	// ! ! ! X86_STATE::x86_interrupt_c8_param1 contains the C8 opcode ! ! !
 	// Only one opcode: 0xFX0A: A key press is awaited, then stored in Vx.
 	// For now this will do, however it should be handled by the parent object to the C8Engine
 	// Check if there has been a key press, and if so, store it in key->x86_key_pressed
@@ -166,7 +168,7 @@ void Chip8Engine::handleInterrupt_WAIT_FOR_KEYPRESS()
 
 void Chip8Engine::handleInterrupt_PREPARE_FOR_STACK_JUMP()
 {
-	// ! ! ! X86_STATE::x86_resume_c8_pc contains either: 0x2NNN (call, address = NNN) or 0x00EE (ret) ! ! !
+	// ! ! ! X86_STATE::x86_interrupt_c8_param1 contains either: 0x2NNN (call, address = NNN) or 0x00EE (ret) ! ! !
 	// Flush caches that are marked
 	cache->invalidateCacheByFlag();
 

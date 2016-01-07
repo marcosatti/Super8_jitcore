@@ -1,6 +1,5 @@
 #include "stdafx.h"
 #include "Chip8Engine.h"
-#include <time.h>
 
 Chip8Engine::Chip8Engine() {
 }
@@ -53,7 +52,7 @@ void Chip8Engine::loadProgram(std::string path) {
 	// Open file.
 	std::ifstream file(path, std::ios::in | std::ios::binary);
 
-	// Get length of file, store end location in global var
+	// Get length of file, store end location in global var rom_sz
 	file.seekg(0, std::ios::end);
 	size_t length = (size_t)file.tellg();
 	C8_STATE::rom_sz = 0x0200 + (uint16_t)length;
@@ -69,10 +68,17 @@ void Chip8Engine::emulationLoop()
 	// The heart and soul of this emulator
 	// Exec cache and cleanup & handle return interrupt code (first run will produce OUT_OF_CODE)
 	cache->execCache_CDECL();
-	//printf("Chip8Engine: Ran cache ok. Interrupt code = %d, (optional) C8 handle opcode = 0x%.4X\n", X86_STATE::x86_status_code, X86_STATE::x86_resume_c8_pc);
+
+#ifdef USE_DEBUG
+	printf("Chip8Engine: Ran cache ok. Interrupt code = %d, x86_interrupt_c8_param1 = 0x%.4X\n", X86_STATE::x86_status_code, X86_STATE::x86_interrupt_c8_param1);
+#endif
+
 	// Handle Interrupts
 	handleInterrupt();
-	//printf("Chip8Engine: NEW X86_RESUME_ADDRESS = 0x%.8X (in cache[%d])\n", (uint32_t)X86_STATE::x86_resume_address, cache->getCacheIndexByX86Address(X86_STATE::x86_resume_address));
+
+#ifdef USE_DEBUG
+	printf("Chip8Engine: NEW X86_RESUME_ADDRESS = 0x%.8X (in cache[%d])\n", (uint32_t)X86_STATE::x86_resume_address, cache->getCacheIndexByX86Address(X86_STATE::x86_resume_address));
+#endif
 }
 
 void Chip8Engine::handleInterrupt()
@@ -103,11 +109,13 @@ void Chip8Engine::handleInterrupt()
 		handleInterrupt_SELF_MODIFYING_CODE();
 		break;
 	}
+#ifdef USE_DEBUG
 	case X86_STATE::DEBUG:
 	{
 		handleInterrupt_DEBUG();
 		break;
 	}
+#endif
 	case X86_STATE::WAIT_FOR_KEYPRESS:
 	{
 		handleInterrupt_WAIT_FOR_KEYPRESS();
@@ -124,7 +132,10 @@ void Chip8Engine::handleInterrupt()
 void Chip8Engine::translatorLoop()
 {
 	do {
-		//printf("\nChip8Engine: Running translator cycle: %d\n", translate_cycles);
+#ifdef USE_VERBOSE
+		// Print number of translator cycles parsed.
+		printf("\nChip8Engine: Running translator cycle: %d\n", translate_cycles);
+#endif
 
 		// Check and fill in conditional jumps & decrease num of cycles
 		jumptbl->decreaseConditionalCycle();
@@ -166,6 +177,7 @@ void Chip8Engine::translatorLoop()
 		
 		// Update Timers
 		dynarec->emulateTranslatorTimers();
+
 #ifdef USE_DEBUG
 		// DEBUG
 		emitter->DYNAREC_EMIT_INTERRUPT(X86_STATE::DEBUG, C8_STATE::opcode, C8_STATE::cpu.pc);
@@ -173,12 +185,12 @@ void Chip8Engine::translatorLoop()
 		// Translate
 		dynarec->emulateTranslatorCycle();
 
-
 		// Update cycle number
 		translate_cycles++;
 	} while (translate_cycles % 16 != 0 || jumptbl->checkConditionalCycle() > 0); // Limit a cache update to 16 c8 opcodes at a time, but do not exit if there is a conditional cycle waiting to be updated
 }
 
+#ifdef USE_DEBUG
 void Chip8Engine::DEBUG_renderGFXText()
 {
 	using namespace C8_STATE;
@@ -199,3 +211,4 @@ void Chip8Engine::DEBUG_renderGFXText()
 	printf("\n");
 	printf("--- END RENDER ---\n\n");
 }
+#endif

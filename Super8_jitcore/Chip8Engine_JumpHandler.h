@@ -37,8 +37,10 @@ public:
 	void checkAndFillJumpsByStartC8PC();
 	void checkAndFillConditionalJumpsByCycles();
 
+#ifdef USE_DEBUG
 	void DEBUG_printJumpList();
 	void DEBUG_printCondJumpList();
+#endif
 
 private:
 	int32_t recordJumpEntry(uint16_t c8_to_);

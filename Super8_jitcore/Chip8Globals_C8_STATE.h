@@ -57,6 +57,9 @@ namespace Chip8Globals {
 
 		extern uint16_t rom_sz;
 
+#ifdef USE_DEBUG
 		extern void DEBUG_printC8_STATE();
+#endif
+
 	}
 }

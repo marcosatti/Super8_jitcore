@@ -23,6 +23,9 @@ public:
 	void setTopStack(STACK_ENTRY entry);
 	STACK_ENTRY getTopStack();
 
+#ifdef USE_DEBUG
 	void DEBUG_printStack();
+#endif
+
 private:
 };
