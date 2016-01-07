@@ -44,7 +44,7 @@ STACK_ENTRY Chip8Engine_StackHandler::getTopStack()
 	return stack[sp];
 }
 
-#ifdef USE_DEBUG
+#ifdef USE_DEBUG_EXTRA
 void Chip8Engine_StackHandler::DEBUG_printStack()
 {
 	printf("StackHandler: Printing stack list (sp = %d):\n", sp);

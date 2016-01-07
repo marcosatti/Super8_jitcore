@@ -51,7 +51,7 @@ void Chip8Engine::handleInterrupt_OUT_OF_CODE()
 
 	// There is possibly a better way to do this...
 
-#ifdef USE_DEBUG
+#ifdef USE_DEBUG_EXTRA
 	cache->DEBUG_printCacheList();
 	printf("----\n\n");
 #endif
@@ -137,10 +137,10 @@ void Chip8Engine::handleInterrupt_SELF_MODIFYING_CODE()
 	}
 }
 
-#ifdef USE_DEBUG
+#ifdef USE_DEBUG_EXTRA
 void Chip8Engine::handleInterrupt_DEBUG()
 {
-	printf("\n!!! Debug Interrupt, Opcode = 0x%.4X, C8PC = 0x%.4X !!!\n", X86_STATE::x86_interrupt_c8_param1, X86_STATE::x86_interrupt_c8_param2);
+	printf("!!! Debug Interrupt, Opcode = 0x%.4X, C8PC = 0x%.4X !!!\n", X86_STATE::x86_interrupt_c8_param1, X86_STATE::x86_interrupt_c8_param2);
 	C8_STATE::DEBUG_printC8_STATE();
 	//X86_STATE::DEBUG_printX86_STATE();
 	//cache->DEBUG_printCacheList();

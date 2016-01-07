@@ -5,13 +5,10 @@ using namespace Chip8Globals;
 
 Chip8Engine_Dynarec::Chip8Engine_Dynarec()
 {
-	// Alloc cache, TODO: check sizing
-	emitter = new Chip8Engine_CodeEmitter_x86();
 }
 
 Chip8Engine_Dynarec::~Chip8Engine_Dynarec()
 {
-	delete emitter;
 }
 
 void Chip8Engine_Dynarec::emulateTranslatorCycle() {

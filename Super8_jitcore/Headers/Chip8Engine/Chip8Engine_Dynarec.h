@@ -1,9 +1,13 @@
 #pragma once
 
-#include "../Chip8Globals/Chip8Globals_C8_STATE.h"
+#include "../Chip8Globals/Chip8Globals.h"
 
 #include "Chip8Engine_CodeEmitter_x86.h"
 #include "Chip8Engine_StackHandler.h"
+#include "Chip8Engine_Timers.h"
+#include "Chip8Engine_CacheHandler.h"
+#include "Chip8Engine_JumpHandler.h"
+#include "Chip8Engine_Key.h"
 
 class Chip8Engine_Dynarec {
 public:

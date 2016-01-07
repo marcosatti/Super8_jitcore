@@ -1,6 +1,7 @@
 #pragma once
 
 #include <iostream>
+
 #include "../Chip8Globals/Chip8Globals.h"
 
 class Chip8Engine_Interpreter {

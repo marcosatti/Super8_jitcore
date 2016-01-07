@@ -3,14 +3,10 @@
 #include <cstdint>
 
 #include "../Globals.h"
+#include "../SDLGlobals.h"
 
-#include "../Chip8Engine/Chip8Engine_Interpreter.h"
-#include "../Chip8Engine/Chip8Engine_Dynarec.h"
-#include "../Chip8Engine/Chip8Engine_CacheHandler.h"
-#include "../Chip8Engine/Chip8Engine_Timers.h"
-#include "../Chip8Engine/Chip8Engine_StackHandler.h"
-#include "../Chip8Engine/Chip8Engine_JumpHandler.h"
-#include "../Chip8Engine/Chip8Engine_Key.h"
+#include "Chip8Globals_C8_STATE.h"
+#include "Chip8Globals_X86_STATE.h"
 
 // Forward decl's
 class Chip8Engine_JumpHandler;

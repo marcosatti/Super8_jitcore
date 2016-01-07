@@ -1,6 +1,5 @@
 #include "stdafx.h"
 #include "../../Headers/Chip8Engine/Chip8Engine_Interpreter.h"
-#include "../../Headers/SDLGlobals.h"
 
 // This file provides easier opcode management rather than having it all in the main engine.cpp file.
 // TODO Implement: 0x0NNN (needed ?)

@@ -10,6 +10,7 @@ Chip8Engine::~Chip8Engine() {
 	delete timers;
 	delete interpreter;
 	delete dynarec;
+	delete emitter;
 	delete cache;
 	delete jumptbl;
 }
@@ -19,6 +20,7 @@ void Chip8Engine::initialise() {
 	timers = new Chip8Engine_Timers();
 	key = new Chip8Engine_Key();
 	interpreter = new Chip8Engine_Interpreter();
+	emitter = new Chip8Engine_CodeEmitter_x86();
 	dynarec = new Chip8Engine_Dynarec();
 	cache = new Chip8Engine_CacheHandler();
 	stack = new Chip8Engine_StackHandler();
@@ -70,7 +72,7 @@ void Chip8Engine::emulationLoop()
 	cache->execCache_CDECL();
 
 #ifdef USE_DEBUG
-	printf("Chip8Engine: Ran cache ok. Interrupt code = %d (%s).", X86_STATE::x86_interrupt_status_code, X86_STATE::x86_int_status_code_strings[(uint8_t)X86_STATE::x86_interrupt_status_code]);
+	printf("Chip8Engine: Ran cache ok. Interrupt code = %d (%s).\n", X86_STATE::x86_interrupt_status_code, X86_STATE::x86_int_status_code_strings[(uint8_t)X86_STATE::x86_interrupt_status_code]);
 #endif
 
 	// Handle Interrupts
@@ -109,7 +111,7 @@ void Chip8Engine::handleInterrupt()
 		handleInterrupt_SELF_MODIFYING_CODE();
 		break;
 	}
-#ifdef USE_DEBUG
+#ifdef USE_DEBUG_EXTRA
 	case X86_STATE::DEBUG:
 	{
 		handleInterrupt_DEBUG();
@@ -178,7 +180,7 @@ void Chip8Engine::translatorLoop()
 		// Update Timers
 		dynarec->emulateTranslatorTimers();
 
-#ifdef USE_DEBUG
+#ifdef USE_DEBUG_EXTRA
 		// DEBUG
 		emitter->DYNAREC_EMIT_INTERRUPT(X86_STATE::DEBUG, C8_STATE::opcode, C8_STATE::cpu.pc);
 #endif
@@ -190,7 +192,7 @@ void Chip8Engine::translatorLoop()
 	} while (translate_cycles % 16 != 0 || jumptbl->checkConditionalCycle() > 0); // Limit a cache update to 16 c8 opcodes at a time, but do not exit if there is a conditional cycle waiting to be updated
 }
 
-#ifdef USE_DEBUG
+#ifdef USE_DEBUG_EXTRA
 void Chip8Engine::DEBUG_renderGFXText()
 {
 	using namespace C8_STATE;

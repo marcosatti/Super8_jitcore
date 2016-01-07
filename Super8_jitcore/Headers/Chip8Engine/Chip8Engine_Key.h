@@ -3,6 +3,8 @@
 #include <cstdint>
 #include <cstdlib>
 
+#include "../Chip8Globals/Chip8Globals.h"
+
 #define NUM_KEYS 0x10
 
 enum KEY_STATE {

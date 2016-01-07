@@ -2,8 +2,11 @@
 
 #include <cstdint>
 #include <Windows.h>
+
 #include "../FastArrayList/FastArrayList.h"
+
 #include "../Chip8Globals/Chip8Globals.h"
+#include "Chip8Engine_JumpHandler.h"
 
 #ifdef USE_DEBUG_EXTRA
 #define  MAX_CACHE_SZ 0xFFFF
@@ -76,7 +79,7 @@ public:
 	void write16(uint16_t word_);
 	void write32(uint32_t dword_);
 
-#ifdef USE_DEBUG
+#ifdef USE_DEBUG_EXTRA
 	void DEBUG_printCacheByIndex(int32_t index);
 	void DEBUG_printCacheList();
 #endif

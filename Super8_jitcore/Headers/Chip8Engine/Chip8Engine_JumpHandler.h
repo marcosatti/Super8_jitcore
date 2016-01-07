@@ -1,7 +1,11 @@
 #pragma once
 
 #include <cstdint>
+
+#include "../FastArrayList/FastArrayList.h"
+
 #include "../Chip8Globals/Chip8Globals.h"
+#include "Chip8Engine_CacheHandler.h"
 
 struct JUMP_ENTRY {
 	uint16_t c8_address_to;
@@ -37,7 +41,7 @@ public:
 	void checkAndFillJumpsByStartC8PC();
 	void checkAndFillConditionalJumpsByCycles();
 
-#ifdef USE_DEBUG
+#ifdef USE_DEBUG_EXTRA
 	void DEBUG_printJumpList();
 	void DEBUG_printCondJumpList();
 #endif

@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#include "../../Headers/Chip8Globals/Chip8Globals_X86_STATE.h"
+#include "../../Headers/Chip8Globals/Chip8Globals.h"
 
 namespace Chip8Globals {
 	namespace X86_STATE {
@@ -8,6 +8,7 @@ namespace Chip8Globals {
 		uint16_t x86_interrupt_c8_param2;
 		uint8_t * x86_interrupt_x86_param1; // used with out of code interrupts
 		X86_INT_STATUS_CODE x86_interrupt_status_code;
+
 #ifdef USE_DEBUG
 		char * x86_int_status_code_strings[] = {
 			"PREPARE_FOR_JUMP",

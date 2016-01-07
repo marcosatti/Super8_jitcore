@@ -2,7 +2,6 @@
 #include <cstdint>
 #include <SDL.h>
 #include <SDL_ttf.h>
-#include "Globals.h"
 
 namespace SDLGlobals {
 	extern SDL_Window * window;

@@ -72,15 +72,6 @@
     <ClInclude Include="Headers\Chip8Engine\Chip8Engine.h">
       <Filter>Header Files\Chip8Engine</Filter>
     </ClInclude>
-    <ClInclude Include="Headers\Chip8Globals\Chip8Globals.h">
-      <Filter>Header Files\Chip8Globals</Filter>
-    </ClInclude>
-    <ClInclude Include="Headers\Chip8Globals\Chip8Globals_C8_STATE.h">
-      <Filter>Header Files\Chip8Globals</Filter>
-    </ClInclude>
-    <ClInclude Include="Headers\Chip8Globals\Chip8Globals_X86_STATE.h">
-      <Filter>Header Files\Chip8Globals</Filter>
-    </ClInclude>
     <ClInclude Include="resource.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -92,6 +83,15 @@
     </ClInclude>
     <ClInclude Include="Headers\Globals.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Headers\Chip8Globals\Chip8Globals.h">
+      <Filter>Header Files\Chip8Globals</Filter>
+    </ClInclude>
+    <ClInclude Include="Headers\Chip8Globals\Chip8Globals_C8_STATE.h">
+      <Filter>Header Files\Chip8Globals</Filter>
+    </ClInclude>
+    <ClInclude Include="Headers\Chip8Globals\Chip8Globals_X86_STATE.h">
+      <Filter>Header Files\Chip8Globals</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

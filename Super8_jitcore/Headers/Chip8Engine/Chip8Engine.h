@@ -8,7 +8,14 @@
 #include <iostream>
 
 #include "../Chip8Globals/Chip8Globals.h"
-#include "../SDLGlobals.h"
+#include "../Chip8Engine/Chip8Engine_CacheHandler.h"
+#include "../Chip8Engine/Chip8Engine_JumpHandler.h"
+#include "../Chip8Engine/Chip8Engine_Interpreter.h"
+#include "../Chip8Engine/Chip8Engine_CodeEmitter_x86.h"
+#include "../Chip8Engine/Chip8Engine_Key.h"
+#include "../Chip8Engine/Chip8Engine_StackHandler.h"
+#include "../Chip8Engine/Chip8Engine_Timers.h"
+#include "../Chip8Engine/Chip8Engine_Dynarec.h"
 
 ////////////////////////////////////////////////////////////////////////////
 // Chip8Engine is the entry class into the Chip8 functions and emulation! //
@@ -28,7 +35,7 @@ public:
 	void translatorLoop();
 	void handleInterrupt();
 
-#ifdef USE_DEBUG
+#ifdef USE_DEBUG_EXTRA
 	void DEBUG_renderGFXText();
 #endif
 
@@ -38,7 +45,7 @@ private:
 	void handleInterrupt_OUT_OF_CODE();
 	void handleInterrupt_PREPARE_FOR_INDIRECT_JUMP();
 	void handleInterrupt_SELF_MODIFYING_CODE();
-#ifdef USE_DEBUG
+#ifdef USE_DEBUG_EXTRA
 	void handleInterrupt_DEBUG();
 #endif
 	void handleInterrupt_WAIT_FOR_KEYPRESS();

@@ -1,6 +1,9 @@
 #pragma once
 
 #include <cstdint>
+
+#include "../Chip8Globals/Chip8Globals.h"
+
 #define NUM_STACK_LVLS 16
 
 struct STACK_ENTRY {
@@ -23,7 +26,7 @@ public:
 	void setTopStack(STACK_ENTRY entry);
 	STACK_ENTRY getTopStack();
 
-#ifdef USE_DEBUG
+#ifdef USE_DEBUG_EXTRA
 	void DEBUG_printStack();
 #endif
 
