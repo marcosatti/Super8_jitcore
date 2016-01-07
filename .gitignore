@@ -6,6 +6,10 @@
 *.user
 *.userosscache
 *.sln.docstates
+Normal/
+Speed Optimised/
+Super8_jitcore/Normal/
+Super8_jitcore/Speed Optimised/
 
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs
@@ -15,10 +19,6 @@
 [Dd]ebugPublic/
 [Rr]elease/
 [Rr]eleases/
-Normal/
-Speed Optimised/
-Super8_jitcore/Normal/
-Super8_jitcore/Speed Optimised/
 x64/
 x86/
 build/
