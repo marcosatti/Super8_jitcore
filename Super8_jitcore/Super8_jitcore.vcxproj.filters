@@ -13,146 +13,152 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="Source Files\Dynarec_x86">
-      <UniqueIdentifier>{32ab6f29-e4ba-44e3-a7d7-743be58e03f6}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\Dynarec_x86">
-      <UniqueIdentifier>{e60ac70a-3bd0-4e29-81e9-451632585e3b}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\Interpreter">
-      <UniqueIdentifier>{0b7f466c-549e-4609-8fd3-78604a7771a8}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\Interpreter">
-      <UniqueIdentifier>{55eae07e-ee58-4330-87eb-17de9e00a6dc}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Header Files\FastArrayList">
       <UniqueIdentifier>{66f4a59c-c71a-42ca-ba5b-e33624cacd85}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source Files\FastArrayList">
       <UniqueIdentifier>{c3c4e838-5212-4e10-b86c-6c93838b2d73}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Chip8Engine">
+      <UniqueIdentifier>{90a7be5a-cb48-4673-9a63-c90ca20108dd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Chip8Globals">
+      <UniqueIdentifier>{e91faef5-2dcc-4135-a46f-f0184b97f477}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Chip8Engine">
+      <UniqueIdentifier>{32ab6f29-e4ba-44e3-a7d7-743be58e03f6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Chip8Globals">
+      <UniqueIdentifier>{6cb5f0f0-9284-4f70-91b6-0eb98e742aed}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Libs">
+      <UniqueIdentifier>{335a1128-e7c1-41cf-aefd-b8072db39f40}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <Text Include="ReadMe.txt" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="stdafx.h">
+    <ClInclude Include="Headers\FastArrayList\FastArrayList.h">
+      <Filter>Header Files\FastArrayList</Filter>
+    </ClInclude>
+    <ClInclude Include="Headers\SDLGlobals.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Headers\Super8.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Headers\Chip8Engine\Chip8Engine_CacheHandler.h">
+      <Filter>Header Files\Chip8Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="Headers\Chip8Engine\Chip8Engine_CodeEmitter_x86.h">
+      <Filter>Header Files\Chip8Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="Headers\Chip8Engine\Chip8Engine_Dynarec.h">
+      <Filter>Header Files\Chip8Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="Headers\Chip8Engine\Chip8Engine_JumpHandler.h">
+      <Filter>Header Files\Chip8Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="Headers\Chip8Engine\Chip8Engine_Key.h">
+      <Filter>Header Files\Chip8Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="Headers\Chip8Engine\Chip8Engine_StackHandler.h">
+      <Filter>Header Files\Chip8Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="Headers\Chip8Engine\Chip8Engine_Timers.h">
+      <Filter>Header Files\Chip8Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="Headers\Chip8Engine\Chip8Engine_Interpreter.h">
+      <Filter>Header Files\Chip8Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="Headers\Chip8Engine\Chip8Engine.h">
+      <Filter>Header Files\Chip8Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="Headers\Chip8Globals\Chip8Globals.h">
+      <Filter>Header Files\Chip8Globals</Filter>
+    </ClInclude>
+    <ClInclude Include="Headers\Chip8Globals\Chip8Globals_C8_STATE.h">
+      <Filter>Header Files\Chip8Globals</Filter>
+    </ClInclude>
+    <ClInclude Include="Headers\Chip8Globals\Chip8Globals_X86_STATE.h">
+      <Filter>Header Files\Chip8Globals</Filter>
+    </ClInclude>
+    <ClInclude Include="resource.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="targetver.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Chip8Engine.h">
+    <ClInclude Include="stdafx.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Chip8Globals.h">
+    <ClInclude Include="Headers\Globals.h">
       <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Chip8Engine_Interpreter.h">
-      <Filter>Header Files\Interpreter</Filter>
-    </ClInclude>
-    <ClInclude Include="Chip8Engine_Dynarec.h">
-      <Filter>Header Files\Dynarec_x86</Filter>
-    </ClInclude>
-    <ClInclude Include="Chip8Engine_CacheHandler.h">
-      <Filter>Header Files\Dynarec_x86</Filter>
-    </ClInclude>
-    <ClInclude Include="Chip8Engine_StackHandler.h">
-      <Filter>Header Files\Dynarec_x86</Filter>
-    </ClInclude>
-    <ClInclude Include="Chip8Engine_JumpHandler.h">
-      <Filter>Header Files\Dynarec_x86</Filter>
-    </ClInclude>
-    <ClInclude Include="Chip8Engine_CodeEmitter_x86.h">
-      <Filter>Header Files\Dynarec_x86</Filter>
-    </ClInclude>
-    <ClInclude Include="resource.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Chip8Globals_C8_STATE.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Chip8Globals_X86_STATE.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="SDLGlobals.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="FastArrayList.h">
-      <Filter>Header Files\FastArrayList</Filter>
-    </ClInclude>
-    <ClInclude Include="Chip8Engine_Key.h">
-      <Filter>Header Files\Dynarec_x86</Filter>
-    </ClInclude>
-    <ClInclude Include="Chip8Engine_Timers.h">
-      <Filter>Header Files\Dynarec_x86</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="stdafx.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Chip8Engine.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Super8.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Chip8Globals.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Chip8Engine_Interpreter.cpp">
-      <Filter>Source Files\Interpreter</Filter>
-    </ClCompile>
-    <ClCompile Include="Chip8Engine_Dynarec.cpp">
-      <Filter>Source Files\Dynarec_x86</Filter>
-    </ClCompile>
-    <ClCompile Include="Chip8Engine_CacheHandler.cpp">
-      <Filter>Source Files\Dynarec_x86</Filter>
-    </ClCompile>
-    <ClCompile Include="Chip8Engine_StackHandler.cpp">
-      <Filter>Source Files\Dynarec_x86</Filter>
-    </ClCompile>
-    <ClCompile Include="Chip8Engine_JumpHandler.cpp">
-      <Filter>Source Files\Dynarec_x86</Filter>
-    </ClCompile>
-    <ClCompile Include="Chip8Engine_CodeEmitter_x86.cpp">
-      <Filter>Source Files\Dynarec_x86</Filter>
-    </ClCompile>
-    <ClCompile Include="Chip8Globals_C8_STATE.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Chip8Globals_X86_STATE.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="SDLGlobals.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Chip8Engine_CodeEmitter_x86_ADD.cpp">
-      <Filter>Source Files\Dynarec_x86</Filter>
-    </ClCompile>
-    <ClCompile Include="Chip8Engine_CodeEmitter_x86_Bitwise.cpp">
-      <Filter>Source Files\Dynarec_x86</Filter>
-    </ClCompile>
-    <ClCompile Include="Chip8Engine_CodeEmitter_x86_Jump.cpp">
-      <Filter>Source Files\Dynarec_x86</Filter>
-    </ClCompile>
-    <ClCompile Include="Chip8Engine_CodeEmitter_x86_MOV.cpp">
-      <Filter>Source Files\Dynarec_x86</Filter>
-    </ClCompile>
-    <ClCompile Include="Chip8Engine_CodeEmitter_x86_SUB.cpp">
-      <Filter>Source Files\Dynarec_x86</Filter>
-    </ClCompile>
-    <ClCompile Include="FastArrayList.cpp">
+    <ClCompile Include="Source\FastArrayList\FastArrayList.cpp">
       <Filter>Source Files\FastArrayList</Filter>
     </ClCompile>
-    <ClCompile Include="Chip8Engine_Timers.cpp">
-      <Filter>Source Files\Dynarec_x86</Filter>
+    <ClCompile Include="Source\Chip8Engine\Chip8Engine_CacheHandler.cpp">
+      <Filter>Source Files\Chip8Engine</Filter>
     </ClCompile>
-    <ClCompile Include="Chip8Engine_HandleInterrupt.cpp">
+    <ClCompile Include="Source\Chip8Engine\Chip8Engine_CodeEmitter_x86.cpp">
+      <Filter>Source Files\Chip8Engine</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Chip8Engine\Chip8Engine_CodeEmitter_x86_ADD.cpp">
+      <Filter>Source Files\Chip8Engine</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Chip8Engine\Chip8Engine_CodeEmitter_x86_Bitwise.cpp">
+      <Filter>Source Files\Chip8Engine</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Chip8Engine\Chip8Engine_CodeEmitter_x86_Jump.cpp">
+      <Filter>Source Files\Chip8Engine</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Chip8Engine\Chip8Engine_CodeEmitter_x86_MOV.cpp">
+      <Filter>Source Files\Chip8Engine</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Chip8Engine\Chip8Engine_CodeEmitter_x86_SUB.cpp">
+      <Filter>Source Files\Chip8Engine</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Chip8Engine\Chip8Engine_Dynarec.cpp">
+      <Filter>Source Files\Chip8Engine</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Chip8Engine\Chip8Engine_JumpHandler.cpp">
+      <Filter>Source Files\Chip8Engine</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Chip8Engine\Chip8Engine_StackHandler.cpp">
+      <Filter>Source Files\Chip8Engine</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Chip8Engine\Chip8Engine_Timers.cpp">
+      <Filter>Source Files\Chip8Engine</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Super8.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Chip8Engine_Key.cpp">
+    <ClCompile Include="Source\SDLGlobals.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Chip8Engine\Chip8Engine_Interpreter.cpp">
+      <Filter>Source Files\Chip8Engine</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Chip8Engine\Chip8Engine.cpp">
+      <Filter>Source Files\Chip8Engine</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Chip8Engine\Chip8Engine_HandleInterrupt.cpp">
+      <Filter>Source Files\Chip8Engine</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Chip8Engine\Chip8Engine_Key.cpp">
+      <Filter>Source Files\Chip8Engine</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Chip8Globals\Chip8Globals.cpp">
+      <Filter>Source Files\Chip8Globals</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Chip8Globals\Chip8Globals_C8_STATE.cpp">
+      <Filter>Source Files\Chip8Globals</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Chip8Globals\Chip8Globals_X86_STATE.cpp">
+      <Filter>Source Files\Chip8Globals</Filter>
+    </ClCompile>
+    <ClCompile Include="stdafx.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -162,8 +168,20 @@
     </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
-    <Library Include="..\..\SDL2-2.0.3\VisualC\SDL\Win32\Debug\SDL2.lib" />
-    <Library Include="..\..\SDL2-2.0.3\VisualC\SDLmain\Win32\Debug\SDL2main.lib" />
-    <Library Include="..\..\SDL2_ttf-2.0.12\VisualC\Win32\Debug\SDL2_ttf.lib" />
+    <None Include="libfreetype-6.dll" />
+    <None Include="SDL2.dll" />
+    <None Include="SDL2_ttf.dll" />
+    <None Include="zlib1.dll" />
+  </ItemGroup>
+  <ItemGroup>
+    <Library Include="..\..\SDL2_ttf-2.0.12\VisualC\Win32\Debug\SDL2_ttf.lib">
+      <Filter>Libs</Filter>
+    </Library>
+    <Library Include="..\..\SDL2-2.0.3\VisualC\SDL\Win32\Debug\SDL2.lib">
+      <Filter>Libs</Filter>
+    </Library>
+    <Library Include="..\..\SDL2-2.0.3\VisualC\SDLmain\Win32\Debug\SDL2main.lib">
+      <Filter>Libs</Filter>
+    </Library>
   </ItemGroup>
 </Project>

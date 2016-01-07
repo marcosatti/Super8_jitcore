@@ -15,6 +15,10 @@
 [Dd]ebugPublic/
 [Rr]elease/
 [Rr]eleases/
+Normal/
+Speed Optimised/
+Super8_jitcore/Normal/
+Super8_jitcore/Speed Optimised/
 x64/
 x86/
 build/
