@@ -1,9 +1,8 @@
 #pragma once
 
 #include <cstdint>
+#include <vector>
 #include <Windows.h>
-
-#include "../FastArrayList/FastArrayList.h"
 
 #include "../Chip8Globals/Chip8Globals.h"
 #include "Chip8Engine_JumpHandler.h"
@@ -21,14 +20,14 @@ struct CACHE_REGION {
 	uint8_t * x86_mem_address; // Used to store the base address of where the cache is stored in memory.
 	uint32_t x86_pc; // Used to tell how much code has been emitted to the cache (code size).
 	uint8_t stop_write_flag; // Used to signify that no more code should be emitted to this cache (usually because it ends in a jump).
+	uint8_t invalid_flag;
 };
 
 class Chip8Engine_CacheHandler
 {
 public:
-	FastArrayList<int32_t> * cache_invalidate_list;
 	int32_t selected_cache_index = 0;
-	FastArrayList<CACHE_REGION> * cache_list;
+	std::vector<CACHE_REGION> * cache_list;
 
 	uint8_t * setup_cache_cdecl;
 	uint8_t setup_cache_cdecl_sz;

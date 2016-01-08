@@ -1,8 +1,7 @@
 #pragma once
 
 #include <cstdint>
-
-#include "../FastArrayList/FastArrayList.h"
+#include <vector>
 
 #include "../Chip8Globals/Chip8Globals.h"
 #include "Chip8Engine_CacheHandler.h"
@@ -10,6 +9,7 @@
 struct JUMP_ENTRY {
 	uint16_t c8_address_to;
 	uint8_t * x86_address_to; // JMP_M_PTR_32 uses this value
+	uint8_t filled_flag;
 };
 
 struct COND_JUMP_ENTRY {
@@ -22,9 +22,8 @@ struct COND_JUMP_ENTRY {
 class Chip8Engine_JumpHandler
 {
 public:
-	FastArrayList<int32_t> * jump_fill_list;
-	FastArrayList<JUMP_ENTRY> * jump_list;
-	FastArrayList<COND_JUMP_ENTRY> * cond_jump_list;
+	std::vector<JUMP_ENTRY> * jump_list;
+	std::vector<COND_JUMP_ENTRY> * cond_jump_list;
 	uint8_t * x86_indirect_jump_address; // USED ONLY FOR INDIRECT JUMPS! (as address to jump to might change, but we have already emitted a jump.. This is the easiest way to update the jump location).
 
 	Chip8Engine_JumpHandler();
