@@ -114,7 +114,7 @@ int main(int argc, char **argv) {
 
 		ticks = SDL_GetTicks();
 		if ((ticks - ticks_old) > 1000) {
-			printf("Cycle: %llu, Cycles per second: %8.0f\n", cycles, (cycles - cycles_old) * 1000.0 / (ticks - ticks_old));
+			printf("Super8:			Cycle: %llu, Cycles per second: %8.0f\n", cycles, (cycles - cycles_old) * 1000.0 / (ticks - ticks_old));
 			ticks_old = ticks;
 			cycles_old = cycles;
 		}
