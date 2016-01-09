@@ -66,7 +66,7 @@ void Chip8Engine_Dynarec::emulateTranslatorCycle() {
 	default:
 		// Unknown opcode encountered
 #ifdef USE_VERBOSE
-		printf("Dynarec: Unknown Opcode detected! Skipping (0x%.4X)\n", C8_STATE::opcode);
+		printf("Dynarec:	Unknown Opcode detected! Skipping (0x%.4X)\n", C8_STATE::opcode);
 #endif
 		break;
 	}
@@ -123,7 +123,7 @@ void Chip8Engine_Dynarec::handleOpcodeMSN_0() {
 		// 0x0NNN: Calls RCA 1802 program at address 0xNNN. (?)
 		// TODO: Implement?. Skips instruction for now.
 #ifdef USE_VERBOSE
-		printf("Dynarec: RCA call happened but no code! Skipping (0x%.4X)\n", C8_STATE::opcode);
+		printf("Dynarec:	RCA call happened but no code! Skipping (0x%.4X)\n", C8_STATE::opcode);
 #endif
 		// Set region pc to current c8 pc
 		cache->setCacheEndC8PCCurrent(C8_STATE::cpu.pc);
@@ -412,7 +412,7 @@ void Chip8Engine_Dynarec::handleOpcodeMSN_8() {
 	default:
 	{
 #ifdef USE_VERBOSE
-		printf("Dynarec: Unknown Opcode detected! Skipping (0x%.4X)\n", C8_STATE::opcode);
+		printf("Dynarec:	Unknown Opcode detected! Skipping (0x%.4X)\n", C8_STATE::opcode);
 #endif
 		// Set region pc to current c8 pc
 		cache->setCacheEndC8PCCurrent(C8_STATE::cpu.pc);
@@ -449,7 +449,7 @@ void Chip8Engine_Dynarec::handleOpcodeMSN_9() {
 	default:
 	{
 #ifdef USE_VERBOSE
-		printf("Dynarec: Unknown Opcode detected! Skipping (0x%.4X)\n", C8_STATE::opcode);
+		printf("Dynarec:	Unknown Opcode detected! Skipping (0x%.4X)\n", C8_STATE::opcode);
 #endif
 		// Set region pc to current c8 pc
 		cache->setCacheEndC8PCCurrent(C8_STATE::cpu.pc);
@@ -569,7 +569,7 @@ void Chip8Engine_Dynarec::handleOpcodeMSN_E() {
 	default:
 	{
 #ifdef USE_VERBOSE
-		printf("Dynarec: Unknown Opcode detected! Skipping (0x%.4X)\n", C8_STATE::opcode);
+		printf("Dynarec:	Unknown Opcode detected! Skipping (0x%.4X)\n", C8_STATE::opcode);
 #endif
 		// Set region pc to current c8 pc
 		cache->setCacheEndC8PCCurrent(C8_STATE::cpu.pc);
@@ -757,7 +757,7 @@ void Chip8Engine_Dynarec::handleOpcodeMSN_F() {
 	default:
 	{
 #ifdef USE_VERBOSE
-		printf("Dynarec: Unknown Opcode detected! Skipping (0x%.4X)\n", C8_STATE::opcode);
+		printf("Dynarec:	Unknown Opcode detected! Skipping (0x%.4X)\n", C8_STATE::opcode);
 #endif
 		// Set region pc to current c8 pc
 		cache->setCacheEndC8PCCurrent(C8_STATE::cpu.pc);

@@ -53,7 +53,6 @@ void Chip8Engine::handleInterrupt_OUT_OF_CODE()
 
 #ifdef USE_DEBUG_EXTRA
 	cache->DEBUG_printCacheList();
-	printf("----\n\n");
 #endif
 
 	// Get cache details that caused interrupt.
