@@ -32,7 +32,7 @@ void Chip8Engine_StackHandler::setTopStack(STACK_ENTRY entry)
 		sp++;
 	}
 	else {
-		printf("StackHandler: ERROR! Stack is maxed out (16)! Stack not modified.");
+		printf("StackHandler:	ERROR! Stack is maxed out (16)! Stack not modified.");
 	}
 }
 
@@ -47,9 +47,9 @@ STACK_ENTRY Chip8Engine_StackHandler::getTopStack()
 #ifdef USE_DEBUG_EXTRA
 void Chip8Engine_StackHandler::DEBUG_printStack()
 {
-	printf("StackHandler: Printing stack list (sp = %d):\n", sp);
+	printf("StackHandler:	Printing stack list (sp = %d):\n", sp);
 	for (uint8_t i = 0; i < sp; i++) {
-		printf("            [%d]: c8 return pc = 0x%.4X\n", i, stack[i].c8_address);
+		printf("			[%d]: c8 return pc = 0x%.4X\n", i, stack[i].c8_address);
 	}
 	printf("\n");
 }

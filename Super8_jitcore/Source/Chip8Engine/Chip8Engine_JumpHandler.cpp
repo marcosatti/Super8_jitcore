@@ -24,7 +24,7 @@ int32_t Chip8Engine_JumpHandler::recordJumpEntry(uint16_t c8_to_)
 	entry.x86_address_to = NULL; // JMP_M_PTR_32 uses this value (unknown at beginning)
 	jump_list->push_back(entry);
 #ifdef USE_VERBOSE
-	printf("JumpHandler: Jump[%d] recorded. C8_to = 0x%.4X\n", jump_list->size() - 1, c8_to_);
+	printf("JumpHandler:	Jump[%d] recorded. C8_to = 0x%.4X\n", jump_list->size() - 1, c8_to_);
 #endif
 	jump_fill_list->push_back(jump_list->size() - 1);
 	return (jump_list->size() - 1);
@@ -38,7 +38,9 @@ int32_t Chip8Engine_JumpHandler::recordConditionalJumpEntry(uint16_t c8_from_, u
 	entry.x86_address_jump_value = x86_address_jump_value_;
 	entry.translator_cycles = translator_cycles_;
 	cond_jump_list->push_back(entry);
-	//printf("JumpHandler: CONDITIONAL (small) Jump[%d] recorded. C8_from = 0x%.4X, C8_to = 0x%.4X, x86_address = 0x%.8X, cycles = %d\n", cond_jump_list->size() - 1, c8_from_, c8_to_, (uint32_t)x86_address_jump_value_, translator_cycles_);
+#ifdef USE_VERBOSE
+	printf("JumpHandler:	CONDITIONAL (small) Jump[%d] recorded. C8_from = 0x%.4X, C8_to = 0x%.4X, x86_address = 0x%.8X, cycles = %d\n", cond_jump_list->size() - 1, c8_from_, c8_to_, (uint32_t)x86_address_jump_value_, translator_cycles_);
+#endif
 	return (cond_jump_list->size() - 1);
 }
 
@@ -68,12 +70,14 @@ void Chip8Engine_JumpHandler::checkAndFillConditionalJumpsByCycles()
 			int32_t relative = (int32_t)((uint32_t)cache->getEndX86AddressCurrent() - (uint32_t)cond_jump_list->get_ptr(i)->x86_address_jump_value - sizeof(uint32_t)); // 4 is size of uint32_t, as eip is at the end of the jump instruction but we calculate the relative size based on the start address of the relative
 			*(cond_jump_list->get_ptr(i)->x86_address_jump_value) = relative;
 
+#ifdef USE_VERBOSE
+			printf("JumpHandler:	CONDITIONAL (small) Jump[%d] found and updated! Value %d written to location 0x%.8X (in cache[%d])\n", i, relative, (uint32_t)cond_jump_list->get_ptr(i)->x86_address_jump_value, cache->findCacheIndexCurrent());
+#endif
+
 			// remove entry after its been filled
 			cond_jump_list->remove(i);
 			list_sz = cond_jump_list->size(); // update list size again
 			i -= 1; // decrease i by 1 so it rechecks the current i'th value in the list (which would have been i+1 if there was no remove).
-
-			//printf("JumpHandler: CONDITIONAL (small) Jump[%d] found and updated! Value %d written to location 0x%.8X (in cache[%d])\n", i, relative, (uint32_t)cond_jump_list->get_ptr(i)->x86_address_jump_value, cache->findCacheIndexCurrent());
 		}
 	}
 }
@@ -140,18 +144,18 @@ JUMP_ENTRY * Chip8Engine_JumpHandler::getJumpInfoByIndex(uint32_t index)
 #ifdef USE_DEBUG_EXTRA
 void Chip8Engine_JumpHandler::DEBUG_printJumpList()
 {
-	for (int32_t i = 0; i < jump_list->size(); i++) {
-		printf("JumpHandler: Jump[%d] c8_address_to = 0x%.4X, x86_address_to = 0x%.8X\n",
+	for (int32_t i = 0; i < (int32_t)jump_list->size(); i++) {
+		printf("JumpHandler:	Jump[%d]: c8_address_to = 0x%.4X, x86_address_to = 0x%.8X\n",
 			i, jump_list->get_ptr(i)->c8_address_to, (uint32_t)jump_list->get_ptr(i)->x86_address_to);
 	}
 }
 
 void Chip8Engine_JumpHandler::DEBUG_printCondJumpList()
 {
-	for (int32_t i = 0; i < cond_jump_list->size(); i++) {
-		printf("JumpHandler: CondJump[%d]: c8_address_from = 0x%.4X, c8_address_to = 0x%.4X, x86_address_jump_value = 0x%.8X, ",
+	for (int32_t i = 0; i < (int32_t)cond_jump_list->size(); i++) {
+		printf("JumpHandler:	CondJump[%d]: c8_address_from = 0x%.4X, c8_address_to = 0x%.4X, x86_address_jump_value = 0x%.8X,",
 			i, cond_jump_list->get_ptr(i)->c8_address_from, cond_jump_list->get_ptr(i)->c8_address_to, (uint32_t)cond_jump_list->get_ptr(i)->x86_address_jump_value);
-		printf("translator_cycles = %d\n",
+		printf("				translator_cycles = %d\n",
 			cond_jump_list->get_ptr(i)->translator_cycles);
 	}
 }
