@@ -33,8 +33,6 @@ namespace Chip8Globals {
 
 		void C8_incrementPC(uint8_t bytes)
 		{
-			// Set region pc to current c8 pc
-			cache->setCacheEndC8PCCurrent(cpu.pc);
 			// Increments PC by number of bytes specified (and cache)
 			cpu.pc += bytes;
 		}

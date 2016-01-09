@@ -4,8 +4,6 @@
 #include <cstdlib>
 #include <cstring>
 
-#include "../Chip8Engine/Chip8Engine_CacheHandler.h"
-
 #define NUM_BITS_PER_BYTE 8
 #define NUM_V_REG 16 // 16 8-bit data registers from V0 -> VF
 #define MEMORY_SZ 4096 // 4K of RAM (0x0000 -> 0x0FFF accessable)
