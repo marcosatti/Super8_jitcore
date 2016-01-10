@@ -100,16 +100,15 @@ void Logger::logMessage(ILogComponent * component, string msg)
 	buffer << component->getComponentName()
 		<< format_options.formatComponentNumberPrefix
 		<< component->getLoggerComponentID()
-		<< format_options.formatComponentNumberSuffix
-		<< format_options.formatMessageTitleSuffix;
+		<< format_options.formatComponentNumberSuffix;
 
 	// Pad string until min length is reached
-	for (size_t i = (size_t) buffer.tellp(); i <= format_options.formatMessageTitleMinLength; i++) {
+	for (size_t i = (size_t) buffer.tellp(); i < format_options.formatMessageTitleMinLength - 1; i++) {
 		buffer.put(' ');
 	}
 
 	// Put message into buffer
-	buffer << msg;
+	buffer << format_options.formatMessageTitleSuffix << ' ' << msg;
 
 	// Display final message
 	cout << buffer.str() << endl;
