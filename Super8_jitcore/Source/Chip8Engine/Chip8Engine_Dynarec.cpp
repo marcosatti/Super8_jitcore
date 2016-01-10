@@ -120,6 +120,9 @@ void Chip8Engine_Dynarec::handleOpcodeMSN_0() {
 		emitter->DYNAREC_EMIT_INTERRUPT(X86_STATE::PREPARE_FOR_STACK_JUMP, C8_STATE::opcode);
 		emitter->JMP_M_PTR_32((uint32_t*)&stack->x86_address_to);
 
+		// Set stop write on cache
+		cache->setStopWriteFlagCurrent();
+
 		// Change C8 PC to +2 (pointless to access stack as the address will not be the same across multiple calls)
 		// Although this may create problems with regards to pc-alignment, there is already guarrenteed to be a pc to jump back to (stored in the stack table), so worst case it should produce out_of_code interrupt.
 		// Set region pc to current c8 pc
