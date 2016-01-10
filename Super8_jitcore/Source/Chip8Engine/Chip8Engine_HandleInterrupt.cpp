@@ -118,7 +118,7 @@ void Chip8Engine::handleInterrupt_SELF_MODIFYING_CODE()
 	{
 		// 0xFX33: Splits the decimal representation of Vx into 3 locations: hundreds stored in address I, tens in address I+1, and ones in I+2.
 		//cache->DEBUG_printCacheList();
-		uint16_t I = C8_STATE::cpu.I;
+		//uint16_t I = C8_STATE::cpu.I;
 		cache->setInvalidFlagByC8PC(C8_STATE::cpu.I);
 		cache->setInvalidFlagByC8PC(C8_STATE::cpu.I + 1);
 		cache->setInvalidFlagByC8PC(C8_STATE::cpu.I + 2);
@@ -139,7 +139,9 @@ void Chip8Engine::handleInterrupt_SELF_MODIFYING_CODE()
 #ifdef USE_DEBUG_EXTRA
 void Chip8Engine::handleInterrupt_DEBUG()
 {
-	printf("!!! Debug Interrupt, Opcode = 0x%.4X, C8PC = 0x%.4X !!!\n", X86_STATE::x86_interrupt_c8_param1, X86_STATE::x86_interrupt_c8_param2);
+	char buffer[1000];
+	_snprintf_s(buffer, 1000, "!!! Debug Interrupt, Opcode = 0x%.4X, C8PC = 0x%.4X !!!", X86_STATE::x86_interrupt_c8_param1, X86_STATE::x86_interrupt_c8_param2);
+	logMessage(buffer);
 	C8_STATE::DEBUG_printC8_STATE();
 	//X86_STATE::DEBUG_printX86_STATE();
 	//cache->DEBUG_printCacheList();

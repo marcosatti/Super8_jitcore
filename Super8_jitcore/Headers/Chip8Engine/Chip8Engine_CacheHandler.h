@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstdint>
+#include <string>
 #include <Windows.h>
 
 #include "../FastArrayList/FastArrayList.h"
@@ -23,7 +24,7 @@ struct CACHE_REGION {
 	uint8_t stop_write_flag; // Used to signify that no more code should be emitted to this cache (usually because it ends in a jump).
 };
 
-class Chip8Engine_CacheHandler
+class Chip8Engine_CacheHandler : ILogComponent
 {
 public:
 	FastArrayList<int32_t> * cache_invalidate_list;
@@ -37,6 +38,8 @@ public:
 
 	Chip8Engine_CacheHandler();
 	~Chip8Engine_CacheHandler();
+
+	std::string getComponentName();
 
 	void setupCache_CDECL();
 	void execCache_CDECL();

@@ -12,6 +12,9 @@ extern "C" {
 using namespace SDLGlobals;
 
 int main(int argc, char **argv) {
+	// Setup logging system
+	logger = new Logger(false);
+
 	// Set up render system and register input callbacks
 #ifdef USE_SDL
 	SDLGlobals::setupSDLGraphics();
@@ -99,7 +102,7 @@ int main(int argc, char **argv) {
 	}
 #else
 	if (SDL_Init(SDL_INIT_EVERYTHING) != 0) exit(1);
-	printf("Performance test mode. No graphics or sound!\n");
+	//printf("Performance test mode. No graphics or sound!\n");
 	uint64_t cycles_old = 0;
 	while (1) {
 		// Emulation loop
@@ -114,7 +117,7 @@ int main(int argc, char **argv) {
 
 		ticks = SDL_GetTicks();
 		if ((ticks - ticks_old) > 1000) {
-			printf("Super8:			Cycle: %llu, Cycles per second: %8.0f\n", cycles, (cycles - cycles_old) * 1000.0 / (ticks - ticks_old));
+			//printf("Super8:			Cycle: %llu, Cycles per second: %8.0f\n", cycles, (cycles - cycles_old) * 1000.0 / (ticks - ticks_old));
 			ticks_old = ticks;
 			cycles_old = cycles;
 		}
@@ -127,6 +130,7 @@ int main(int argc, char **argv) {
 	SDLGlobals::exitSDLGraphics();
 #endif
 	delete mChip8;
+	delete logger;
 
 	return 0;
 }

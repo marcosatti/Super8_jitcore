@@ -1,5 +1,8 @@
 #pragma once
 
+#include <cstdint>
+#include <string>
+
 #include "../Chip8Globals/Chip8Globals.h"
 
 #include "Chip8Engine_CodeEmitter_x86.h"
@@ -9,10 +12,13 @@
 #include "Chip8Engine_JumpHandler.h"
 #include "Chip8Engine_Key.h"
 
-class Chip8Engine_Dynarec {
+class Chip8Engine_Dynarec : ILogComponent
+{
 public:
 	Chip8Engine_Dynarec();
 	~Chip8Engine_Dynarec();
+
+	std::string getComponentName();
 
 	void emulateTranslatorCycle();
 	void emulateTranslatorTimers();

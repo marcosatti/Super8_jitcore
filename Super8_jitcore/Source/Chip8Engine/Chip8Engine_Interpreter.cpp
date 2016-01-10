@@ -8,10 +8,19 @@ using namespace Chip8Globals;
 
 Chip8Engine_Interpreter::Chip8Engine_Interpreter()
 {
+	// Register this component in logger
+	logger->registerComponent(this);
 }
 
 Chip8Engine_Interpreter::~Chip8Engine_Interpreter()
 {
+	// Deregister this component in logger
+	logger->deregisterComponent(this);
+}
+
+std::string Chip8Engine_Interpreter::getComponentName()
+{
+	return std::string("Interpreter");
 }
 
 void Chip8Engine_Interpreter::setOpcode(uint16_t c8_opcode)

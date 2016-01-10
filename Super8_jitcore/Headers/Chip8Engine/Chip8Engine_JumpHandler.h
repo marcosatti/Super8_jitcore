@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstdint>
+#include <string>
 
 #include "../FastArrayList/FastArrayList.h"
 
@@ -19,7 +20,7 @@ struct COND_JUMP_ENTRY {
 	uint8_t translator_cycles;
 };
 
-class Chip8Engine_JumpHandler
+class Chip8Engine_JumpHandler : ILogComponent
 {
 public:
 	FastArrayList<int32_t> * jump_fill_list;
@@ -29,6 +30,8 @@ public:
 
 	Chip8Engine_JumpHandler();
 	~Chip8Engine_JumpHandler();
+
+	std::string getComponentName();
 
 	int32_t getJumpIndexByC8PC(uint16_t c8_to);
 	JUMP_ENTRY * getJumpInfoByIndex(uint32_t index);
