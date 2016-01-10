@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstdint>
+#include <string>
 
 #include "../Chip8Globals/Chip8Globals.h"
 #include "Chip8Engine_CacheHandler.h"
@@ -19,10 +20,13 @@ typedef enum {
 	bh = 7, di = 7, edi = 7
 } X86Register;
 
-class Chip8Engine_CodeEmitter_x86 {
+class Chip8Engine_CodeEmitter_x86 : ILogComponent 
+{
 public:
 	Chip8Engine_CodeEmitter_x86();
 	~Chip8Engine_CodeEmitter_x86();
+
+	std::string getComponentName();
 
 	// DYNAREC HELPER FUNCTIONS
 	void DYNAREC_EMIT_INTERRUPT(Chip8Globals::X86_STATE::X86_INT_STATUS_CODE code, uint16_t c8_opcode);

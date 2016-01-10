@@ -5,10 +5,20 @@ Chip8Engine_Key::Chip8Engine_Key()
 {
 	// Set all key states to 0.
 	memset(key, 0, NUM_KEYS);
+
+	// Register this component in logger
+	logger->registerComponent(this);
 }
 
 Chip8Engine_Key::~Chip8Engine_Key()
 {
+	// Deregister this component in logger
+	logger->deregisterComponent(this);
+}
+
+std::string Chip8Engine_Key::getComponentName()
+{
+	return std::string("Key");
 }
 
 void Chip8Engine_Key::setKeyState(uint8_t keyindex, KEY_STATE state)

@@ -6,6 +6,7 @@
 #include <cstdlib>
 #include <fstream>
 #include <iostream>
+#include <string>
 
 #include "../Chip8Globals/Chip8Globals.h"
 #include "../Chip8Engine/Chip8Engine_CacheHandler.h"
@@ -23,10 +24,12 @@
 
 using namespace Chip8Globals;
 
-class Chip8Engine {
+class Chip8Engine : ILogComponent {
 public:
 	Chip8Engine();
 	~Chip8Engine();
+
+	std::string getComponentName();
 
 	void initialise();
 	void loadProgram(std::string path);

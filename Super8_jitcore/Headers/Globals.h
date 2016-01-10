@@ -2,6 +2,10 @@
 
 // Globals.h is used to define global macros etc.
 
+// Global Logger
+#include "../Headers/Logger/Logger.h"
+#include "../Headers/Logger/ILogComponent.h"
+
 // SDL
 #define USE_SDL
 
@@ -21,3 +25,5 @@
 #define USE_VERBOSE
 #endif
 #endif
+
+extern Logger * logger;
