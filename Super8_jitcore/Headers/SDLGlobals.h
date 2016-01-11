@@ -1,4 +1,5 @@
 #pragma once
+
 #include <cstdint>
 #include <SDL.h>
 #include <SDL_ttf.h>
@@ -19,8 +20,8 @@ namespace SDLGlobals {
 	extern SDL_Texture * fps_tex;
 	extern SDL_Surface * cycle_surf;
 	extern SDL_Texture * cycle_tex;
-	extern const SDL_Color SDL_COLOR_WHITE;
-	extern const SDL_Color SDL_COLOR_BLACK;
+	extern SDL_Color SDL_COLOR_WHITE;
+	extern SDL_Color SDL_COLOR_BLACK;
 	extern SDL_Rect fps_render_location;
 	extern SDL_Rect cycle_render_location;
 

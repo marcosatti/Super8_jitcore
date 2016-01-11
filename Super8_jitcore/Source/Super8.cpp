@@ -2,7 +2,18 @@
 //
 
 #include "stdafx.h"
-#include "../Headers/Super8.h"
+
+#include <cstdint>
+#include <Windows.h>
+
+#include "Headers\Globals.h"
+#include "Headers\SDLGlobals.h"
+#include "Headers\Chip8Globals\Chip8Globals.h"
+
+#include "Headers\Super8.h"
+
+#include "Headers\Chip8Engine\Chip8Engine.h"
+#include "Headers\Chip8Engine\Chip8Engine_Key.h"
 
 // NVIDIA optimus hack
 extern "C" {
@@ -53,10 +64,10 @@ int main(int argc, char **argv) {
 		mChip8->emulationLoop();
 
 		// C8 Render
-		if (getDrawFlag()) {
+		if (Chip8Globals::getDrawFlag()) {
 			sdlgfxupdate = true;
 			drawcycles++;
-			setDrawFlag(false);
+			Chip8Globals::setDrawFlag(false);
 		}
 
 		// Print fps

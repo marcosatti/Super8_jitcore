@@ -1,7 +1,24 @@
 #include "stdafx.h"
+
+#include <string>
+#include <vector>
+#include <algorithm>
+#include <sstream>
+#include <iostream>
+
 #include "../../Headers/Logger/Logger.h"
+#include "../../Headers/Logger/ILogComponent.h"
 
 using namespace std;
+
+char log_levels[] = {
+	'V', // Verbose
+	'D', // Debug
+	'I', // Info
+	'W', // Warning
+	'E', // Error
+	'F'  // Fatal
+};
 
 Logger::Logger(bool _autoUpdateFormat)
 {
@@ -91,13 +108,14 @@ void Logger::deregisterComponent(ILogComponent * component)
 	component->unsetLoggerCallback();
 }
 
-void Logger::logMessage(ILogComponent * component, string msg)
+void Logger::logMessage(ILogComponent * component, LOGLEVEL level, string msg)
 {
 	if (format_options.formatAutoUpdate) updateFormat();
 
 	// Setup initial string
 	stringstream buffer;
-	buffer << component->getComponentName()
+	buffer << log_levels[level] << '/'
+		<< component->getComponentName()
 		<< format_options.formatComponentNumberPrefix
 		<< component->getLoggerComponentID()
 		<< format_options.formatComponentNumberSuffix;

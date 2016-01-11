@@ -1,8 +1,6 @@
 #pragma once
 
 #include <cstdint>
-#include <cstdlib>
-#include <cstring>
 
 #define NUM_BITS_PER_BYTE 8
 #define NUM_V_REG 16 // 16 8-bit data registers from V0 -> VF

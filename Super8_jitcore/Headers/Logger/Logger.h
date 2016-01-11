@@ -1,14 +1,20 @@
 #pragma once
-#include <cstdint>
+
 #include <string>
 #include <vector>
-#include <algorithm>
-#include <sstream>
-#include <iostream>
 
-#include "ILogComponent.h"
+#define FORMAT_NUM_CONST_CHARS 6 // There are always 5 more characters added to each component title, listed in the FORMAT_OPTIONS (as well as log level "I/"). Extra space at the end.
 
-#define FORMAT_NUM_CONST_CHARS 4 // There are always 3 more characters added to each component title, listed in the FORMAT_OPTIONS. Extra space at the end.
+extern char log_levels[];
+
+enum LOGLEVEL {
+	L_VERBOSE = 0,
+	L_DEBUG,
+	L_INFO,
+	L_WARNING,
+	L_ERROR,
+	L_FATAL
+};
 
 // Forward Declaration
 class ILogComponent;
@@ -33,7 +39,7 @@ public:
 
 	size_t registerComponent(ILogComponent * component);
 	void deregisterComponent(ILogComponent * component);
-	void logMessage(ILogComponent * component, std::string msg);
+	void logMessage(ILogComponent * component, LOGLEVEL level, std::string msg);
 	void updateFormat();
 	void updateFormatAutoUpdate(bool _update);
 	void updateFormatMessageTitleSuffix(char _spacer);

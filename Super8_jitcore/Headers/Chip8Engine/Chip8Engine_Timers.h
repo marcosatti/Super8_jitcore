@@ -1,10 +1,9 @@
 #pragma once
 
 #include <cstdint>
-#include <iostream>
 #include <string>
 
-#include "../Chip8Globals/Chip8Globals.h"
+#include "Headers\Globals.h"
 
 class Chip8Engine_Timers : ILogComponent
 {

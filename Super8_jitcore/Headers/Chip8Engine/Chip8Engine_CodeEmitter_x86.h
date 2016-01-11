@@ -1,10 +1,8 @@
 #pragma once
 
 #include <cstdint>
-#include <string>
 
-#include "../Chip8Globals/Chip8Globals.h"
-#include "Chip8Engine_CacheHandler.h"
+#include "Headers\Globals.h"
 
 #define MODREGRM_RM_DISP32 5
 #define MODREGRM_RM_SIB 4

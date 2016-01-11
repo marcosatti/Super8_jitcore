@@ -4,10 +4,8 @@
 #include <string>
 #include <Windows.h>
 
-#include "../FastArrayList/FastArrayList.h"
-
-#include "../Chip8Globals/Chip8Globals.h"
-#include "Chip8Engine_JumpHandler.h"
+#include "Headers\Globals.h"
+#include "Headers\FastArrayList\FastArrayList.h"
 
 #ifdef USE_DEBUG_EXTRA
 #define  MAX_CACHE_SZ 0xFFFF

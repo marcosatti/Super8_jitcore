@@ -2,11 +2,8 @@
 
 #include <cstdint>
 
-#include "../Globals.h"
-#include "../SDLGlobals.h"
-
-#include "Chip8Globals_C8_STATE.h"
-#include "Chip8Globals_X86_STATE.h"
+#include "Headers\Chip8Globals\Chip8Globals_C8_STATE.h"
+#include "Headers\Chip8Globals\Chip8Globals_X86_STATE.h"
 
 // Forward decl's
 class Chip8Engine_JumpHandler;

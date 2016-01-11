@@ -1,5 +1,19 @@
 #include "stdafx.h"
-#include "../../Headers/Chip8Engine/Chip8Engine.h"
+
+#include <cstdint>
+
+#include "Headers\Globals.h"
+
+#include "Headers\Chip8Globals\Chip8Globals.h"
+#include "Headers\Chip8Engine\Chip8Engine.h"
+#include "Headers\Chip8Engine\Chip8Engine_CacheHandler.h"
+#include "Headers\Chip8Engine\Chip8Engine_CodeEmitter_x86.h"
+#include "Headers\Chip8Engine\Chip8Engine_Interpreter.h"
+#include "Headers\Chip8Engine\Chip8Engine_JumpHandler.h"
+#include "Headers\Chip8Engine\Chip8Engine_Key.h"
+#include "Headers\Chip8Engine\Chip8Engine_StackHandler.h"
+
+using namespace Chip8Globals;
 
 void Chip8Engine::handleInterrupt_PREPARE_FOR_JUMP()
 {
@@ -141,7 +155,7 @@ void Chip8Engine::handleInterrupt_DEBUG()
 {
 	char buffer[1000];
 	_snprintf_s(buffer, 1000, "!!! Debug Interrupt, Opcode = 0x%.4X, C8PC = 0x%.4X !!!", X86_STATE::x86_interrupt_c8_param1, X86_STATE::x86_interrupt_c8_param2);
-	logMessage(buffer);
+	logMessage(LOGLEVEL::L_DEBUG, buffer);
 	C8_STATE::DEBUG_printC8_STATE();
 	//X86_STATE::DEBUG_printX86_STATE();
 	//cache->DEBUG_printCacheList();

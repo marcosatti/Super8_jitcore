@@ -1,5 +1,9 @@
 #include "stdafx.h"
-#include "../../Headers/Chip8Globals/Chip8Globals.h"
+
+#include <cstdint>
+
+#include "Headers\Globals.h"
+#include "Headers\Chip8Globals\Chip8Globals_X86_STATE.h"
 
 namespace Chip8Globals {
 	namespace X86_STATE {

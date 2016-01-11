@@ -1,5 +1,22 @@
 #include "stdafx.h"
-#include "../../Headers/Chip8Engine/Chip8Engine.h"
+
+#include <cstdint>
+#include <fstream>
+
+#include "Headers\Globals.h"
+
+#include "Headers\Chip8Globals\Chip8Globals.h"
+#include "Headers\Chip8Engine\Chip8Engine.h"
+#include "Headers\Chip8Engine\Chip8Engine_CacheHandler.h"
+#include "Headers\Chip8Engine\Chip8Engine_CodeEmitter_x86.h"
+#include "Headers\Chip8Engine\Chip8Engine_Dynarec.h"
+#include "Headers\Chip8Engine\Chip8Engine_Interpreter.h"
+#include "Headers\Chip8Engine\Chip8Engine_JumpHandler.h"
+#include "Headers\Chip8Engine\Chip8Engine_Key.h"
+#include "Headers\Chip8Engine\Chip8Engine_StackHandler.h"
+#include "Headers\Chip8Engine\Chip8Engine_Timers.h"
+
+using namespace Chip8Globals;
 
 Chip8Engine::Chip8Engine() {
 	// Register this component in logger
@@ -86,7 +103,7 @@ void Chip8Engine::emulationLoop()
 #ifdef USE_DEBUG
 	char buffer[1000];
 	_snprintf_s(buffer, 1000, "Ran cache ok. Interrupt code = %d (%s).", X86_STATE::x86_interrupt_status_code, X86_STATE::x86_int_status_code_strings[(uint8_t)X86_STATE::x86_interrupt_status_code]);
-	logMessage(buffer);
+	logMessage(LOGLEVEL::L_DEBUG, buffer);
 #endif
 
 	// Handle Interrupts
@@ -94,7 +111,7 @@ void Chip8Engine::emulationLoop()
 
 #ifdef USE_DEBUG
 	_snprintf_s(buffer, 1000, "New x86_resume_address = 0x%.8X (in cache[%d]).", (uint32_t)X86_STATE::x86_resume_address, cache->findCacheIndexByX86Address(X86_STATE::x86_resume_address));
-	logMessage(buffer);
+	logMessage(LOGLEVEL::L_DEBUG, buffer);
 #endif
 }
 

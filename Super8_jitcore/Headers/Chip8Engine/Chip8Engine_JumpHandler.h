@@ -1,12 +1,10 @@
 #pragma once
 
 #include <cstdint>
-#include <string>
 
-#include "../FastArrayList/FastArrayList.h"
+#include "Headers\Globals.h"
+#include "Headers\FastArrayList\FastArrayList.h"
 
-#include "../Chip8Globals/Chip8Globals.h"
-#include "Chip8Engine_CacheHandler.h"
 
 struct JUMP_ENTRY {
 	uint16_t c8_address_to;
