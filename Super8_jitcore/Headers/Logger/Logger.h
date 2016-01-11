@@ -1,5 +1,12 @@
 #pragma once
 
+//////////////////////////////////////////////////
+// Written by Marco Satti.                      //
+// Licensed under GPLv3. See LICENSE file.      //
+//////////////////////////////////////////////////
+
+#define COMPONENT_LOGGER_VERSION "1.0"
+
 #include <string>
 #include <vector>
 

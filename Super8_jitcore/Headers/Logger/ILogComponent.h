@@ -1,5 +1,10 @@
 #pragma once
 
+//////////////////////////////////////////////////
+// Written by Marco Satti.                      //
+// Licensed under GPLv3. See LICENSE file.      //
+//////////////////////////////////////////////////
+
 #include <string>
 
 #include "Headers\Logger\Logger.h"
@@ -17,8 +22,9 @@ public:
 	size_t getLoggerComponentID();
 	void setLoggerCallback(Logger * logger);
 	void unsetLoggerCallback();
-protected:
+
 	void logMessage(LOGLEVEL logLevel, std::string msg);
+
 private:
 	Logger * __logger;
 	size_t __loggerComponentID;

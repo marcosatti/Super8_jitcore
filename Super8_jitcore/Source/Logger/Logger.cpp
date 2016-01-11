@@ -1,5 +1,10 @@
 #include "stdafx.h"
 
+//////////////////////////////////////////////////
+// Written by Marco Satti.                      //
+// Licensed under GPLv3. See LICENSE file.      //
+//////////////////////////////////////////////////
+
 #include <string>
 #include <vector>
 #include <algorithm>
