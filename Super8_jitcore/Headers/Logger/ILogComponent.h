@@ -2,7 +2,7 @@
 
 #include <string>
 
-#include "Logger.h"
+#include "Headers\Logger\Logger.h"
 
 // Forward Declaration
 class Logger;
@@ -18,7 +18,7 @@ public:
 	void setLoggerCallback(Logger * logger);
 	void unsetLoggerCallback();
 protected:
-	void logMessage(std::string msg);
+	void logMessage(LOGLEVEL logLevel, std::string msg);
 private:
 	Logger * __logger;
 	size_t __loggerComponentID;

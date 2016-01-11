@@ -1,5 +1,8 @@
 #include "stdafx.h"
-#include "../../Headers/Chip8Engine/Chip8Engine_Key.h"
+
+#include "Headers\Globals.h"
+
+#include "Headers\Chip8Engine\Chip8Engine_Key.h"
 
 Chip8Engine_Key::Chip8Engine_Key()
 {

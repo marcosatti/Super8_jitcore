@@ -1,5 +1,8 @@
 #include "stdafx.h"
-#include "../../Headers/Chip8Engine/Chip8Engine_StackHandler.h"
+
+#include "Headers\Globals.h"
+
+#include "Headers\Chip8Engine\Chip8Engine_StackHandler.h"
 
 Chip8Engine_StackHandler::Chip8Engine_StackHandler()
 {

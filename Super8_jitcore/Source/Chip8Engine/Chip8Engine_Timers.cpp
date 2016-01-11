@@ -1,7 +1,8 @@
 #include "stdafx.h"
-#include "../../Headers/Chip8Engine/Chip8Engine_Timers.h"
 
-using namespace Chip8Globals;
+#include "Headers\Globals.h"
+
+#include "Headers\Chip8Engine\Chip8Engine_Timers.h"
 
 std::string Chip8Engine_Timers::getComponentName()
 {

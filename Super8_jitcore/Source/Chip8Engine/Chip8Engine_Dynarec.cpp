@@ -1,5 +1,17 @@
 #include "stdafx.h"
-#include "../../Headers/Chip8Engine/Chip8Engine_Dynarec.h"
+
+#include <cstdint>
+
+#include "Headers\Globals.h"
+
+#include "Headers\Chip8Globals\Chip8Globals.h"
+#include "Headers\Chip8Engine\Chip8Engine_Dynarec.h"
+#include "Headers\Chip8Engine\Chip8Engine_CodeEmitter_x86.h"
+#include "Headers\Chip8Engine\Chip8Engine_CacheHandler.h"
+#include "Headers\Chip8Engine\Chip8Engine_JumpHandler.h"
+#include "Headers\Chip8Engine\Chip8Engine_Key.h"
+#include "Headers\Chip8Engine\Chip8Engine_Timers.h"
+#include "Headers\Chip8Engine\Chip8Engine_StackHandler.h"
 
 using namespace Chip8Globals;
 
@@ -137,7 +149,7 @@ void Chip8Engine_Dynarec::handleOpcodeMSN_0() {
 #ifdef USE_VERBOSE
 		char buffer[1000];
 		_snprintf_s(buffer, 1000, "RCA call happened but no code! Skipping (0x%.4X).", C8_STATE::opcode);
-		logMessage(buffer);
+		logMessage(LOGLEVEL::L_WARNING, buffer);
 #endif
 		// Set region pc to current c8 pc
 		cache->setCacheEndC8PCCurrent(C8_STATE::cpu.pc);
@@ -428,7 +440,7 @@ void Chip8Engine_Dynarec::handleOpcodeMSN_8() {
 #ifdef USE_VERBOSE
 		char buffer[1000];
 		_snprintf_s(buffer, 1000, "Unknown Opcode detected! Skipping (0x%.4X).", C8_STATE::opcode);
-		logMessage(buffer);
+		logMessage(LOGLEVEL::L_WARNING, buffer);
 #endif
 		// Set region pc to current c8 pc
 		cache->setCacheEndC8PCCurrent(C8_STATE::cpu.pc);
@@ -467,7 +479,7 @@ void Chip8Engine_Dynarec::handleOpcodeMSN_9() {
 #ifdef USE_VERBOSE
 		char buffer[1000];
 		_snprintf_s(buffer, 1000, "Unknown Opcode detected! Skipping (0x%.4X).", C8_STATE::opcode);
-		logMessage(buffer);
+		logMessage(LOGLEVEL::L_WARNING, buffer);
 #endif
 		// Set region pc to current c8 pc
 		cache->setCacheEndC8PCCurrent(C8_STATE::cpu.pc);
@@ -589,7 +601,7 @@ void Chip8Engine_Dynarec::handleOpcodeMSN_E() {
 #ifdef USE_VERBOSE
 		char buffer[1000];
 		_snprintf_s(buffer, 1000, "Unknown Opcode detected! Skipping (0x%.4X).", C8_STATE::opcode);
-		logMessage(buffer);
+		logMessage(LOGLEVEL::L_WARNING, buffer);
 #endif
 		// Set region pc to current c8 pc
 		cache->setCacheEndC8PCCurrent(C8_STATE::cpu.pc);
@@ -779,7 +791,7 @@ void Chip8Engine_Dynarec::handleOpcodeMSN_F() {
 #ifdef USE_VERBOSE
 		char buffer[1000];
 		_snprintf_s(buffer, 1000, "Unknown Opcode detected! Skipping (0x%.4X).", C8_STATE::opcode);
-		logMessage(buffer);
+		logMessage(LOGLEVEL::L_WARNING, buffer);
 #endif
 		// Set region pc to current c8 pc
 		cache->setCacheEndC8PCCurrent(C8_STATE::cpu.pc);

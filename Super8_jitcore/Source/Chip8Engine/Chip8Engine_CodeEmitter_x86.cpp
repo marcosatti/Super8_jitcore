@@ -1,5 +1,12 @@
 #include "stdafx.h"
-#include "../../Headers/Chip8Engine/Chip8Engine_CodeEmitter_x86.h"
+
+#include <cstdint>
+
+#include "Headers\Globals.h"
+
+#include "Headers\Chip8Globals\Chip8Globals.h"
+#include "Headers\Chip8Engine\Chip8Engine_CodeEmitter_x86.h"
+#include "Headers\Chip8Engine\Chip8Engine_CacheHandler.h"
 
 using namespace Chip8Globals;
 using namespace Chip8Globals::X86_STATE;

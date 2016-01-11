@@ -1,16 +1,8 @@
 #pragma once
 
-#include <cstdint>
 #include <string>
 
-#include "../Chip8Globals/Chip8Globals.h"
-
-#include "Chip8Engine_CodeEmitter_x86.h"
-#include "Chip8Engine_StackHandler.h"
-#include "Chip8Engine_Timers.h"
-#include "Chip8Engine_CacheHandler.h"
-#include "Chip8Engine_JumpHandler.h"
-#include "Chip8Engine_Key.h"
+#include "Headers\Logger\ILogComponent.h"
 
 class Chip8Engine_Dynarec : ILogComponent
 {

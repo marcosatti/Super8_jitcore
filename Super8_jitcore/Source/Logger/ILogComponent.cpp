@@ -1,5 +1,9 @@
 #include "stdafx.h"
-#include "../../Headers/Logger/ILogComponent.h"
+
+#include <string>
+
+#include "Headers\Logger\ILogComponent.h"
+#include "Headers\Logger\Logger.h"
 
 using namespace std;
 
@@ -33,9 +37,9 @@ void ILogComponent::unsetLoggerCallback()
 	__logger = nullptr;
 }
 
-void ILogComponent::logMessage(string msg)
+void ILogComponent::logMessage(LOGLEVEL logLevel, string msg)
 {
 	if (getLoggerComponentID() != -1) {
-		__logger->logMessage(this, msg);
+		__logger->logMessage(this, logLevel, msg);
 	}
 }

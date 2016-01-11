@@ -1,9 +1,12 @@
 #include "stdafx.h"
-#include "../Headers/SDLGlobals.h"
+
+#include <cstdint>
+#include <SDL.h>
+#include <SDL_ttf.h>
 
 namespace SDLGlobals {
-	const SDL_Color SDL_COLOR_WHITE = { 255,255,255,255 };
-	const SDL_Color SDL_COLOR_BLACK = { 0,0,0,0 };
+	SDL_Color SDL_COLOR_WHITE = { 255,255,255,255 };
+	SDL_Color SDL_COLOR_BLACK = { 0,0,0,0 };
 
 	SDL_Window * window;
 	SDL_Renderer * renderer;
