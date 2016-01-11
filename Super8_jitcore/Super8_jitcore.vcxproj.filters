@@ -34,6 +34,12 @@
     <Filter Include="Libs">
       <UniqueIdentifier>{335a1128-e7c1-41cf-aefd-b8072db39f40}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Logger">
+      <UniqueIdentifier>{9b2a5277-8e2c-42d6-9318-cb21f81f10c5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Logger">
+      <UniqueIdentifier>{0dde1270-eccd-4433-8f70-235c540a59df}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Headers\SDLGlobals.h">
@@ -89,6 +95,12 @@
     </ClInclude>
     <ClInclude Include="Headers\Chip8Globals\Chip8Globals_X86_STATE.h">
       <Filter>Header Files\Chip8Globals</Filter>
+    </ClInclude>
+    <ClInclude Include="Headers\Logger\ILogComponent.h">
+      <Filter>Header Files\Logger</Filter>
+    </ClInclude>
+    <ClInclude Include="Headers\Logger\Logger.h">
+      <Filter>Header Files\Logger</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -153,6 +165,15 @@
       <Filter>Source Files\Chip8Globals</Filter>
     </ClCompile>
     <ClCompile Include="stdafx.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Logger\ILogComponent.cpp">
+      <Filter>Source Files\Logger</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Logger\Logger.cpp">
+      <Filter>Source Files\Logger</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Globals.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

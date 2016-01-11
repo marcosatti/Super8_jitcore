@@ -1,8 +1,6 @@
 #pragma once
 
 #include <cstdint>
-#include <cstdlib>
-#include <cstring>
 
 namespace Chip8Globals {
 	namespace X86_STATE {

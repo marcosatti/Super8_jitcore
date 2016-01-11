@@ -1,5 +1,10 @@
 #include "stdafx.h"
-#include "../../Headers/Chip8Engine/Chip8Engine_Interpreter.h"
+
+#include "Headers\Globals.h"
+#include "Headers\SDLGlobals.h"
+
+#include "Headers\Chip8Globals\Chip8Globals.h"
+#include "Headers\Chip8Engine\Chip8Engine_Interpreter.h"
 
 // This file provides easier opcode management rather than having it all in the main engine.cpp file.
 // TODO Implement: 0x0NNN (needed ?)
@@ -8,10 +13,19 @@ using namespace Chip8Globals;
 
 Chip8Engine_Interpreter::Chip8Engine_Interpreter()
 {
+	// Register this component in logger
+	logger->registerComponent(this);
 }
 
 Chip8Engine_Interpreter::~Chip8Engine_Interpreter()
 {
+	// Deregister this component in logger
+	logger->deregisterComponent(this);
+}
+
+std::string Chip8Engine_Interpreter::getComponentName()
+{
+	return std::string("Interpreter");
 }
 
 void Chip8Engine_Interpreter::setOpcode(uint16_t c8_opcode)
@@ -73,7 +87,9 @@ void Chip8Engine_Interpreter::emulateCycle() {
 		break;
 	default:
 		// Unknown opcode encountered
-		std::cout << "Unknown Opcode detected!";
+		char buffer[1000];
+		_snprintf_s(buffer, 1000, "Unknown Opcode detected!");
+		logMessage(LOGLEVEL::L_WARNING, buffer);
 		break;
 	}
 }
@@ -274,7 +290,9 @@ void Chip8Engine_Interpreter::handleOpcodeMSN_8() {
 	}
 	default:
 	{
-		std::cout << "Unknown Opcode detected (in 0x8000)" << std::endl;
+		char buffer[1000];
+		_snprintf_s(buffer, 1000, "Unknown Opcode detected (in 0x8000)!");
+		logMessage(LOGLEVEL::L_WARNING, buffer);
 		//C8_incrementPC(); // Update PC by 2 bytes
 		break;
 	}
@@ -295,7 +313,9 @@ void Chip8Engine_Interpreter::handleOpcodeMSN_9() {
 	}
 	default:
 	{
-		std::cout << "Unknown Opcode detected (in 0x9000)" << std::endl;
+		char buffer[1000];
+		_snprintf_s(buffer, 1000, "Unknown Opcode detected (in 0x9000)!");
+		logMessage(LOGLEVEL::L_WARNING, buffer);
 		//C8_incrementPC(); // Update PC by 2 bytes
 		break;
 	}
@@ -398,7 +418,9 @@ void Chip8Engine_Interpreter::handleOpcodeMSN_E() {
 	}
 	default:
 	{
-		std::cout << "Unknown Opcode detected (in 0xE000)" << std::endl;
+		char buffer[1000];
+		_snprintf_s(buffer, 1000, "Unknown Opcode detected (in 0xE000)!");
+		logMessage(LOGLEVEL::L_WARNING, buffer);
 		//C8_incrementPC(); // Update PC by 2 bytes
 		break;
 	}
@@ -502,7 +524,9 @@ void Chip8Engine_Interpreter::handleOpcodeMSN_F() {
 	}
 	default:
 	{
-		std::cout << "Unknown Opcode detected (in 0xF000)" << std::endl;
+		char buffer[1000];
+		_snprintf_s(buffer, 1000, "Unknown Opcode detected (in 0xF000)!");
+		logMessage(LOGLEVEL::L_WARNING, buffer);
 		break;
 	}
 	}

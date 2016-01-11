@@ -1,11 +1,9 @@
 #pragma once
 
 #include <cstdint>
-#include <vector>
-#include <Windows.h>
+#include <string>
 
-#include "../Chip8Globals/Chip8Globals.h"
-#include "Chip8Engine_JumpHandler.h"
+#include "Headers\Globals.h"
 
 #ifdef USE_DEBUG_EXTRA
 #define  MAX_CACHE_SZ 0xFFFF
@@ -23,7 +21,7 @@ struct CACHE_REGION {
 	uint8_t invalid_flag;
 };
 
-class Chip8Engine_CacheHandler
+class Chip8Engine_CacheHandler : ILogComponent
 {
 public:
 	int32_t selected_cache_index = 0;
@@ -36,6 +34,8 @@ public:
 
 	Chip8Engine_CacheHandler();
 	~Chip8Engine_CacheHandler();
+
+	std::string getComponentName();
 
 	void setupCache_CDECL();
 	void execCache_CDECL();

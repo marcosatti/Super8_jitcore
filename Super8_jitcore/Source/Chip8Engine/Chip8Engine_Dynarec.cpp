@@ -1,14 +1,35 @@
 #include "stdafx.h"
-#include "../../Headers/Chip8Engine/Chip8Engine_Dynarec.h"
+
+#include <cstdint>
+
+#include "Headers\Globals.h"
+
+#include "Headers\Chip8Globals\Chip8Globals.h"
+#include "Headers\Chip8Engine\Chip8Engine_Dynarec.h"
+#include "Headers\Chip8Engine\Chip8Engine_CodeEmitter_x86.h"
+#include "Headers\Chip8Engine\Chip8Engine_CacheHandler.h"
+#include "Headers\Chip8Engine\Chip8Engine_JumpHandler.h"
+#include "Headers\Chip8Engine\Chip8Engine_Key.h"
+#include "Headers\Chip8Engine\Chip8Engine_Timers.h"
+#include "Headers\Chip8Engine\Chip8Engine_StackHandler.h"
 
 using namespace Chip8Globals;
 
 Chip8Engine_Dynarec::Chip8Engine_Dynarec()
 {
+	// Register this component in logger
+	logger->registerComponent(this);
 }
 
 Chip8Engine_Dynarec::~Chip8Engine_Dynarec()
 {
+	// Deregister this component in logger
+	logger->deregisterComponent(this);
+}
+
+std::string Chip8Engine_Dynarec::getComponentName()
+{
+	return std::string("Dynarec");
 }
 
 void Chip8Engine_Dynarec::emulateTranslatorCycle() {
@@ -66,7 +87,7 @@ void Chip8Engine_Dynarec::emulateTranslatorCycle() {
 	default:
 		// Unknown opcode encountered
 #ifdef USE_VERBOSE
-		printf("Dynarec: Unknown Opcode detected! Skipping (0x%.4X)\n", C8_STATE::opcode);
+		//printf("Dynarec:	Unknown Opcode detected! Skipping (0x%.4X)\n", C8_STATE::opcode);
 #endif
 		break;
 	}
@@ -97,6 +118,8 @@ void Chip8Engine_Dynarec::handleOpcodeMSN_0() {
 		// 0x00E0: Clears the screen
 		// Uses interpreter
 		emitter->DYNAREC_EMIT_INTERRUPT(X86_STATE::USE_INTERPRETER, C8_STATE::opcode);
+		// Set region pc to current c8 pc
+		cache->setCacheEndC8PCCurrent(C8_STATE::cpu.pc);
 		C8_STATE::C8_incrementPC();
 		break;
 	}
@@ -105,18 +128,17 @@ void Chip8Engine_Dynarec::handleOpcodeMSN_0() {
 		// 0x00EE: Returns from a subroutine - direct jump (uses stack)!
 		// TODO: Check if correct.
 
-		// Debug
-		//emitter->DYNAREC_EMIT_INTERRUPT(X86_STATE::DEBUG, C8_STATE::opcode);
-
-		// Set stop write flag on current cache
-		cache->setStopWriteFlagCurrent();
-
 		// Emit jump
 		emitter->DYNAREC_EMIT_INTERRUPT(X86_STATE::PREPARE_FOR_STACK_JUMP, C8_STATE::opcode);
 		emitter->JMP_M_PTR_32((uint32_t*)&stack->x86_address_to);
 
+		// Set stop write on cache
+		cache->setStopWriteFlagCurrent();
+
 		// Change C8 PC to +2 (pointless to access stack as the address will not be the same across multiple calls)
 		// Although this may create problems with regards to pc-alignment, there is already guarrenteed to be a pc to jump back to (stored in the stack table), so worst case it should produce out_of_code interrupt.
+		// Set region pc to current c8 pc
+		cache->setCacheEndC8PCCurrent(C8_STATE::cpu.pc);
 		C8_STATE::C8_incrementPC();
 		break;
 	}
@@ -125,8 +147,12 @@ void Chip8Engine_Dynarec::handleOpcodeMSN_0() {
 		// 0x0NNN: Calls RCA 1802 program at address 0xNNN. (?)
 		// TODO: Implement?. Skips instruction for now.
 #ifdef USE_VERBOSE
-		printf("Dynarec: RCA call happened but no code! Skipping (0x%.4X)\n", C8_STATE::opcode);
+		char buffer[1000];
+		_snprintf_s(buffer, 1000, "RCA call happened but no code! Skipping (0x%.4X).", C8_STATE::opcode);
+		logMessage(LOGLEVEL::L_WARNING, buffer);
 #endif
+		// Set region pc to current c8 pc
+		cache->setCacheEndC8PCCurrent(C8_STATE::cpu.pc);
 		C8_STATE::C8_incrementPC(); // Update PC by 2 bytes
 		break;
 	}
@@ -156,9 +182,6 @@ void Chip8Engine_Dynarec::handleOpcodeMSN_1() {
 	cache->setCacheEndC8PCCurrent(C8_STATE::cpu.pc);
 	// Change PC to jump location
 	C8_STATE::cpu.pc = jump_c8_pc;
-
-	// Need to check/alloc jump location caches
-	//cache->getCacheWritableByStartC8PC(jump_c8_pc);
 }
 
 void Chip8Engine_Dynarec::handleOpcodeMSN_2() {
@@ -198,6 +221,8 @@ void Chip8Engine_Dynarec::handleOpcodeMSN_3() {
 	// Record cond jump in table (so it will get updated on every translator loop)
 	jumptbl->recordConditionalJumpEntry(C8_STATE::cpu.pc, C8_STATE::cpu.pc + 4, 2, (uint32_t *)(cache->getEndX86AddressCurrent() - 4)); // address is located at current x86 pc - 4 (relative takes up 4 bytes)
 
+	// Set region pc to current c8 pc
+	cache->setCacheEndC8PCCurrent(C8_STATE::cpu.pc);
 	// Change C8 PC
 	C8_STATE::C8_incrementPC();
 }
@@ -218,6 +243,8 @@ void Chip8Engine_Dynarec::handleOpcodeMSN_4() {
 	// Record cond jump in table (so it will get updated on every translator loop)
 	jumptbl->recordConditionalJumpEntry(C8_STATE::cpu.pc, C8_STATE::cpu.pc + 4, 2, (uint32_t *)(cache->getEndX86AddressCurrent() - 4)); // address is located at current x86 pc - 4 (relative takes up 4 bytes)
 
+	// Set region pc to current c8 pc
+	cache->setCacheEndC8PCCurrent(C8_STATE::cpu.pc);
 	// Change C8 PC
 	C8_STATE::C8_incrementPC();
 }
@@ -239,6 +266,8 @@ void Chip8Engine_Dynarec::handleOpcodeMSN_5() {
 	// Record cond jump in table (so it will get updated on every translator loop)
 	jumptbl->recordConditionalJumpEntry(C8_STATE::cpu.pc, C8_STATE::cpu.pc + 4, 2, (uint32_t *)(cache->getEndX86AddressCurrent() - 4)); // address is located at current x86 pc - 4 (relative takes up 4 bytes)
 
+	// Set region pc to current c8 pc
+	cache->setCacheEndC8PCCurrent(C8_STATE::cpu.pc);
 	// Change C8 PC
 	C8_STATE::C8_incrementPC();
 }
@@ -250,6 +279,8 @@ void Chip8Engine_Dynarec::handleOpcodeMSN_6() {
 	uint8_t vx = (C8_STATE::opcode & 0x0F00) >> 8;
 	uint8_t num = (C8_STATE::opcode & 0x00FF);
 	emitter->MOV_ImmtoM_8(C8_STATE::cpu.V + vx, num);
+	// Set region pc to current c8 pc
+	cache->setCacheEndC8PCCurrent(C8_STATE::cpu.pc);
 	C8_STATE::C8_incrementPC(); // Update PC by 2 bytes
 }
 
@@ -260,6 +291,8 @@ void Chip8Engine_Dynarec::handleOpcodeMSN_7() {
 	uint8_t vx = (C8_STATE::opcode & 0x0F00) >> 8;
 	uint8_t num = (C8_STATE::opcode & 0x00FF);
 	emitter->ADD_ImmtoM_8(C8_STATE::cpu.V + vx, num);
+	// Set region pc to current c8 pc
+	cache->setCacheEndC8PCCurrent(C8_STATE::cpu.pc);
 	C8_STATE::C8_incrementPC(); // Update PC by 2 bytes
 }
 
@@ -273,6 +306,8 @@ void Chip8Engine_Dynarec::handleOpcodeMSN_8() {
 		uint8_t vy = (C8_STATE::opcode & 0x00F0) >> 4; // Need to bit shift by 8 to get to a single base16 digit.
 		emitter->MOV_MtoR_8(al, C8_STATE::cpu.V + vy);
 		emitter->MOV_RtoM_8(C8_STATE::cpu.V + vx, al);
+		// Set region pc to current c8 pc
+		cache->setCacheEndC8PCCurrent(C8_STATE::cpu.pc);
 		C8_STATE::C8_incrementPC(); // Goto next opcode
 		break;
 	}
@@ -285,6 +320,8 @@ void Chip8Engine_Dynarec::handleOpcodeMSN_8() {
 		emitter->MOV_MtoR_8(al, C8_STATE::cpu.V + vx);
 		emitter->OR_RwithM_8(al, C8_STATE::cpu.V + vy);
 		emitter->MOV_RtoM_8(C8_STATE::cpu.V + vx, al);
+		// Set region pc to current c8 pc
+		cache->setCacheEndC8PCCurrent(C8_STATE::cpu.pc);
 		C8_STATE::C8_incrementPC(); // Goto next opcode
 		break;
 	}
@@ -297,6 +334,8 @@ void Chip8Engine_Dynarec::handleOpcodeMSN_8() {
 		emitter->MOV_MtoR_8(al, C8_STATE::cpu.V + vx);
 		emitter->AND_RwithM_8(al, C8_STATE::cpu.V + vy);
 		emitter->MOV_RtoM_8(C8_STATE::cpu.V + vx, al);
+		// Set region pc to current c8 pc
+		cache->setCacheEndC8PCCurrent(C8_STATE::cpu.pc);
 		C8_STATE::C8_incrementPC(); // Goto next opcode
 		break;
 	}
@@ -309,6 +348,8 @@ void Chip8Engine_Dynarec::handleOpcodeMSN_8() {
 		emitter->MOV_MtoR_8(al, C8_STATE::cpu.V + vx);
 		emitter->XOR_RwithM_8(al, C8_STATE::cpu.V + vy);
 		emitter->MOV_RtoM_8(C8_STATE::cpu.V + vx, al);
+		// Set region pc to current c8 pc
+		cache->setCacheEndC8PCCurrent(C8_STATE::cpu.pc);
 		C8_STATE::C8_incrementPC(); // Goto next opcode
 		break;
 	}
@@ -323,6 +364,8 @@ void Chip8Engine_Dynarec::handleOpcodeMSN_8() {
 		emitter->MOV_RtoM_8(C8_STATE::cpu.V + vx, al);
 		emitter->JNC_8(7); // Next instruction is 7 bytes long
 		emitter->MOV_ImmtoM_8(C8_STATE::cpu.V + 0xF, 1);
+		// Set region pc to current c8 pc
+		cache->setCacheEndC8PCCurrent(C8_STATE::cpu.pc);
 		C8_STATE::C8_incrementPC(); // Goto next opcode
 		break;
 	}
@@ -338,6 +381,8 @@ void Chip8Engine_Dynarec::handleOpcodeMSN_8() {
 		emitter->MOV_RtoM_8(C8_STATE::cpu.V + vx, al);
 		emitter->JNC_8(7); // Next instruction is 7 bytes long
 		emitter->MOV_ImmtoM_8(C8_STATE::cpu.V + 0xF, 0);
+		// Set region pc to current c8 pc
+		cache->setCacheEndC8PCCurrent(C8_STATE::cpu.pc);
 		C8_STATE::C8_incrementPC(); // Goto next opcode
 		break;
 	}
@@ -352,6 +397,8 @@ void Chip8Engine_Dynarec::handleOpcodeMSN_8() {
 		emitter->MOV_RtoM_8(C8_STATE::cpu.V + vx, al);
 		emitter->JNC_8(7);
 		emitter->MOV_ImmtoM_8(C8_STATE::cpu.V + 0xF, 1);
+		// Set region pc to current c8 pc
+		cache->setCacheEndC8PCCurrent(C8_STATE::cpu.pc);
 		C8_STATE::C8_incrementPC(); // Goto next opcode
 		break;
 	}
@@ -367,6 +414,8 @@ void Chip8Engine_Dynarec::handleOpcodeMSN_8() {
 		emitter->MOV_RtoM_8(C8_STATE::cpu.V + vx, al);
 		emitter->JNC_8(7); // Next instruction is 7 bytes long
 		emitter->MOV_ImmtoM_8(C8_STATE::cpu.V + 0xF, 0);
+		// Set region pc to current c8 pc
+		cache->setCacheEndC8PCCurrent(C8_STATE::cpu.pc);
 		C8_STATE::C8_incrementPC(); // Goto next opcode
 		break;
 	}
@@ -381,14 +430,20 @@ void Chip8Engine_Dynarec::handleOpcodeMSN_8() {
 		emitter->MOV_RtoM_8(C8_STATE::cpu.V + vx, al);
 		emitter->JNC_8(7);
 		emitter->MOV_ImmtoM_8(C8_STATE::cpu.V + 0xF, 1);
+		// Set region pc to current c8 pc
+		cache->setCacheEndC8PCCurrent(C8_STATE::cpu.pc);
 		C8_STATE::C8_incrementPC(); // Goto next opcode
 		break;
 	}
 	default:
 	{
 #ifdef USE_VERBOSE
-		printf("Dynarec: Unknown Opcode detected! Skipping (0x%.4X)\n", C8_STATE::opcode);
+		char buffer[1000];
+		_snprintf_s(buffer, 1000, "Unknown Opcode detected! Skipping (0x%.4X).", C8_STATE::opcode);
+		logMessage(LOGLEVEL::L_WARNING, buffer);
 #endif
+		// Set region pc to current c8 pc
+		cache->setCacheEndC8PCCurrent(C8_STATE::cpu.pc);
 		C8_STATE::C8_incrementPC(); // Update PC by 2 bytes
 		break;
 	}
@@ -413,6 +468,8 @@ void Chip8Engine_Dynarec::handleOpcodeMSN_9() {
 		// Record cond jump in table (so it will get updated on every translator loop)
 		jumptbl->recordConditionalJumpEntry(C8_STATE::cpu.pc, C8_STATE::cpu.pc + 4, 2, (uint32_t *)(cache->getEndX86AddressCurrent() - 4)); // address is located at current x86 pc - 4 (relative takes up 4 bytes)
 
+		// Set region pc to current c8 pc
+		cache->setCacheEndC8PCCurrent(C8_STATE::cpu.pc);
 		// Change C8 PC
 		C8_STATE::C8_incrementPC();
 		break;
@@ -420,8 +477,12 @@ void Chip8Engine_Dynarec::handleOpcodeMSN_9() {
 	default:
 	{
 #ifdef USE_VERBOSE
-		printf("Dynarec: Unknown Opcode detected! Skipping (0x%.4X)\n", C8_STATE::opcode);
+		char buffer[1000];
+		_snprintf_s(buffer, 1000, "Unknown Opcode detected! Skipping (0x%.4X).", C8_STATE::opcode);
+		logMessage(LOGLEVEL::L_WARNING, buffer);
 #endif
+		// Set region pc to current c8 pc
+		cache->setCacheEndC8PCCurrent(C8_STATE::cpu.pc);
 		C8_STATE::C8_incrementPC(); // Update PC by 2 bytes
 		break;
 	}
@@ -433,6 +494,8 @@ void Chip8Engine_Dynarec::handleOpcodeMSN_A() {
 	// 0xANNN: Sets I to the address NNN
 	// TODO: Check if correct
 	emitter->MOV_ImmtoM_16(&C8_STATE::cpu.I, (C8_STATE::opcode & 0x0FFF));
+	// Set region pc to current c8 pc
+	cache->setCacheEndC8PCCurrent(C8_STATE::cpu.pc);
 	C8_STATE::C8_incrementPC(); // Update PC by 2 bytes
 }
 
@@ -446,6 +509,8 @@ void Chip8Engine_Dynarec::handleOpcodeMSN_B() {
 	emitter->DYNAREC_EMIT_INTERRUPT(X86_STATE::PREPARE_FOR_INDIRECT_JUMP, C8_STATE::opcode);
 	emitter->JMP_M_PTR_32((uint32_t*)&jumptbl->x86_indirect_jump_address);
 
+	// Set region pc to current c8 pc
+	cache->setCacheEndC8PCCurrent(C8_STATE::cpu.pc);
 	// Change C8 PC (do not know where to jump to, so just +2)
 	C8_STATE::C8_incrementPC();
 }
@@ -460,6 +525,8 @@ void Chip8Engine_Dynarec::handleOpcodeMSN_C() {
 	emitter->AND_RwithImm_8(al, opcodenum);
 	emitter->MOV_RtoM_8(C8_STATE::cpu.V + vx, al);
 
+	// Set region pc to current c8 pc
+	cache->setCacheEndC8PCCurrent(C8_STATE::cpu.pc);
 	// Change PC
 	C8_STATE::C8_incrementPC();
 }
@@ -471,9 +538,10 @@ void Chip8Engine_Dynarec::handleOpcodeMSN_D() {
 				I value doesn’t change after the execution of this instruction.
 				As described above, VF is set to 1 if any screen pixels are flipped from
 				set to unset when the sprite is drawn, and to 0 if that doesn’t happen */
-				// TODO: check if correct.
-				// check if in sync
+	// TODO: check if correct.
 	emitter->DYNAREC_EMIT_INTERRUPT(X86_STATE::USE_INTERPRETER, C8_STATE::opcode);
+	// Set region pc to current c8 pc
+	cache->setCacheEndC8PCCurrent(C8_STATE::cpu.pc);
 	C8_STATE::C8_incrementPC();
 }
 
@@ -498,6 +566,8 @@ void Chip8Engine_Dynarec::handleOpcodeMSN_E() {
 		// Record cond jump in table (so it will get updated on every translator loop)
 		jumptbl->recordConditionalJumpEntry(C8_STATE::cpu.pc, C8_STATE::cpu.pc + 4, 2, (uint32_t *)(cache->getEndX86AddressCurrent() - 4)); // address is located at current x86 pc - 4 (relative takes up 4 bytes)
 
+		// Set region pc to current c8 pc
+		cache->setCacheEndC8PCCurrent(C8_STATE::cpu.pc);
 		// Change C8 PC
 		C8_STATE::C8_incrementPC();
 		break;
@@ -520,6 +590,8 @@ void Chip8Engine_Dynarec::handleOpcodeMSN_E() {
 		// Record cond jump in table (so it will get updated on every translator loop)
 		jumptbl->recordConditionalJumpEntry(C8_STATE::cpu.pc, C8_STATE::cpu.pc + 4, 2, (uint32_t *)(cache->getEndX86AddressCurrent() - 4)); // address is located at current x86 pc - 4 (relative takes up 4 bytes)
 
+		// Set region pc to current c8 pc
+		cache->setCacheEndC8PCCurrent(C8_STATE::cpu.pc);
 		// Change C8 PC
 		C8_STATE::C8_incrementPC();
 		break;
@@ -527,8 +599,12 @@ void Chip8Engine_Dynarec::handleOpcodeMSN_E() {
 	default:
 	{
 #ifdef USE_VERBOSE
-		printf("Dynarec: Unknown Opcode detected! Skipping (0x%.4X)\n", C8_STATE::opcode);
+		char buffer[1000];
+		_snprintf_s(buffer, 1000, "Unknown Opcode detected! Skipping (0x%.4X).", C8_STATE::opcode);
+		logMessage(LOGLEVEL::L_WARNING, buffer);
 #endif
+		// Set region pc to current c8 pc
+		cache->setCacheEndC8PCCurrent(C8_STATE::cpu.pc);
 		C8_STATE::C8_incrementPC(); // Update PC by 2 bytes
 		break;
 	}
@@ -544,6 +620,8 @@ void Chip8Engine_Dynarec::handleOpcodeMSN_F() {
 		uint8_t vx = (C8_STATE::opcode & 0x0F00) >> 8; // Need to bit shift by 8 to get to a single base16 digit.
 		emitter->MOV_MtoR_8(cl, &(timers->delay_timer));
 		emitter->MOV_RtoM_8(C8_STATE::cpu.V + vx, cl);
+		// Set region pc to current c8 pc
+		cache->setCacheEndC8PCCurrent(C8_STATE::cpu.pc);
 		C8_STATE::C8_incrementPC(); // Update PC by 2 bytes
 		break;
 	}
@@ -556,6 +634,8 @@ void Chip8Engine_Dynarec::handleOpcodeMSN_F() {
 		emitter->DYNAREC_EMIT_INTERRUPT(X86_STATE::WAIT_FOR_KEYPRESS, C8_STATE::opcode); // This will put the key (single value from 0x0 to 0xF) in key->x86_key_pressed
 		emitter->MOV_MtoR_8(al, &key->X86_KEY_PRESSED);
 		emitter->MOV_RtoM_8(C8_STATE::cpu.V + vx, al);
+		// Set region pc to current c8 pc
+		cache->setCacheEndC8PCCurrent(C8_STATE::cpu.pc);
 		C8_STATE::C8_incrementPC();
 		break;
 	}
@@ -566,6 +646,8 @@ void Chip8Engine_Dynarec::handleOpcodeMSN_F() {
 		uint8_t vx = (C8_STATE::opcode & 0x0F00) >> 8; // Need to bit shift by 8 to get to a single base16 digit.
 		emitter->MOV_MtoR_8(al, C8_STATE::cpu.V + vx);
 		emitter->MOV_RtoM_8(&timers->delay_timer, al);
+		// Set region pc to current c8 pc
+		cache->setCacheEndC8PCCurrent(C8_STATE::cpu.pc);
 		C8_STATE::C8_incrementPC(); // Update PC by 2 bytes
 		break;
 	}
@@ -576,6 +658,8 @@ void Chip8Engine_Dynarec::handleOpcodeMSN_F() {
 		uint8_t vx = (C8_STATE::opcode & 0x0F00) >> 8; // Need to bit shift by 8 to get to a single base16 digit.
 		emitter->MOV_MtoR_8(al, C8_STATE::cpu.V + vx);
 		emitter->MOV_RtoM_8(&timers->sound_timer, al);
+		// Set region pc to current c8 pc
+		cache->setCacheEndC8PCCurrent(C8_STATE::cpu.pc);
 		C8_STATE::C8_incrementPC(); // Update PC by 2 bytes
 		break;
 	}
@@ -590,6 +674,8 @@ void Chip8Engine_Dynarec::handleOpcodeMSN_F() {
 		emitter->MOV_MtoR_8(cl, C8_STATE::cpu.V + vx);
 		emitter->ADD_RtoR_16(ax, cx);
 		emitter->MOV_RtoM_16(&C8_STATE::cpu.I, ax);
+		// Set region pc to current c8 pc
+		cache->setCacheEndC8PCCurrent(C8_STATE::cpu.pc);
 		C8_STATE::C8_incrementPC(); // Update PC by 2 bytes
 		break;
 	}
@@ -603,6 +689,8 @@ void Chip8Engine_Dynarec::handleOpcodeMSN_F() {
 		emitter->MOV_ImmtoR_8(cl, 5); // 5 = width constant of fonts
 		emitter->MUL_RwithR_8(cl);
 		emitter->MOV_RtoM_16(&C8_STATE::cpu.I, ax);
+		// Set region pc to current c8 pc
+		cache->setCacheEndC8PCCurrent(C8_STATE::cpu.pc);
 		C8_STATE::C8_incrementPC(); // Update PC by 2 bytes
 		break;
 	}
@@ -638,8 +726,8 @@ void Chip8Engine_Dynarec::handleOpcodeMSN_F() {
 		// Dont need to divide, as its by 1!
 		emitter->MOV_RtoPTR_8(edx, al); // Move result to Mem+I+2 (ptr in edx)
 
-		//emitter->DYNAREC_EMIT_INTERRUPT(X86_STATE::DEBUG, C8_STATE::opcode);
-
+		// Set region pc to current c8 pc
+		cache->setCacheEndC8PCCurrent(C8_STATE::cpu.pc);
 		C8_STATE::C8_incrementPC();
 		break;
 	}
@@ -666,6 +754,8 @@ void Chip8Engine_Dynarec::handleOpcodeMSN_F() {
 		// Compare edx with final V address (to stop loop)
 		emitter->CMP_RwithImm_32(edx, (uint32_t)(C8_STATE::cpu.V + vx + 1)); // "less than" compare
 		emitter->JNE_8(-18); // jump to start of loop -(2+6+3+3+2+2) = -18
+		 // Set region pc to current c8 pc
+		cache->setCacheEndC8PCCurrent(C8_STATE::cpu.pc);
 		C8_STATE::C8_incrementPC();
 		break;
 	}
@@ -690,7 +780,8 @@ void Chip8Engine_Dynarec::handleOpcodeMSN_F() {
 		// Compare edx with final V address (to stop loop)
 		emitter->CMP_RwithImm_32(edx, (uint32_t)(C8_STATE::cpu.V + vx + 1)); // "less than" compare
 		emitter->JNE_8(-18); // jump to start of loop -(2+6+3+3+2+2) = -18
-
+		// Set region pc to current c8 pc
+		cache->setCacheEndC8PCCurrent(C8_STATE::cpu.pc);
 		// Increment PC
 		C8_STATE::C8_incrementPC();
 		break;
@@ -698,8 +789,12 @@ void Chip8Engine_Dynarec::handleOpcodeMSN_F() {
 	default:
 	{
 #ifdef USE_VERBOSE
-		printf("Dynarec: Unknown Opcode detected! Skipping (0x%.4X)\n", C8_STATE::opcode);
+		char buffer[1000];
+		_snprintf_s(buffer, 1000, "Unknown Opcode detected! Skipping (0x%.4X).", C8_STATE::opcode);
+		logMessage(LOGLEVEL::L_WARNING, buffer);
 #endif
+		// Set region pc to current c8 pc
+		cache->setCacheEndC8PCCurrent(C8_STATE::cpu.pc);
 		C8_STATE::C8_incrementPC(); // Update PC by 2 bytes
 		break;
 	}

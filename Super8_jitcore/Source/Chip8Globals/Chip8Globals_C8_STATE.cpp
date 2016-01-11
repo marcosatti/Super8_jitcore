@@ -1,6 +1,9 @@
 #include "stdafx.h"
-#include "../../Headers/Chip8Globals/Chip8Globals.h"
-#include "../../Headers/Chip8Globals/Chip8Globals_C8_STATE.h"
+
+#include <cstdint>
+
+#include "Headers\Globals.h"
+#include "Headers\Chip8Globals\Chip8Globals_C8_STATE.h"
 
 namespace Chip8Globals {
 	namespace C8_STATE {
@@ -33,8 +36,6 @@ namespace Chip8Globals {
 
 		void C8_incrementPC(uint8_t bytes)
 		{
-			// Set region pc to current c8 pc
-			cache->setCacheEndC8PCCurrent(cpu.pc);
 			// Increments PC by number of bytes specified (and cache)
 			cpu.pc += bytes;
 		}
@@ -54,9 +55,9 @@ namespace Chip8Globals {
 #ifdef USE_DEBUG
 		void DEBUG_printC8_STATE()
 		{
-			printf("C8_STATE: &CPU.V = 0x%.8X, &CPU.I = 0x%.8X, &memory = 0x%.8X, &gfxmem = 0x%.8X\n", (uint32_t)cpu.V, (uint32_t)&cpu.I, (uint32_t)memory, (uint32_t)gfxmem);
-			printf("          V[0] = 0x%.2X, V[1] = 0x%.2X, V[2] = 0x%.2X, V[3] = 0x%.2X, V[4] = 0x%.2X, V[5] = 0x%.2X, V[6] = 0x%.2X, V[7] = 0x%.2X,\n          V[8] = 0x%.2X, V[9] = 0x%.2X, V[A] = 0x%.2X, V[B] = 0x%.2X, V[C] = 0x%.2X, V[D] = 0x%.2X, V[E] = 0x%.2X, V[F] = 0x%.2X\n          CPU.I = 0x%.4X\n",
-				cpu.V[0], cpu.V[1], cpu.V[2], cpu.V[3], cpu.V[4], cpu.V[5], cpu.V[6], cpu.V[7], cpu.V[8], cpu.V[9], cpu.V[0xA], cpu.V[0xB], cpu.V[0xC], cpu.V[0xD], cpu.V[0xE], cpu.V[0xF], cpu.I);
+			//printf("C8_STATE:	&CPU.V = 0x%.8X, &CPU.I = 0x%.8X, &memory = 0x%.8X, &gfxmem = 0x%.8X\n", (uint32_t)cpu.V, (uint32_t)&cpu.I, (uint32_t)memory, (uint32_t)gfxmem);
+			//printf("		V[0] = 0x%.2X, V[1] = 0x%.2X, V[2] = 0x%.2X, V[3] = 0x%.2X, V[4] = 0x%.2X, V[5] = 0x%.2X, V[6] = 0x%.2X, V[7] = 0x%.2X,\n		V[8] = 0x%.2X, V[9] = 0x%.2X, V[A] = 0x%.2X, V[B] = 0x%.2X, V[C] = 0x%.2X, V[D] = 0x%.2X, V[E] = 0x%.2X, V[F] = 0x%.2X\n		CPU.I = 0x%.4X\n",
+			//	cpu.V[0], cpu.V[1], cpu.V[2], cpu.V[3], cpu.V[4], cpu.V[5], cpu.V[6], cpu.V[7], cpu.V[8], cpu.V[9], cpu.V[0xA], cpu.V[0xB], cpu.V[0xC], cpu.V[0xD], cpu.V[0xE], cpu.V[0xF], cpu.I);
 		}
 #endif
 	}

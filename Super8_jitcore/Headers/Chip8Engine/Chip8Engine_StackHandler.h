@@ -1,8 +1,9 @@
 #pragma once
 
 #include <cstdint>
+#include <string>
 
-#include "../Chip8Globals/Chip8Globals.h"
+#include "Headers\Globals.h"
 
 #define NUM_STACK_LVLS 16
 
@@ -10,7 +11,7 @@ struct STACK_ENTRY {
 	uint16_t c8_address;
 };
 
-class Chip8Engine_StackHandler
+class Chip8Engine_StackHandler : ILogComponent
 {
 public:
 	STACK_ENTRY stack[NUM_STACK_LVLS]; // Stack used in the implementation, supports 16 levels.
@@ -20,6 +21,8 @@ public:
 
 	Chip8Engine_StackHandler();
 	~Chip8Engine_StackHandler();
+
+	std::string getComponentName();
 
 	void setStackLevel(uint8_t level);
 	void resetStack();

@@ -117,6 +117,12 @@
     <ClInclude Include="Headers\Chip8Engine\Chip8Engine_Key.h" />
     <ClInclude Include="Headers\Chip8Engine\Chip8Engine_Timers.h" />
     <ClInclude Include="Headers\Chip8Engine\Chip8Engine_CodeEmitter_x86.h" />
+<<<<<<< HEAD
+=======
+    <ClInclude Include="Headers\FastArrayList\FastArrayList.h" />
+    <ClInclude Include="Headers\Logger\ILogComponent.h" />
+    <ClInclude Include="Headers\Logger\Logger.h" />
+>>>>>>> master
     <ClInclude Include="resource.h" />
     <ClInclude Include="Headers\SDLGlobals.h" />
     <ClInclude Include="stdafx.h" />
@@ -124,6 +130,7 @@
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Source\Globals.cpp" />
     <ClCompile Include="Source\Chip8Engine\Chip8Engine.cpp" />
     <ClCompile Include="Source\Chip8Engine\Chip8Engine_CacheHandler.cpp" />
     <ClCompile Include="Source\Chip8Engine\Chip8Engine_HandleInterrupt.cpp" />
@@ -142,6 +149,12 @@
     <ClCompile Include="Source\Chip8Engine\Chip8Engine_CodeEmitter_x86_Jump.cpp" />
     <ClCompile Include="Source\Chip8Engine\Chip8Engine_CodeEmitter_x86_MOV.cpp" />
     <ClCompile Include="Source\Chip8Engine\Chip8Engine_CodeEmitter_x86_SUB.cpp" />
+<<<<<<< HEAD
+=======
+    <ClCompile Include="Source\FastArrayList\FastArrayList.cpp" />
+    <ClCompile Include="Source\Logger\ILogComponent.cpp" />
+    <ClCompile Include="Source\Logger\Logger.cpp" />
+>>>>>>> master
     <ClCompile Include="Source\SDLGlobals.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Normal|Win32'">Create</PrecompiledHeader>

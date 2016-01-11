@@ -1,15 +1,31 @@
 #include "stdafx.h"
-#include "../../Headers/Chip8Engine/Chip8Engine_CodeEmitter_x86.h"
+
+#include <cstdint>
+
+#include "Headers\Globals.h"
+
+#include "Headers\Chip8Globals\Chip8Globals.h"
+#include "Headers\Chip8Engine\Chip8Engine_CodeEmitter_x86.h"
+#include "Headers\Chip8Engine\Chip8Engine_CacheHandler.h"
 
 using namespace Chip8Globals;
 using namespace Chip8Globals::X86_STATE;
 
 Chip8Engine_CodeEmitter_x86::Chip8Engine_CodeEmitter_x86()
 {
+	// Register this component in logger
+	logger->registerComponent(this);
 }
 
 Chip8Engine_CodeEmitter_x86::~Chip8Engine_CodeEmitter_x86()
 {
+	// Deregister this component in logger
+	logger->deregisterComponent(this);
+}
+
+std::string Chip8Engine_CodeEmitter_x86::getComponentName()
+{
+	return std::string("CodeEmitter");
 }
 
 void Chip8Engine_CodeEmitter_x86::DYNAREC_EMIT_INTERRUPT(X86_INT_STATUS_CODE code, uint16_t c8_opcode)

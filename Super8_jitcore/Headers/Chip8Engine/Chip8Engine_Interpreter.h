@@ -1,15 +1,19 @@
 #pragma once
 
-#include <iostream>
+#include <cstdint>
+#include <string>
 
-#include "../Chip8Globals/Chip8Globals.h"
+#include "Headers\Globals.h"
 
-class Chip8Engine_Interpreter {
+class Chip8Engine_Interpreter : ILogComponent
+{
 public:
 	uint16_t opcode;
 
 	Chip8Engine_Interpreter();
 	~Chip8Engine_Interpreter();
+
+	std::string getComponentName();
 
 	void setOpcode(uint16_t c8_opcode);
 	void emulateCycle();

@@ -1,10 +1,9 @@
 #pragma once
 
 #include <cstdint>
-#include <vector>
 
-#include "../Chip8Globals/Chip8Globals.h"
-#include "Chip8Engine_CacheHandler.h"
+#include "Headers\Globals.h"
+
 
 struct JUMP_ENTRY {
 	uint16_t c8_address_to;
@@ -19,7 +18,7 @@ struct COND_JUMP_ENTRY {
 	uint8_t translator_cycles;
 };
 
-class Chip8Engine_JumpHandler
+class Chip8Engine_JumpHandler : ILogComponent
 {
 public:
 	std::vector<JUMP_ENTRY> * jump_list;
@@ -28,6 +27,8 @@ public:
 
 	Chip8Engine_JumpHandler();
 	~Chip8Engine_JumpHandler();
+
+	std::string getComponentName();
 
 	int32_t getJumpIndexByC8PC(uint16_t c8_to);
 	JUMP_ENTRY * getJumpInfoByIndex(uint32_t index);

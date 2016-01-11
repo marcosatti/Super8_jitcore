@@ -1,5 +1,9 @@
 #include "stdafx.h"
-#include "../../Headers/Chip8Globals/Chip8Globals.h"
+
+#include <cstdint>
+
+#include "Headers\Globals.h"
+#include "Headers\Chip8Globals\Chip8Globals_X86_STATE.h"
 
 namespace Chip8Globals {
 	namespace X86_STATE {
@@ -23,7 +27,7 @@ namespace Chip8Globals {
 
 		void DEBUG_printX86_STATE()
 		{
-			printf("X86_STATE: x86_resume_address = 0x%.8X, x86_interrupt_c8_param1 = 0x%.4X, x86_status_code = %d\n", (uint32_t)x86_resume_address, x86_interrupt_c8_param1, x86_interrupt_status_code);
+			//printf("X86_STATE:		x86_resume_address = 0x%.8X, x86_interrupt_c8_param1 = 0x%.4X, x86_status_code = %d\n", (uint32_t)x86_resume_address, x86_interrupt_c8_param1, x86_interrupt_status_code);
 		}
 #endif
 	}

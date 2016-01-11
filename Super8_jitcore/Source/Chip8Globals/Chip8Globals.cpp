@@ -1,7 +1,18 @@
 #include "stdafx.h"
-#include "../../Headers/Chip8Globals/Chip8Globals.h"
+
+#include <cstdint>
 
 // File contains global vars to simplify use across files.
+
+// Forward decl's
+class Chip8Engine_JumpHandler;
+class Chip8Engine_Interpreter;
+class Chip8Engine_Dynarec;
+class Chip8Engine_Timers;
+class Chip8Engine_CodeEmitter_x86;
+class Chip8Engine_CacheHandler;
+class Chip8Engine_Key;
+class Chip8Engine_StackHandler;
 
 namespace Chip8Globals {
 	Chip8Engine_Interpreter * interpreter;
