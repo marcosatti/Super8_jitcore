@@ -7,7 +7,7 @@
 #define MODREGRM_RM_DISP32 5
 #define MODREGRM_RM_SIB 4
 
-typedef enum {
+enum X86Register {
 	al = 0, ax = 0, eax = 0,
 	cl = 1, cx = 1, ecx = 1,
 	dl = 2, dx = 2, edx = 2,
@@ -16,7 +16,7 @@ typedef enum {
 	ch = 5, bp = 5, ebp = 5,
 	dh = 6, si = 6, esi = 6,
 	bh = 7, di = 7, edi = 7
-} X86Register;
+};
 
 class Chip8Engine_CodeEmitter_x86 : ILogComponent 
 {

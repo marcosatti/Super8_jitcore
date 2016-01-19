@@ -41,7 +41,7 @@ struct FORMAT_OPTIONS {
 
 class Logger {
 public:
-	Logger(bool _formatAutoUpdate = true);
+	explicit Logger(bool _formatAutoUpdate = true);
 	~Logger();
 
 	size_t registerComponent(ILogComponent * component);

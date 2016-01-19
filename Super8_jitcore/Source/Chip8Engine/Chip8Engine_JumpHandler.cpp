@@ -91,14 +91,9 @@ void Chip8Engine_JumpHandler::checkAndFillConditionalJumpsByCycles()
 		if ((*cond_jump_list)[i].translator_cycles == 0) {
 			int32_t relative = (int32_t)((uint32_t)cache->getEndX86AddressCurrent() - (uint32_t)(*cond_jump_list)[i].x86_address_jump_value - sizeof(uint32_t)); // 4 is size of uint32_t, as eip is at the end of the jump instruction but we calculate the relative size based on the start address of the relative
 			*((*cond_jump_list)[i].x86_address_jump_value) = relative;
-
-#ifdef USE_DEBUG
-			printf("JumpHandler: CONDITIONAL (small) Jump[%d] found and updated! Value %d written to location 0x%.8X (in cache[%d]).", i, relative, (uint32_t)(*cond_jump_list)[i].x86_address_jump_value, cache->findCacheIndexCurrent());
-#endif
-
 #ifdef USE_VERBOSE
 			char buffer[1000];
-			_snprintf_s(buffer, 1000, "CONDITIONAL (small) Jump[%d] found and updated! Value %d written to location 0x%.8X (in cache[%d]).", i, relative, (uint32_t)cond_jump_list->get_ptr(i)->x86_address_jump_value, cache->findCacheIndexCurrent());
+			_snprintf_s(buffer, 1000, "CONDITIONAL (small) Jump[%d] found and updated! Value %d written to location 0x%.8X (in cache[%d]).", i, relative, (uint32_t)(*cond_jump_list)[i].x86_address_jump_value, cache->findCacheIndexCurrent());
 			logMessage(LOGLEVEL::L_INFO, buffer);
 #endif
 

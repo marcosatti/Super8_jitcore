@@ -45,10 +45,14 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Normal|Win32'">
     <LinkIncremental>true</LinkIncremental>
     <IncludePath>C:\Shared\Dev\Projects\SDL2-2.0.3\include;C:\Shared\Dev\Projects\SDL2_ttf-2.0.12;$(IncludePath)</IncludePath>
+    <CodeAnalysisRuleSet>..\RuleSet1.ruleset</CodeAnalysisRuleSet>
+    <RunCodeAnalysis>true</RunCodeAnalysis>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Speed Optimised|Win32'">
     <LinkIncremental>true</LinkIncremental>
     <IncludePath>C:\Shared\Dev\Projects\SDL2-2.0.3\include;C:\Shared\Dev\Projects\SDL2_ttf-2.0.12;$(IncludePath)</IncludePath>
+    <CodeAnalysisRuleSet>..\RuleSet1.ruleset</CodeAnalysisRuleSet>
+    <RunCodeAnalysis>true</RunCodeAnalysis>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Normal|Win32'">
     <ClCompile>
@@ -69,6 +73,7 @@
       <SDLCheck>true</SDLCheck>
       <PrecompiledHeaderFile>stdafx.h</PrecompiledHeaderFile>
       <AdditionalIncludeDirectories>$(ProjectDir)</AdditionalIncludeDirectories>
+      <EnablePREfast>true</EnablePREfast>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -94,6 +99,7 @@
       <EnableEnhancedInstructionSet>AdvancedVectorExtensions2</EnableEnhancedInstructionSet>
       <PrecompiledHeaderFile>stdafx.h</PrecompiledHeaderFile>
       <AdditionalIncludeDirectories>$(ProjectDir)</AdditionalIncludeDirectories>
+      <EnablePREfast>true</EnablePREfast>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -104,6 +110,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Headers\Chip8Globals\Chip8Globals_Dynarec.h" />
     <ClInclude Include="Headers\Globals.h" />
     <ClInclude Include="Headers\Chip8Engine\Chip8Engine.h" />
     <ClInclude Include="Headers\Chip8Engine\Chip8Engine_CacheHandler.h" />
@@ -117,12 +124,8 @@
     <ClInclude Include="Headers\Chip8Engine\Chip8Engine_Key.h" />
     <ClInclude Include="Headers\Chip8Engine\Chip8Engine_Timers.h" />
     <ClInclude Include="Headers\Chip8Engine\Chip8Engine_CodeEmitter_x86.h" />
-<<<<<<< HEAD
-=======
-    <ClInclude Include="Headers\FastArrayList\FastArrayList.h" />
     <ClInclude Include="Headers\Logger\ILogComponent.h" />
     <ClInclude Include="Headers\Logger\Logger.h" />
->>>>>>> master
     <ClInclude Include="resource.h" />
     <ClInclude Include="Headers\SDLGlobals.h" />
     <ClInclude Include="stdafx.h" />
@@ -130,6 +133,7 @@
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Source\Chip8Globals\Chip8Globals_Dynarec.cpp" />
     <ClCompile Include="Source\Globals.cpp" />
     <ClCompile Include="Source\Chip8Engine\Chip8Engine.cpp" />
     <ClCompile Include="Source\Chip8Engine\Chip8Engine_CacheHandler.cpp" />
@@ -149,12 +153,8 @@
     <ClCompile Include="Source\Chip8Engine\Chip8Engine_CodeEmitter_x86_Jump.cpp" />
     <ClCompile Include="Source\Chip8Engine\Chip8Engine_CodeEmitter_x86_MOV.cpp" />
     <ClCompile Include="Source\Chip8Engine\Chip8Engine_CodeEmitter_x86_SUB.cpp" />
-<<<<<<< HEAD
-=======
-    <ClCompile Include="Source\FastArrayList\FastArrayList.cpp" />
     <ClCompile Include="Source\Logger\ILogComponent.cpp" />
     <ClCompile Include="Source\Logger\Logger.cpp" />
->>>>>>> master
     <ClCompile Include="Source\SDLGlobals.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Normal|Win32'">Create</PrecompiledHeader>

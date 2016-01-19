@@ -22,10 +22,6 @@ public:
 	void translatorLoop();
 	void handleInterrupt();
 
-#ifdef USE_DEBUG_EXTRA
-	void DEBUG_renderGFXText();
-#endif
-
 private:
 	void handleInterrupt_PREPARE_FOR_JUMP();
 	void handleInterrupt_USE_INTERPRETER();
@@ -37,4 +33,8 @@ private:
 #endif
 	void handleInterrupt_WAIT_FOR_KEYPRESS();
 	void handleInterrupt_PREPARE_FOR_STACK_JUMP();
+
+#ifdef USE_DEBUG_EXTRA
+	void DEBUG_renderGFXText();
+#endif
 };

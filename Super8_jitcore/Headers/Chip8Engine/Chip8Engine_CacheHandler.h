@@ -17,7 +17,7 @@ struct CACHE_REGION {
 	uint8_t c8_pc_alignement; // TESTING: used to signify the byte alignment of this cache. For chip8 roms, this is always either 0 (pc % 2 == 0) or 1 (pc % 2 == 1) as each opcode is always 2 bytes long.
 	uint8_t * x86_mem_address; // Used to store the base address of where the cache is stored in memory.
 	uint32_t x86_pc; // Used to tell how much code has been emitted to the cache (code size).
-	uint8_t stop_write_flag; // Used to signify that no more code should be emitted to this cache (usually because it ends in a jump).
+	//uint8_t stop_write_flag; // Used to signify that no more code should be emitted to this cache (usually because it ends in a jump).
 	uint8_t invalid_flag;
 };
 
@@ -42,18 +42,13 @@ public:
 	void initFirstCache();
 
 	// BELOW FUNCTIONS HANDLE ALLOCATION
-	int32_t getCacheWritableByStartC8PC(uint16_t c8_jump_pc); // Used when a jump is made (see dynarec.cpp and jumphandler.cpp). Contains more code path logic and handles invalidation.
-	int32_t getCacheWritableByC8PC(uint16_t c8_pc);
+	int32_t getCacheWritableByStartC8PC(uint16_t c8_jump_pc); // Used when a jump is made (see jumphandler.cpp). Contains more code path logic and handles invalidation.
 
+	// INVALIDATION FUNCTIONS
 	void invalidateCacheByFlag();
 	void setInvalidFlagByIndex(int32_t index);
 	void setInvalidFlagByC8PC(uint16_t c8_pc_);
 	uint8_t getInvalidFlagByIndex(int32_t index);
-
-	void setStopWriteFlagCurrent();
-	void setStopWriteFlagByIndex(int32_t index);
-	void clearStopWriteFlagByIndex(int32_t index);
-	uint8_t getStopWriteFlagByIndex(int32_t index);
 
 	// BELOW FUNCTIONS DO NOT ALLOCATE CACHES, THESE ARE ONLY USED FOR FINDING
 	int32_t findCacheIndexCurrent();
@@ -72,13 +67,12 @@ public:
 
 	CACHE_REGION * getCacheInfoCurrent();
 	CACHE_REGION * getCacheInfoByIndex(int32_t index);
-	CACHE_REGION * getCacheInfoByC8PC(uint16_t c8_pc_);
 
 	void write8(uint8_t byte_);
 	void write16(uint16_t word_);
 	void write32(uint32_t dword_);
 
-#ifdef USE_DEBUG_EXTRA
+#ifdef USE_DEBUG
 	void DEBUG_printCacheByIndex(int32_t index);
 	void DEBUG_printCacheList();
 #endif
