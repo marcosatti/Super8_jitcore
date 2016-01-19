@@ -21,11 +21,6 @@ std::string Chip8Engine_StackHandler::getComponentName()
 	return std::string("StackHandler");
 }
 
-void Chip8Engine_StackHandler::setStackLevel(uint8_t level)
-{
-	sp = level;
-}
-
 void Chip8Engine_StackHandler::resetStack()
 {
 	sp = 0;
