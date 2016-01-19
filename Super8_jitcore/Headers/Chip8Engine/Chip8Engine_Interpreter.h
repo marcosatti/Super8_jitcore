@@ -18,6 +18,7 @@ public:
 	void setOpcode(uint16_t c8_opcode);
 	void emulateCycle();
 
+private:
 	// MSN = most significant nibble (half-byte)
 	void handleOpcodeMSN_0();
 	void handleOpcodeMSN_1();
@@ -35,5 +36,4 @@ public:
 	void handleOpcodeMSN_D();
 	void handleOpcodeMSN_E();
 	void handleOpcodeMSN_F();
-private:
 };

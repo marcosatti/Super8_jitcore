@@ -46,13 +46,13 @@
     <LinkIncremental>true</LinkIncremental>
     <IncludePath>C:\Shared\Dev\Projects\SDL2-2.0.3\include;C:\Shared\Dev\Projects\SDL2_ttf-2.0.12;$(IncludePath)</IncludePath>
     <CodeAnalysisRuleSet>..\RuleSet1.ruleset</CodeAnalysisRuleSet>
-    <RunCodeAnalysis>true</RunCodeAnalysis>
+    <RunCodeAnalysis>false</RunCodeAnalysis>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Speed Optimised|Win32'">
     <LinkIncremental>true</LinkIncremental>
     <IncludePath>C:\Shared\Dev\Projects\SDL2-2.0.3\include;C:\Shared\Dev\Projects\SDL2_ttf-2.0.12;$(IncludePath)</IncludePath>
     <CodeAnalysisRuleSet>..\RuleSet1.ruleset</CodeAnalysisRuleSet>
-    <RunCodeAnalysis>true</RunCodeAnalysis>
+    <RunCodeAnalysis>false</RunCodeAnalysis>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Normal|Win32'">
     <ClCompile>
@@ -73,7 +73,7 @@
       <SDLCheck>true</SDLCheck>
       <PrecompiledHeaderFile>stdafx.h</PrecompiledHeaderFile>
       <AdditionalIncludeDirectories>$(ProjectDir)</AdditionalIncludeDirectories>
-      <EnablePREfast>true</EnablePREfast>
+      <EnablePREfast>false</EnablePREfast>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -99,7 +99,7 @@
       <EnableEnhancedInstructionSet>AdvancedVectorExtensions2</EnableEnhancedInstructionSet>
       <PrecompiledHeaderFile>stdafx.h</PrecompiledHeaderFile>
       <AdditionalIncludeDirectories>$(ProjectDir)</AdditionalIncludeDirectories>
-      <EnablePREfast>true</EnablePREfast>
+      <EnablePREfast>false</EnablePREfast>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
