@@ -5,7 +5,7 @@
 #include <SDL_ttf.h>
 
 namespace SDLGlobals {
-	SDL_Color SDL_COLOR_WHITE = { 255,255,255,255 };
+	SDL_Color SDL_COLOR_WHITE = { 180,180,180,0 };
 	SDL_Color SDL_COLOR_BLACK = { 0,0,0,0 };
 
 	SDL_Window * window;

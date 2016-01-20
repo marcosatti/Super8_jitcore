@@ -37,13 +37,11 @@ int main(int argc, char **argv) {
 
 	// Initialize the Chip8 system and load the game into the memory
 	mChip8->initialise();
-	mChip8->loadProgram("..\\Chip8_Roms\\BRIX_TEST");
+	mChip8->loadProgram("..\\Chip8_Roms\\PONG2");
 
 	// Set keystate initially
-	for (int i = 0; i < 16; i++) {
-		Chip8Globals::key->key[i] = 0;
-	}
-	Chip8Globals::key->key[0x5] = 1;
+	Chip8Globals::key->clearKeyState();
+	Chip8Globals::key->setKeyState(0x1, KEY_STATE::DOWN);
 
 #ifdef USE_SDL
 	// Emulate
@@ -83,9 +81,9 @@ int main(int argc, char **argv) {
 			drawcycles_old = drawcycles;
 			ticks_old = ticks;
 
-			// cahnge key state
-			Chip8Globals::key->key[0x4] ^= 1;
-			Chip8Globals::key->key[0x6] ^= 1;
+			// change key state
+			Chip8Globals::key->setKeyState(0x1, (KEY_STATE)(Chip8Globals::key->getKeyState(0x1) ^ 1));
+			Chip8Globals::key->setKeyState(0xC, (KEY_STATE)(Chip8Globals::key->getKeyState(0xC) ^ 1));
 		}
 
 		// Print cycles

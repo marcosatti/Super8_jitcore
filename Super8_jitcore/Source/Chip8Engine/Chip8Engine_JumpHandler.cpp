@@ -61,7 +61,7 @@ int32_t Chip8Engine_JumpHandler::recordConditionalJumpEntry(uint16_t c8_from_, u
 	cond_jump_list->push_back(entry);
 #ifdef USE_VERBOSE
 	char buffer[1000];
-	_snprintf_s(buffer, 1000, "CONDITIONAL (small) Jump[%d] recorded. C8_from = 0x%.4X, C8_to = 0x%.4X, x86_address = 0x%.8X, cycles = %d.", cond_jump_list->size() - 1, c8_from_, c8_to_, (uint32_t)x86_address_jump_value_, translator_cycles_);
+	_snprintf_s(buffer, 1000, "Conditional Jump[%d] recorded. C8_from = 0x%.4X, C8_to = 0x%.4X, x86_address = 0x%.8X, cycles = %d.", cond_jump_list->size() - 1, c8_from_, c8_to_, (uint32_t)x86_address_jump_value_, translator_cycles_);
 	logMessage(LOGLEVEL::L_INFO, buffer);
 #endif
 	return (cond_jump_list->size() - 1);
@@ -95,7 +95,7 @@ void Chip8Engine_JumpHandler::checkAndFillConditionalJumpsByCycles()
 
 #ifdef USE_VERBOSE
 			char buffer[1000];
-			_snprintf_s(buffer, 1000, "CONDITIONAL (small) Jump[%d] found and updated! Value %d written to location 0x%.8X (in cache[%d]).", i, relative, (uint32_t)(*cond_jump_list)[i].x86_address_jump_value, cache->findCacheIndexCurrent());
+			_snprintf_s(buffer, 1000, "Conditional Jump[%d] updated! Value %d written to 0x%.8X (in cache[%d]).", i, relative, (uint32_t)(*cond_jump_list)[i].x86_address_jump_value, cache->findCacheIndexCurrent());
 			logMessage(LOGLEVEL::L_INFO, buffer);
 #endif
 
