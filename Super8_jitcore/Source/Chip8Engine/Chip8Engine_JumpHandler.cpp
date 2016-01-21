@@ -95,7 +95,7 @@ void Chip8Engine_JumpHandler::checkAndFillConditionalJumpsByCycles()
 
 #ifdef USE_VERBOSE
 			char buffer[1000];
-			_snprintf_s(buffer, 1000, "CONDITIONAL (small) Jump[%d] found and updated! Value %d written to location 0x%.8X (in cache[%d]).", i, relative, (uint32_t)cond_jump_list->get_ptr(i)->x86_address_jump_value, cache->findCacheIndexCurrent());
+			_snprintf_s(buffer, 1000, "CONDITIONAL (small) Jump[%d] found and updated! Value %d written to location 0x%.8X (in cache[%d]).", i, relative, (uint32_t)(*cond_jump_list)[i].x86_address_jump_value, cache->findCacheIndexCurrent());
 			logMessage(LOGLEVEL::L_INFO, buffer);
 #endif
 

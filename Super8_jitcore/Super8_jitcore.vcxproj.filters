@@ -102,6 +102,9 @@
     <ClInclude Include="Headers\Logger\Logger.h">
       <Filter>Header Files\Logger</Filter>
     </ClInclude>
+    <ClInclude Include="Headers\Chip8Globals\Chip8Globals_Dynarec.h">
+      <Filter>Header Files\Chip8Globals</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Chip8Engine\Chip8Engine_CacheHandler.cpp">
@@ -175,6 +178,9 @@
     </ClCompile>
     <ClCompile Include="Source\Globals.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Chip8Globals\Chip8Globals_Dynarec.cpp">
+      <Filter>Source Files\Chip8Globals</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

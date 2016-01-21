@@ -113,22 +113,22 @@ int main(int argc, char **argv) {
 	}
 #else
 	if (SDL_Init(SDL_INIT_EVERYTHING) != 0) exit(1);
-	//printf("Performance test mode. No graphics or sound!\n");
+	printf("Performance test mode. No graphics or sound!\n");
 	uint64_t cycles_old = 0;
 	while (1) {
 		// Emulation loop
 		mChip8->emulationLoop();
 
 		// C8 Render
-		if (getDrawFlag()) {
+		if (Chip8Globals::getDrawFlag()) {
 			//mChip8->DEBUG_renderGFXText();
 			drawcycles++;
-			setDrawFlag(false);
+			Chip8Globals::setDrawFlag(false);
 		}
 
 		ticks = SDL_GetTicks();
 		if ((ticks - ticks_old) > 1000) {
-			//printf("Super8:			Cycle: %llu, Cycles per second: %8.0f\n", cycles, (cycles - cycles_old) * 1000.0 / (ticks - ticks_old));
+			printf("Super8:			Cycle: %llu, Cycles per second: %8.0f\n", cycles, (cycles - cycles_old) * 1000.0 / (ticks - ticks_old));
 			ticks_old = ticks;
 			cycles_old = cycles;
 		}

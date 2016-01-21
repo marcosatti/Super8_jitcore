@@ -10,9 +10,9 @@
 #define USE_SDL
 
 // Logging
-//#define USE_VERBOSE
+#define USE_VERBOSE
 //#define USE_DEBUG
-//#define USE_DEBUG_EXTRA
+#define USE_DEBUG_EXTRA
 
 #ifdef USE_DEBUG_EXTRA
 #ifndef USE_DEBUG
