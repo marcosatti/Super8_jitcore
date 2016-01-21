@@ -227,7 +227,7 @@ int32_t Chip8Engine_CacheHandler::allocNewCacheByC8PC(uint16_t c8_start_pc_)
 	memcpy(cache_mem + MAX_CACHE_SZ - sz, bytes, sz); // Write this to last bytes of cache
 
 	// cache end pc is unknown at allocation, so set to start pc too (it is known if its a new cache by checking start==end pc)
-	CACHE_REGION memoryblock = { c8_start_pc_, c8_start_pc_, C8_STATE::C8_getPCByteAlignmentOffset(c8_start_pc_), cache_mem, 0, 0 };
+	CACHE_REGION memoryblock = { c8_start_pc_, c8_start_pc_, C8_STATE::C8_getPCByteAlignmentOffset(c8_start_pc_), cache_mem, 0 };
 	cache_list->push_back(memoryblock);
 
 	// DEBUG
@@ -358,26 +358,6 @@ uint8_t Chip8Engine_CacheHandler::getInvalidFlagByIndex(int32_t index)
 	}
 }
 
-void Chip8Engine_CacheHandler::setStopWriteFlagCurrent()
-{
-	cache_list->get_ptr(selected_cache_index)->stop_write_flag = 1;
-}
-
-void Chip8Engine_CacheHandler::setStopWriteFlagByIndex(int32_t index)
-{
-	cache_list->get_ptr(index)->stop_write_flag = 1;
-}
-
-void Chip8Engine_CacheHandler::clearStopWriteFlagByIndex(int32_t index)
-{
-	cache_list->get_ptr(index)->stop_write_flag = 0;
-}
-
-uint8_t Chip8Engine_CacheHandler::getStopWriteFlagByIndex(int32_t index)
-{
-	return cache_list->get_ptr(index)->stop_write_flag;
-}
-
 void Chip8Engine_CacheHandler::switchCacheByC8PC(uint16_t c8_pc_)
 {
 	for (int32_t i = 0; i < (int32_t)cache_list->size(); i++) {
@@ -439,20 +419,6 @@ CACHE_REGION * Chip8Engine_CacheHandler::getCacheInfoCurrent()
 CACHE_REGION * Chip8Engine_CacheHandler::getCacheInfoByIndex(int32_t index)
 {
 	return cache_list->get_ptr(index);
-}
-
-CACHE_REGION * Chip8Engine_CacheHandler::getCacheInfoByC8PC(uint16_t c8_pc_)
-{
-	int32_t idx = -1;
-	for (int32_t i = 0; i < (int32_t)cache_list->size(); i++) {
-		if (c8_pc_ >= cache_list->get_ptr(i)->c8_start_recompile_pc
-			&& c8_pc_ <= cache_list->get_ptr(i)->c8_end_recompile_pc
-			&& cache_list->get_ptr(i)->c8_pc_alignement == C8_STATE::C8_getPCByteAlignmentOffset(c8_pc_)) {
-			idx = i;
-			break;
-		}
-	}
-	return cache_list->get_ptr(idx);
 }
 
 #ifdef USE_DEBUG

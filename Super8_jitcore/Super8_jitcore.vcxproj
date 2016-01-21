@@ -154,7 +154,6 @@
     <ClCompile Include="Source\Chip8Engine\Chip8Engine_CodeEmitter_x86_Jump.cpp" />
     <ClCompile Include="Source\Chip8Engine\Chip8Engine_CodeEmitter_x86_MOV.cpp" />
     <ClCompile Include="Source\Chip8Engine\Chip8Engine_CodeEmitter_x86_SUB.cpp" />
-    <ClCompile Include="Source\FastArrayList\FastArrayList.cpp" />
     <ClCompile Include="Source\Logger\ILogComponent.cpp" />
     <ClCompile Include="Source\Logger\Logger.cpp" />
     <ClCompile Include="Source\SDLGlobals.cpp" />
