@@ -36,9 +36,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Headers\FastArrayList\FastArrayList.h">
-      <Filter>Header Files\FastArrayList</Filter>
-    </ClInclude>
     <ClInclude Include="Headers\SDLGlobals.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -95,9 +92,6 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Source\FastArrayList\FastArrayList.cpp">
-      <Filter>Source Files\FastArrayList</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Chip8Engine\Chip8Engine_CacheHandler.cpp">
       <Filter>Source Files\Chip8Engine</Filter>
     </ClCompile>
