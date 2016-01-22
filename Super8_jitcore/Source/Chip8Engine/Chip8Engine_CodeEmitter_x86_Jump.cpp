@@ -1,4 +1,15 @@
 #include "stdafx.h"
+<<<<<<< HEAD
+
+#include <cstdint>
+
+#include "Headers\Globals.h"
+
+#include "Headers\Chip8Globals\Chip8Globals.h"
+#include "Headers\Chip8Engine\Chip8Engine_CodeEmitter_x86.h"
+#include "Headers\Chip8Engine\Chip8Engine_CacheHandler.h"
+=======
+>>>>>>> block_test_perf
 
 #include <cstdint>
 
@@ -10,12 +21,6 @@
 
 using namespace Chip8Globals;
 
-void Chip8Engine_CodeEmitter_x86::JMP_REL_32(int32_t relative)
-{
-	cache->write8(0xE9);
-	cache->write32(relative);
-}
-
 void Chip8Engine_CodeEmitter_x86::JMP_M_PTR_32(uint32_t * address)
 {
 	cache->write8(0xFF);
@@ -23,35 +28,9 @@ void Chip8Engine_CodeEmitter_x86::JMP_M_PTR_32(uint32_t * address)
 	cache->write32((uint32_t)address);
 }
 
-void Chip8Engine_CodeEmitter_x86::JC_8(int8_t relative)
-{
-	cache->write8(0x72);
-	cache->write8(relative);
-}
-
-void Chip8Engine_CodeEmitter_x86::JC_32(int32_t relative)
-{
-	cache->write8(0x0F);
-	cache->write8(0x82);
-	cache->write32(relative);
-}
-
 void Chip8Engine_CodeEmitter_x86::JNC_8(int8_t relative)
 {
 	cache->write8(0x73);
-	cache->write8(relative);
-}
-
-void Chip8Engine_CodeEmitter_x86::JNC_32(int32_t relative)
-{
-	cache->write8(0x0F);
-	cache->write8(0x83);
-	cache->write32(relative);
-}
-
-void Chip8Engine_CodeEmitter_x86::JE_8(int8_t relative)
-{
-	cache->write8(0x74);
 	cache->write8(relative);
 }
 
@@ -80,11 +59,4 @@ void Chip8Engine_CodeEmitter_x86::JNG_8(int8_t relative)
 	// Same as JLE opcode
 	cache->write8(0x7E);
 	cache->write8(relative);
-}
-
-void Chip8Engine_CodeEmitter_x86::JNG_32(int32_t relative)
-{
-	cache->write8(0x0F);
-	cache->write8(0x8E);
-	cache->write32(relative);
 }

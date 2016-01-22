@@ -165,26 +165,39 @@ void Chip8Engine::handleInterrupt()
 
 void Chip8Engine::translatorLoop()
 {
-	do {
-#ifdef USE_VERBOSE
-		// Print number of translator cycles parsed.
-		//printf("Chip8Engine:	Running translator cycle: %d\n", translate_cycles);
-#endif
+	// Set the loop condition to false first, which will become true when a jump is encountered and then break the loop.
+	Dynarec::block_finished = false;
 
-		// Check and fill in conditional jumps & decrease num of cycles
-		jumptbl->decreaseConditionalCycle();
-		jumptbl->checkAndFillConditionalJumpsByCycles();
+	// Translator loop.
+	while (Dynarec::block_finished == false) { // Limit a cache update to blocks of code.
+		char buffer[1000];
+#ifdef USE_DEBUG
+		// Print number of translator cycles parsed.
+<<<<<<< HEAD
+		//printf("Chip8Engine:	Running translator cycle: %d\n", translate_cycles);
+=======
+		_snprintf_s(buffer, 1000, "Translator cycle %d, in cache[%d].", translate_cycles, cache->findCacheIndexCurrent());
+		logMessage(LOGLEVEL::L_INFO, buffer);
+>>>>>>> block_test_perf
+#endif
 
 		// Bounds checking (do not translate outside of rom location)
 		if (C8_STATE::cpu.pc > C8_STATE::rom_sz) {
 #ifdef USE_VERBOSE
+<<<<<<< HEAD
 			//printf("Chip8Engine:	Warning: C8 PC was outside of rom location! Running from start again as there is no code to translate (reset pc to 0x0200).\n");
+=======
+			_snprintf_s(buffer, 1000, "C8 PC was outside of rom location! Exiting translator loop.");
+			logMessage(LOGLEVEL::L_WARNING, buffer);
+>>>>>>> block_test_perf
 #endif
 			C8_STATE::cpu.pc = 0x0200;
+			Dynarec::block_finished = true;
 			translate_cycles++;
 			break;
 		}
 
+<<<<<<< HEAD
 		// Select the right cache to use & switch
 		int32_t cache_index = cache->getCacheWritableByC8PC(C8_STATE::cpu.pc);
 		cache->switchCacheByIndex(cache_index);
@@ -206,6 +219,8 @@ void Chip8Engine::translatorLoop()
 		}
 
 		// We are now in a valid memory region and at the end of the block (ready to recompile again)
+=======
+>>>>>>> block_test_perf
 		// Fetch Opcode
 		C8_STATE::opcode = C8_STATE::memory[C8_STATE::cpu.pc] << 8 | C8_STATE::memory[C8_STATE::cpu.pc + 1]; // We have 8-bit memory, but an opcode is 16-bits long. Need to construct opcode from 2 successive memory locations.
 
@@ -219,9 +234,13 @@ void Chip8Engine::translatorLoop()
 		// Translate
 		dynarec->emulateTranslatorCycle();
 
+		// Check and fill in conditional jumps & decrease num of cycles
+		jumptbl->decreaseConditionalCycle();
+		jumptbl->checkAndFillConditionalJumpsByCycles();
+
 		// Update cycle number
 		translate_cycles++;
-	} while (translate_cycles % 16 != 0 || jumptbl->checkConditionalCycle() > 0); // Limit a cache update to 16 c8 opcodes at a time, but do not exit if there is a conditional cycle waiting to be updated
+	} 
 }
 
 #ifdef USE_DEBUG_EXTRA

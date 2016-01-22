@@ -14,9 +14,6 @@ struct STACK_ENTRY {
 class Chip8Engine_StackHandler : ILogComponent
 {
 public:
-	STACK_ENTRY stack[NUM_STACK_LVLS]; // Stack used in the implementation, supports 16 levels.
-	uint8_t sp; // Stack pointer
-
 	uint8_t * x86_address_to;
 
 	Chip8Engine_StackHandler();
@@ -24,7 +21,10 @@ public:
 
 	std::string getComponentName();
 
+<<<<<<< HEAD
 	void setStackLevel(uint8_t level);
+=======
+>>>>>>> block_test_perf
 	void resetStack();
 	void setTopStack(STACK_ENTRY entry);
 	STACK_ENTRY getTopStack();
@@ -34,4 +34,6 @@ public:
 #endif
 
 private:
+	STACK_ENTRY stack[NUM_STACK_LVLS]; // Stack used in the implementation, supports 16 levels.
+	uint8_t sp; // Stack pointer
 };

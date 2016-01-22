@@ -13,7 +13,6 @@
 #define USE_VERBOSE
 //#define USE_DEBUG
 //#define USE_DEBUG_EXTRA
-//#define USE_SDL
 
 #ifdef USE_DEBUG_EXTRA
 #ifndef USE_DEBUG

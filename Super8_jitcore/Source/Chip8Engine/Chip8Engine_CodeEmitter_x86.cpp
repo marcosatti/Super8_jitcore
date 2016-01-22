@@ -107,8 +107,3 @@ uint8_t Chip8Engine_CodeEmitter_x86::ModRegRM(uint8_t mod, X86Register reg, X86R
 {
 	return((mod << 6) | ((uint8_t)reg << 3) | (uint8_t)rm);
 }
-
-uint8_t Chip8Engine_CodeEmitter_x86::SclIdxBase(uint8_t scale, X86Register index, X86Register base)
-{
-	return((scale << 6) | ((uint8_t)index << 3) | (uint8_t)base);
-}

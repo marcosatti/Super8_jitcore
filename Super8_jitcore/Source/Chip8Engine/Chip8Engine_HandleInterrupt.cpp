@@ -22,7 +22,9 @@ void Chip8Engine::handleInterrupt_PREPARE_FOR_JUMP()
 	cache->invalidateCacheByFlag();
 
 	// Need to update the jump table/cache before the jumps are made.
+#ifdef USE_DEBUG
 	//cache->DEBUG_printCacheList();
+#endif
 	jumptbl->checkAndFillJumpsByStartC8PC();
 }
 
@@ -37,6 +39,7 @@ void Chip8Engine::handleInterrupt_USE_INTERPRETER()
 
 void Chip8Engine::handleInterrupt_OUT_OF_CODE()
 {
+<<<<<<< HEAD
 	// ! ! ! X86_STATE::x86_interrupt_c8_param1 contains start pc of cache, X86_STATE::x86_resume_start_address contains starting x86 address of cache ! ! !
 	// Flush caches that are marked
 	cache->invalidateCacheByFlag();
@@ -68,6 +71,9 @@ void Chip8Engine::handleInterrupt_OUT_OF_CODE()
 #ifdef USE_DEBUG_EXTRA
 	cache->DEBUG_printCacheList();
 #endif
+=======
+	// ! ! ! X86_STATE::x86_interrupt_c8_param1 contains start pc of cache, X86_STATE::x86_interrupt_x86_param1 contains starting x86 address of cache ! ! !
+>>>>>>> block_test_perf
 
 	// Get cache details that caused interrupt.
 	int32_t cache_index = cache->findCacheIndexByX86Address(X86_STATE::x86_interrupt_x86_param1); // param1 should be the base address of the cache, so we can find the cache that interrupted by searching for this value.
@@ -75,27 +81,22 @@ void Chip8Engine::handleInterrupt_OUT_OF_CODE()
 	// Remember to reset the entry point to the current cache PC.
 	X86_STATE::x86_resume_address = region->x86_mem_address + region->x86_pc;
 
-	// Case logic
-	// Case 1
-	if (region->x86_pc == 0
-		|| (region->stop_write_flag == 0
-			&& cache->findCacheIndexByStartC8PC(region->c8_end_recompile_pc + 2) == -1)) {
-		// Start recompiling code at end of cache c8pc
-		C8_STATE::cpu.pc = region->c8_end_recompile_pc;
+	// Select cache in CacheHandler equal to cache that caused interrupt
+	cache->switchCacheByIndex(cache_index);
+
+	// Case 1 - cache is out of code (empty) and needs recompiling code.
+	if (region->x86_pc == 0) {
+		// Start recompiling code in blocks
+		C8_STATE::cpu.pc = region->c8_start_recompile_pc;
 		translatorLoop();
 	}
-	// Case 2 & 3
+	// Case 2 - cache has code, but needs a jump needs to happen into the next cache (end pc + 2). This is due to a conditional jump.
 	else {
-		// First get jump table entry
+		// First make sure jump table entry
 		int32_t tblindex = jumptbl->getJumpIndexByC8PC(region->c8_end_recompile_pc + 2);
-
 		// Emit the jump
-		int32_t old_index = cache->findCacheIndexCurrent();
-		cache->switchCacheByIndex(cache_index);
 		emitter->DYNAREC_EMIT_INTERRUPT(X86_STATE::PREPARE_FOR_JUMP, region->c8_end_recompile_pc + 2);
 		emitter->JMP_M_PTR_32((uint32_t*)&jumptbl->getJumpInfoByIndex(tblindex)->x86_address_to);
-		cache->setStopWriteFlagCurrent();
-		cache->switchCacheByIndex(old_index);
 	}
 }
 
@@ -108,7 +109,8 @@ void Chip8Engine::handleInterrupt_PREPARE_FOR_INDIRECT_JUMP()
 	// Need to update the jump table/cache before the jumps are made.
 	//cache->DEBUG_printCacheList();
 	switch (X86_STATE::x86_interrupt_c8_param1 & 0xF000) {
-	case 0xB000: {
+	case 0xB000:
+	{
 		uint16_t c8_address = X86_STATE::x86_interrupt_c8_param1 & 0x0FFF;
 		c8_address += C8_STATE::cpu.V[0]; // get address to jump to
 
@@ -117,14 +119,16 @@ void Chip8Engine::handleInterrupt_PREPARE_FOR_INDIRECT_JUMP()
 		CACHE_REGION * region = cache->getCacheInfoByIndex(cache_index);
 		jumptbl->x86_indirect_jump_address = region->x86_mem_address;
 	}
+	default:
+	{
+		logMessage(LOGLEVEL::L_ERROR, "DEFAULT CASE REACHED IN PREPARE_FOR_INDIRECT_JUMP. SOMETHING IS WRONG!");
+	}
 	}
 }
 
 void Chip8Engine::handleInterrupt_SELF_MODIFYING_CODE()
 {
 	// ! ! ! X86_STATE::x86_interrupt_c8_param1 contains opcode from translator ! ! !
-	// Flush caches that are marked
-	cache->invalidateCacheByFlag();
 
 	// Only 2 opcodes in the C8 specs that do this. For SMC, need to invalidate cache that the memory writes to
 	switch (X86_STATE::x86_interrupt_c8_param1 & 0xF0FF) {
@@ -182,12 +186,10 @@ void Chip8Engine::handleInterrupt_WAIT_FOR_KEYPRESS()
 
 void Chip8Engine::handleInterrupt_PREPARE_FOR_STACK_JUMP()
 {
-	// ! ! ! X86_STATE::x86_interrupt_c8_param1 contains either: 0x2NNN (call, address = NNN) or 0x00EE (ret) ! ! !
+	// ! ! ! X86_STATE::x86_interrupt_c8_param1 contains either: 0x2NNN (call, address = NNN) or 0x00EE (ret), X86_STATE::x86_interrupt_c8_param2 contains the return address for an 0x2000 call ! ! !
 	// Flush caches that are marked
 	cache->invalidateCacheByFlag();
 
-	//cache->DEBUG_printCacheList();
-	//stack->DEBUG_printStack();
 	switch (X86_STATE::x86_interrupt_c8_param1 & 0xF000) {
 	case 0x2000:
 	{
@@ -204,7 +206,6 @@ void Chip8Engine::handleInterrupt_PREPARE_FOR_STACK_JUMP()
 		int32_t tblindex = jumptbl->getJumpIndexByC8PC(jump_c8_pc);
 
 		// Need to check/alloc jump location caches
-		cache->getCacheWritableByStartC8PC(jump_c8_pc);
 		jumptbl->checkAndFillJumpsByStartC8PC();
 
 		// Set stack->x86_address_to equal to jumptable location
@@ -220,11 +221,15 @@ void Chip8Engine::handleInterrupt_PREPARE_FOR_STACK_JUMP()
 		int32_t tblindex = jumptbl->getJumpIndexByC8PC(entry.c8_address);
 
 		// Need to check/alloc jump location caches
-		cache->getCacheWritableByStartC8PC(entry.c8_address);
 		jumptbl->checkAndFillJumpsByStartC8PC();
 
 		// Set stack->x86_address_to equal to jumptable location
 		stack->x86_address_to = jumptbl->getJumpInfoByIndex(tblindex)->x86_address_to;
+		break;
+	}
+	default:
+	{
+		logMessage(LOGLEVEL::L_ERROR, "DEFAULT CASE REACHED IN PREPARE_FOR_STACK_JUMP. SOMETHING IS WRONG!");
 		break;
 	}
 	}

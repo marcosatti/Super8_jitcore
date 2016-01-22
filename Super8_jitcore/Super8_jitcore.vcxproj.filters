@@ -42,9 +42,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Headers\FastArrayList\FastArrayList.h">
-      <Filter>Header Files\FastArrayList</Filter>
-    </ClInclude>
     <ClInclude Include="Headers\SDLGlobals.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -105,11 +102,14 @@
     <ClInclude Include="Headers\Logger\Logger.h">
       <Filter>Header Files\Logger</Filter>
     </ClInclude>
+<<<<<<< HEAD
+=======
+    <ClInclude Include="Headers\Chip8Globals\Chip8Globals_Dynarec.h">
+      <Filter>Header Files\Chip8Globals</Filter>
+    </ClInclude>
+>>>>>>> block_test_perf
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Source\FastArrayList\FastArrayList.cpp">
-      <Filter>Source Files\FastArrayList</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Chip8Engine\Chip8Engine_CacheHandler.cpp">
       <Filter>Source Files\Chip8Engine</Filter>
     </ClCompile>
@@ -182,6 +182,12 @@
     <ClCompile Include="Source\Globals.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+<<<<<<< HEAD
+=======
+    <ClCompile Include="Source\Chip8Globals\Chip8Globals_Dynarec.cpp">
+      <Filter>Source Files\Chip8Globals</Filter>
+    </ClCompile>
+>>>>>>> block_test_perf
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Super8_jitcore.rc">

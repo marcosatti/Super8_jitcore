@@ -4,6 +4,10 @@
 
 #include "Headers\Chip8Globals\Chip8Globals_C8_STATE.h"
 #include "Headers\Chip8Globals\Chip8Globals_X86_STATE.h"
+<<<<<<< HEAD
+=======
+#include "Headers\Chip8Globals\Chip8Globals_Dynarec.h"
+>>>>>>> block_test_perf
 
 // Forward decl's
 class Chip8Engine_JumpHandler;

@@ -37,13 +37,11 @@ int main(int argc, char **argv) {
 
 	// Initialize the Chip8 system and load the game into the memory
 	mChip8->initialise();
-	mChip8->loadProgram("..\\Chip8_Roms\\BRIX_TEST");
+	mChip8->loadProgram("..\\Chip8_Roms\\PONG2");
 
 	// Set keystate initially
-	for (int i = 0; i < 16; i++) {
-		Chip8Globals::key->key[i] = 0;
-	}
-	Chip8Globals::key->key[0x5] = 1;
+	Chip8Globals::key->clearKeyState();
+	Chip8Globals::key->setKeyState(0x1, KEY_STATE::DOWN);
 
 #ifdef USE_SDL
 	// Emulate
@@ -83,9 +81,9 @@ int main(int argc, char **argv) {
 			drawcycles_old = drawcycles;
 			ticks_old = ticks;
 
-			// cahnge key state
-			Chip8Globals::key->key[0x4] ^= 1;
-			Chip8Globals::key->key[0x6] ^= 1;
+			// change key state
+			Chip8Globals::key->setKeyState(0x1, (KEY_STATE)(Chip8Globals::key->getKeyState(0x1) ^ 1));
+			Chip8Globals::key->setKeyState(0xC, (KEY_STATE)(Chip8Globals::key->getKeyState(0xC) ^ 1));
 		}
 
 		// Print cycles
@@ -120,15 +118,19 @@ int main(int argc, char **argv) {
 		mChip8->emulationLoop();
 
 		// C8 Render
-		if (getDrawFlag()) {
+		if (Chip8Globals::getDrawFlag()) {
 			//mChip8->DEBUG_renderGFXText();
 			drawcycles++;
-			setDrawFlag(false);
+			Chip8Globals::setDrawFlag(false);
 		}
 
 		ticks = SDL_GetTicks();
 		if ((ticks - ticks_old) > 1000) {
+<<<<<<< HEAD
 			//printf("Super8:			Cycle: %llu, Cycles per second: %8.0f\n", cycles, (cycles - cycles_old) * 1000.0 / (ticks - ticks_old));
+=======
+			printf("Super8:			Cycle: %llu, Cycles per second: %8.0f\n", cycles, (cycles - cycles_old) * 1000.0 / (ticks - ticks_old));
+>>>>>>> block_test_perf
 			ticks_old = ticks;
 			cycles_old = cycles;
 		}
