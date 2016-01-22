@@ -173,23 +173,15 @@ void Chip8Engine::translatorLoop()
 		char buffer[1000];
 #ifdef USE_DEBUG
 		// Print number of translator cycles parsed.
-<<<<<<< HEAD
-		//printf("Chip8Engine:	Running translator cycle: %d\n", translate_cycles);
-=======
 		_snprintf_s(buffer, 1000, "Translator cycle %d, in cache[%d].", translate_cycles, cache->findCacheIndexCurrent());
 		logMessage(LOGLEVEL::L_INFO, buffer);
->>>>>>> block_test_perf
 #endif
 
 		// Bounds checking (do not translate outside of rom location)
 		if (C8_STATE::cpu.pc > C8_STATE::rom_sz) {
 #ifdef USE_VERBOSE
-<<<<<<< HEAD
-			//printf("Chip8Engine:	Warning: C8 PC was outside of rom location! Running from start again as there is no code to translate (reset pc to 0x0200).\n");
-=======
 			_snprintf_s(buffer, 1000, "C8 PC was outside of rom location! Exiting translator loop.");
 			logMessage(LOGLEVEL::L_WARNING, buffer);
->>>>>>> block_test_perf
 #endif
 			C8_STATE::cpu.pc = 0x0200;
 			Dynarec::block_finished = true;
@@ -197,30 +189,6 @@ void Chip8Engine::translatorLoop()
 			break;
 		}
 
-<<<<<<< HEAD
-		// Select the right cache to use & switch
-		int32_t cache_index = cache->getCacheWritableByC8PC(C8_STATE::cpu.pc);
-		cache->switchCacheByIndex(cache_index);
-
-		// Has code already been compiled? (only valid if x86_pc > 0)
-		CACHE_REGION * memory_region = cache->getCacheInfoByIndex(cache_index);
-		if (C8_STATE::cpu.pc <= memory_region->c8_end_recompile_pc && memory_region->x86_pc > 0) {
-			// This is when we have entered a block that already has compiled code in it... need to switch to end of the region/change region and recompile from there.
-			// Update cpu.pc to the end C8 PC of region
-			// End C8 PC is defined to be already compiled, so need to plus 2 for next opcode. However, if next opcode is in a different region, we need to select the correct one. Place a continue here so we keep getting the REAL end memory region.
-			// When we loop again, the check memory region function will run again and give the correct region.
-#ifdef USE_VERBOSE
-			//printf("Chip8Engine:	Warning: C8 PC was not at end of block. Old C8 PC = 0x%.4X, New C8 PC = 0x%.4X. Re-running translator loop to check memory region again.\n", C8_STATE::cpu.pc, cache->getEndC8PCCurrent() + 2);
-#endif
-			C8_STATE::cpu.pc = cache->getEndC8PCCurrent() + 2;
-			// Update cycle number
-			translate_cycles++;
-			continue;
-		}
-
-		// We are now in a valid memory region and at the end of the block (ready to recompile again)
-=======
->>>>>>> block_test_perf
 		// Fetch Opcode
 		C8_STATE::opcode = C8_STATE::memory[C8_STATE::cpu.pc] << 8 | C8_STATE::memory[C8_STATE::cpu.pc + 1]; // We have 8-bit memory, but an opcode is 16-bits long. Need to construct opcode from 2 successive memory locations.
 

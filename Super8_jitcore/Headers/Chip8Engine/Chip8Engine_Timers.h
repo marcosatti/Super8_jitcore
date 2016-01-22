@@ -13,8 +13,6 @@ public:
 
 	std::string getComponentName();
 
-	std::string getComponentName();
-
 	Chip8Engine_Timers();
 	~Chip8Engine_Timers();
 private:

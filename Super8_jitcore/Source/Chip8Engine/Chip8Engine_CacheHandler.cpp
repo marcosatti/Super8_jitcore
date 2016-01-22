@@ -2,11 +2,9 @@
 
 #include <cstdint>
 
-#include "Headers\Globals.h"
-<<<<<<< HEAD
 #include "Headers\FastArrayList\FastArrayList.h"
-=======
->>>>>>> block_test_perf
+
+#include "Headers\Globals.h"
 
 #include "Headers\Chip8Globals\Chip8Globals.h"
 #include "Headers\Chip8Engine\Chip8Engine_CacheHandler.h"
@@ -247,31 +245,6 @@ int32_t Chip8Engine_CacheHandler::getCacheWritableByStartC8PC(uint16_t c8_jump_p
 {
 	int32_t index = cache->findCacheIndexByStartC8PC(c8_jump_pc);
 	if (index == -1) {
-<<<<<<< HEAD
-		// No cache was found, so check if theres a cache with the pc in the middle
-		index = findCacheIndexByC8PC(c8_jump_pc);
-		if (index == -1) {
-			// No cache was found at all, so allocate a completely new cache
-			index = allocNewCacheByC8PC(c8_jump_pc);
-#ifdef USE_DEBUG
-			char buffer[1000];
-			_snprintf_s(buffer, 1000, "Jump Cache Path Result = NEW CACHE(%d).", index);
-			logMessage(LOGLEVEL::L_DEBUG, buffer);
-#endif
-		}
-		else {
-			// A cache was found where the jump pc is located in the middle of the cache.
-			// Need to mark invalid and alloc a new cache, as this code path for the cache wont be run again (next time the new cache will be found)
-			setInvalidFlagByIndex(index);
-			int32_t old_index = index;
-			index = allocNewCacheByC8PC(c8_jump_pc);
-#ifdef USE_DEBUG
-			char buffer[1000];
-			_snprintf_s(buffer, 1000, "Jump Cache Path Result = INVALIDATE CACHE(%d) & NEW CACHE(%d).", old_index, index);
-			logMessage(LOGLEVEL::L_DEBUG, buffer);
-#endif
-		}
-=======
 		// No cache was found at all, so allocate a completely new cache
 		index = allocNewCacheByC8PC(c8_jump_pc);
 #ifdef USE_DEBUG
@@ -279,7 +252,6 @@ int32_t Chip8Engine_CacheHandler::getCacheWritableByStartC8PC(uint16_t c8_jump_p
 		_snprintf_s(buffer, 1000, "Jump Cache Path Result = NEW CACHE(%d).", index);
 		logMessage(LOGLEVEL::L_DEBUG, buffer);
 #endif
->>>>>>> block_test_perf
 	}
 	else {
 		// dont need to allocate/invalidate anything here, as jump will be to the start C8 PC requested
@@ -288,58 +260,6 @@ int32_t Chip8Engine_CacheHandler::getCacheWritableByStartC8PC(uint16_t c8_jump_p
 		_snprintf_s(buffer, 1000, "Jump Cache Path Result = FOUND CACHE(%d).", index);
 		logMessage(LOGLEVEL::L_DEBUG, buffer);
 #endif
-<<<<<<< HEAD
-	}
-	return index;
-}
-
-int32_t Chip8Engine_CacheHandler::getCacheWritableByC8PC(uint16_t c8_pc)
-{
-	// First check if memory region is ready/allocated (check for both current pc (indicates already recompiled), and check for pc-2 (ready to write to))
-	int32_t index = findCacheIndexByC8PC(c8_pc);
-	if (index != -1) {
-		// Cache exists for current PC
-		// Invalid check already done in the above function.
-		// TODO: remove below if statement. Invalid check already performed in the above function.
-		if (getInvalidFlagByIndex(index)) {
-			// Cache was invalid, so create a new cache at current PC
-			index = allocNewCacheByC8PC(c8_pc);
-		}
-		else {
-			// Cache was not marked as invalid, so next check for the do not write flag.
-			// However, it does not matter as later the pc will be moved to the end of the region (code must already exist in this logic block), so just switch to this cache for now
-			// cache_index = cache_index;
-		}
-	}
-	else {
-		// Cache does not exist for current PC, so it hasnt been compiled before. Need to get region which is available to hold this recompiled code
-		// Check for cache with PC - 2 end PC.
-		index = findCacheIndexByC8PC(c8_pc - 2);
-		if (index != -1) {
-			// Cache exists for current PC - 2
-			// Check if its invalid
-			if (getInvalidFlagByIndex(index)) {
-				// Cache was invalid, so create a new cache at current PC
-				index = allocNewCacheByC8PC(c8_pc);
-			}
-			else {
-				// Cache was not marked as invalid, so next check for the do not write flag.
-				if (getStopWriteFlagByIndex(index)) {
-					// Cache has do not write flag set, so allocate a new region
-					index = allocNewCacheByC8PC(c8_pc);
-				}
-				else {
-					// Cache does not have do not write flag set, so its safe to write to this cache
-					// cache_index = cache_index;
-				}
-			}
-		}
-		else {
-			// No cache was found for PC - 2 as well, so allocate a new one for current pc
-			index = allocNewCacheByC8PC(c8_pc);
-		}
-=======
->>>>>>> block_test_perf
 	}
 	return index;
 }
@@ -503,35 +423,13 @@ CACHE_REGION * Chip8Engine_CacheHandler::getCacheInfoByIndex(int32_t index)
 	return cache_list->get_ptr(index);
 }
 
-<<<<<<< HEAD
-CACHE_REGION * Chip8Engine_CacheHandler::getCacheInfoByC8PC(uint16_t c8_pc_)
-{
-	int32_t idx = -1;
-	for (int32_t i = 0; i < (int32_t)cache_list->size(); i++) {
-		if (c8_pc_ >= cache_list->get_ptr(i)->c8_start_recompile_pc
-			&& c8_pc_ <= cache_list->get_ptr(i)->c8_end_recompile_pc
-			&& cache_list->get_ptr(i)->c8_pc_alignement == C8_STATE::C8_getPCByteAlignmentOffset(c8_pc_)) {
-			idx = i;
-			break;
-		}
-	}
-	return cache_list->get_ptr(idx);
-}
-
-#ifdef USE_DEBUG_EXTRA
-=======
 #ifdef USE_DEBUG
->>>>>>> block_test_perf
 void Chip8Engine_CacheHandler::DEBUG_printCacheByIndex(int32_t index)
 {
 	char buffer[1000];
 	_snprintf_s(buffer, 1000, "Cache[%d]: C8_start_pc = 0x%.4X, C8_end_pc = 0x%.4X, X86_mem_address = 0x%.8X, X86_pc = 0x%.8X, ", index, cache_list->get_ptr(index)->c8_start_recompile_pc, cache_list->get_ptr(index)->c8_end_recompile_pc, (uint32_t)cache_list->get_ptr(index)->x86_mem_address, cache_list->get_ptr(index)->x86_pc);
 	logMessage(LOGLEVEL::L_DEBUG, buffer);
-<<<<<<< HEAD
-	_snprintf_s(buffer, 1000, " invalid_flag = %d, stop_write_flag = %d.", (cache_invalidate_list->find(index) != -1), cache_list->get_ptr(index)->stop_write_flag);
-=======
 	_snprintf_s(buffer, 1000, " invalid_flag = %d.", (cache_invalidate_list->find(index) != -1));
->>>>>>> block_test_perf
 	logMessage(LOGLEVEL::L_DEBUG, buffer);
 }
 
@@ -541,11 +439,7 @@ void Chip8Engine_CacheHandler::DEBUG_printCacheList()
 		char buffer[1000];
 		_snprintf_s(buffer, 1000, "Cache[%d]: C8_start_pc = 0x%.4X, C8_end_pc = 0x%.4X, X86_mem_address = 0x%.8X, X86_pc = 0x%.8X, ", i, cache_list->get_ptr(i)->c8_start_recompile_pc, cache_list->get_ptr(i)->c8_end_recompile_pc, (uint32_t)cache_list->get_ptr(i)->x86_mem_address, cache_list->get_ptr(i)->x86_pc);
 		logMessage(LOGLEVEL::L_DEBUG, buffer);
-<<<<<<< HEAD
-		_snprintf_s(buffer, 1000, " invalid_flag = %d, stop_write_flag = %d.", (cache_invalidate_list->find(i) != -1), cache_list->get_ptr(i)->stop_write_flag);
-=======
 		_snprintf_s(buffer, 1000, " invalid_flag = %d.", (cache_invalidate_list->find(i) != -1));
->>>>>>> block_test_perf
 		logMessage(LOGLEVEL::L_DEBUG, buffer);
 	}
 }
@@ -561,11 +455,7 @@ void Chip8Engine_CacheHandler::write8(uint8_t byte_)
 	*(cache_list->get_ptr(selected_cache_index)->x86_mem_address + cache_list->get_ptr(selected_cache_index)->x86_pc) = byte_;
 #ifdef USE_DEBUG_EXTRA
 	char buffer[1000];
-<<<<<<< HEAD
-	_snprintf_s(buffer, 1000, "Byte written: cache[%d] @ %.8X and value: 0x%.2X.", selected_cache_index, cache_list->get_ptr(selected_cache_index)->x86_pc, byte_);
-=======
 	_snprintf_s(buffer, 1000, "Byte written: cache[%d] @ %.8X and value: 0x%.2X.", selected_cache_index, (*cache_list)[selected_cache_index].x86_pc, byte_);
->>>>>>> block_test_perf
 	logMessage(LOGLEVEL::L_DEBUG, buffer);
 #endif 
 	incrementCacheX86PC(1); // 1 byte
@@ -577,11 +467,7 @@ void Chip8Engine_CacheHandler::write16(uint16_t word_)
 	*((uint16_t*)cache_mem_current) = word_;
 #ifdef USE_DEBUG_EXTRA
 	char buffer[1000];
-<<<<<<< HEAD
-	_snprintf_s(buffer, 1000, "Word written: cache[%d] @ %.8X and value: 0x%.4X.", selected_cache_index, cache_list->get_ptr(selected_cache_index)->x86_pc, word_);
-=======
 	_snprintf_s(buffer, 1000, "Word written: cache[%d] @ %.8X and value: 0x%.4X.", selected_cache_index, (*cache_list)[selected_cache_index].x86_pc, word_);
->>>>>>> block_test_perf
 	logMessage(LOGLEVEL::L_DEBUG, buffer);
 #endif
 	incrementCacheX86PC(2); // 2 bytes
@@ -593,11 +479,7 @@ void Chip8Engine_CacheHandler::write32(uint32_t dword_)
 	*((uint32_t*)cache_mem_current) = dword_;
 #ifdef USE_DEBUG_EXTRA
 	char buffer[1000];
-<<<<<<< HEAD
-	_snprintf_s(buffer, 1000, "Dword written: cache[%d] @ %.8X and value: 0x%.8X.", selected_cache_index, cache_list->get_ptr(selected_cache_index)->x86_pc, dword_);
-=======
 	_snprintf_s(buffer, 1000, "Dword written: cache[%d] @ %.8X and value: 0x%.8X.", selected_cache_index, (*cache_list)[selected_cache_index].x86_pc, dword_);
->>>>>>> block_test_perf
 	logMessage(LOGLEVEL::L_DEBUG, buffer);
 #endif
 	incrementCacheX86PC(4); // 4 bytes

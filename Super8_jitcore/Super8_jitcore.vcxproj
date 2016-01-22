@@ -134,10 +134,7 @@
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
-<<<<<<< HEAD
-=======
     <ClCompile Include="Source\Chip8Globals\Chip8Globals_Dynarec.cpp" />
->>>>>>> block_test_perf
     <ClCompile Include="Source\Globals.cpp" />
     <ClCompile Include="Source\Chip8Engine\Chip8Engine.cpp" />
     <ClCompile Include="Source\Chip8Engine\Chip8Engine_CacheHandler.cpp" />
@@ -157,10 +154,6 @@
     <ClCompile Include="Source\Chip8Engine\Chip8Engine_CodeEmitter_x86_Jump.cpp" />
     <ClCompile Include="Source\Chip8Engine\Chip8Engine_CodeEmitter_x86_MOV.cpp" />
     <ClCompile Include="Source\Chip8Engine\Chip8Engine_CodeEmitter_x86_SUB.cpp" />
-<<<<<<< HEAD
-    <ClCompile Include="Source\FastArrayList\FastArrayList.cpp" />
-=======
->>>>>>> block_test_perf
     <ClCompile Include="Source\Logger\ILogComponent.cpp" />
     <ClCompile Include="Source\Logger\Logger.cpp" />
     <ClCompile Include="Source\SDLGlobals.cpp" />

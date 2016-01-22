@@ -39,41 +39,7 @@ void Chip8Engine::handleInterrupt_USE_INTERPRETER()
 
 void Chip8Engine::handleInterrupt_OUT_OF_CODE()
 {
-<<<<<<< HEAD
-	// ! ! ! X86_STATE::x86_interrupt_c8_param1 contains start pc of cache, X86_STATE::x86_resume_start_address contains starting x86 address of cache ! ! !
-	// Flush caches that are marked
-	cache->invalidateCacheByFlag();
-
-	// End of cache was reached, because of 3 posibilities:
-	// 1. The cache is genuinely out of code due to eg: translator loop exiting on X many cycles
-	// 2. The cache contains code (ie: conditional jump) that goes over the end jump
-	// 3. The cache has previously been split up into two caches due to a jump into the middle of the cache (and needs to be "joined up").
-
-	// We can determine which case it is by looking at the do not write flag, where 1 and 3. will have false, and 2. will have true.
-	// For determining between 1 and 3, we can check for an existing cache. If true, then it is case 3.
-	// However, case 2 and 3 can be solved in the same way, by emitting a jump to (C8 end PC + 2).
-
-	// In summary:
-	// Case 1: stop_flag = 0, existing cache = 0
-	// Case 2: stop_flag = 1, existing cache = 1 or 0
-	// Case 3: stop_flag = 0, existing cache = 1
-	// Together, Case 2 & 3 make up the complement possiblilies to Case 1 (ie: IF (Case 1) and ELSE (Case 2 & 3) statement will work).
-
-	// PROBLEM:
-	// There is sometimes a problem, where there has been a cache that has been split up where both of them are only 1 Chip8 opcode apart, eg: 0x206 and 0x208
-	// In this case, the cache with start C8 pc = 0x206 will also have an end C8 pc = 0x206 but does not contain any translated code for the 0x206 PC.
-	// This means that on the first OUT_OF_CODE interrupt from this cache, it will be detected as stop_flag = 0 and existing cache = 1 (Case 3), but actually it should be Case 1 as the code has not been translated yet.
-	// After the code has been translated, thats when its safe to detect as Case 3.
-	// The solution is to check within Case 1 if also no translated code exists by x86_pc == 0 (logical OR). Has not been thoroughly tested and may present problems in other games.
-
-	// There is possibly a better way to do this...
-
-#ifdef USE_DEBUG_EXTRA
-	cache->DEBUG_printCacheList();
-#endif
-=======
 	// ! ! ! X86_STATE::x86_interrupt_c8_param1 contains start pc of cache, X86_STATE::x86_interrupt_x86_param1 contains starting x86 address of cache ! ! !
->>>>>>> block_test_perf
 
 	// Get cache details that caused interrupt.
 	int32_t cache_index = cache->findCacheIndexByX86Address(X86_STATE::x86_interrupt_x86_param1); // param1 should be the base address of the cache, so we can find the cache that interrupted by searching for this value.

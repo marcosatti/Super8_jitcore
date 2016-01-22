@@ -14,14 +14,6 @@ Chip8Engine_StackHandler::~Chip8Engine_StackHandler()
 {
 	// Deregister this component in logger
 	logger->deregisterComponent(this);
-<<<<<<< HEAD
-}
-
-std::string Chip8Engine_StackHandler::getComponentName()
-{
-	return std::string("StackHandler");
-=======
->>>>>>> block_test_perf
 }
 
 std::string Chip8Engine_StackHandler::getComponentName()
@@ -47,13 +39,9 @@ void Chip8Engine_StackHandler::setTopStack(STACK_ENTRY entry)
 		sp++;
 	}
 	else {
-<<<<<<< HEAD
-		//printf("StackHandler:	ERROR! Stack is maxed out (16)! Stack not modified.");
-=======
 		char buffer[1000];
 		_snprintf_s(buffer, 1000, "Stack is full! (16 levels). Prepare for a crash or unintended actions! May be a bad rom or emulation bug.");
 		logMessage(LOGLEVEL::L_ERROR, buffer);
->>>>>>> block_test_perf
 	}
 }
 

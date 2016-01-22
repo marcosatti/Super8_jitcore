@@ -21,10 +21,6 @@ public:
 
 	std::string getComponentName();
 
-<<<<<<< HEAD
-	void setStackLevel(uint8_t level);
-=======
->>>>>>> block_test_perf
 	void resetStack();
 	void setTopStack(STACK_ENTRY entry);
 	STACK_ENTRY getTopStack();
