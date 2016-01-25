@@ -32,8 +32,7 @@ namespace Chip8Globals {
 		return drawflag;
 	}
 
-	void setDrawFlag(bool isdraw)
-	{
+	void setDrawFlag(bool isdraw) {
 		drawflag = isdraw;
 	}
 }

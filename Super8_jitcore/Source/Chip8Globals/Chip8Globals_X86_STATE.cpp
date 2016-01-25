@@ -22,7 +22,8 @@ namespace Chip8Globals {
 			"SELF_MODIFYING_CODE",
 			"DEBUG",
 			"WAIT_FOR_KEYPRESS",
-			"PREPARE_FOR_STACK_JUMP"
+			"PREPARE_FOR_STACK_JUMP",
+			"UPDATE_TIMERS"
 		};
 
 		void DEBUG_printX86_STATE()

@@ -66,6 +66,7 @@ public:
 	void AND_RwithM_8(X86Register dest, uint8_t* source);
 	void XOR_RwithM_8(X86Register dest, uint8_t* source);
 	void XOR_RwithR_32(X86Register dest, X86Register source);
+	void XOR_RwithR_8(X86Register dest, X86Register source);
 
 	void JE_32(int32_t relative); // near jump
 	void JNE_32(int32_t relative); // near jump

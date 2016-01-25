@@ -93,24 +93,6 @@ void Chip8Engine_Dynarec::emulateTranslatorCycle() {
 	}
 }
 
-void Chip8Engine_Dynarec::emulateTranslatorTimers()
-{
-	// Update timers
-	// Delay timer
-	emitter->MOV_MtoR_8(al, &timers->delay_timer);
-	emitter->CMP_RwithImm_8(al, 0);
-	emitter->JNG_8(9);
-	emitter->SUB_ImmfromR_8(al, 1);
-	emitter->MOV_RtoM_8(&timers->delay_timer, al);
-
-	// Sound timer
-	emitter->MOV_MtoR_8(al, &timers->sound_timer);
-	emitter->CMP_RwithImm_8(al, 0);
-	emitter->JNG_8(9);
-	emitter->SUB_ImmfromR_8(al, 1);
-	emitter->MOV_RtoM_8(&timers->sound_timer, al);
-}
-
 void Chip8Engine_Dynarec::handleOpcodeMSN_0() {
 	switch (C8_STATE::opcode) {
 	case 0x00E0:
@@ -645,9 +627,7 @@ void Chip8Engine_Dynarec::handleOpcodeMSN_F() {
 	{
 		// 0xFX07: Sets Vx to the value of the delay timer.
 		// TODO: check if correct.
-		uint8_t vx = (C8_STATE::opcode & 0x0F00) >> 8; // Need to bit shift by 8 to get to a single base16 digit.
-		emitter->MOV_MtoR_8(cl, &(timers->delay_timer));
-		emitter->MOV_RtoM_8(C8_STATE::cpu.V + vx, cl);
+		emitter->DYNAREC_EMIT_INTERRUPT(X86_STATE::UPDATE_TIMERS, C8_STATE::opcode);
 
 		// Set region pc to current c8 pc
 		cache->setCacheEndC8PCCurrent(C8_STATE::cpu.pc);
@@ -675,9 +655,7 @@ void Chip8Engine_Dynarec::handleOpcodeMSN_F() {
 	{
 		// 0xFX15: Sets the delay timer to Vx.
 		// TODO: check if correct.
-		uint8_t vx = (C8_STATE::opcode & 0x0F00) >> 8; // Need to bit shift by 8 to get to a single base16 digit.
-		emitter->MOV_MtoR_8(al, C8_STATE::cpu.V + vx);
-		emitter->MOV_RtoM_8(&timers->delay_timer, al);
+		emitter->DYNAREC_EMIT_INTERRUPT(X86_STATE::UPDATE_TIMERS, C8_STATE::opcode);
 
 		// Set region pc to current c8 pc
 		cache->setCacheEndC8PCCurrent(C8_STATE::cpu.pc);
@@ -689,9 +667,7 @@ void Chip8Engine_Dynarec::handleOpcodeMSN_F() {
 	{
 		// 0xFX18: Sets the sound timer to Vx.
 		// TODO: check if correct.
-		uint8_t vx = (C8_STATE::opcode & 0x0F00) >> 8; // Need to bit shift by 8 to get to a single base16 digit.
-		emitter->MOV_MtoR_8(al, C8_STATE::cpu.V + vx);
-		emitter->MOV_RtoM_8(&timers->sound_timer, al);
+		emitter->DYNAREC_EMIT_INTERRUPT(X86_STATE::UPDATE_TIMERS, C8_STATE::opcode);
 
 		// Set region pc to current c8 pc
 		cache->setCacheEndC8PCCurrent(C8_STATE::cpu.pc);

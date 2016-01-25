@@ -13,7 +13,8 @@ namespace Chip8Globals {
 			SELF_MODIFYING_CODE = 4,
 			DEBUG = 5,
 			WAIT_FOR_KEYPRESS = 6,
-			PREPARE_FOR_STACK_JUMP = 7
+			PREPARE_FOR_STACK_JUMP = 7,
+			UPDATE_TIMERS = 8
 		};
 
 		extern uint8_t * x86_resume_address; // Used as the entry point into dynarec emulation.

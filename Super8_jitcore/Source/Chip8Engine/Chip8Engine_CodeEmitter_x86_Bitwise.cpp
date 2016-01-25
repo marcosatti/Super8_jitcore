@@ -44,6 +44,12 @@ void Chip8Engine_CodeEmitter_x86::XOR_RwithR_32(X86Register dest, X86Register so
 	cache->write8(ModRegRM(3, source, dest));
 }
 
+void Chip8Engine_CodeEmitter_x86::XOR_RwithR_8(X86Register dest, X86Register source)
+{
+	cache->write8(0x30);
+	cache->write8(ModRegRM(3, source, dest));
+}
+
 void Chip8Engine_CodeEmitter_x86::SHL_R_8(X86Register reg, uint8_t count)
 {
 	cache->write8(0xC0);

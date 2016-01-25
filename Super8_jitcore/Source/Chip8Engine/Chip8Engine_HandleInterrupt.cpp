@@ -12,6 +12,7 @@
 #include "Headers\Chip8Engine\Chip8Engine_JumpHandler.h"
 #include "Headers\Chip8Engine\Chip8Engine_Key.h"
 #include "Headers\Chip8Engine\Chip8Engine_StackHandler.h"
+#include "Headers\Chip8Engine\Chip8Engine_Timers.h"
 
 using namespace Chip8Globals;
 
@@ -196,6 +197,48 @@ void Chip8Engine::handleInterrupt_PREPARE_FOR_STACK_JUMP()
 	default:
 	{
 		logMessage(LOGLEVEL::L_ERROR, "DEFAULT CASE REACHED IN PREPARE_FOR_STACK_JUMP. SOMETHING IS WRONG!");
+		break;
+	}
+	}
+}
+
+void Chip8Engine::handleInterrupt_UPDATE_TIMERS()
+{
+	switch (X86_STATE::x86_interrupt_c8_param1 & 0xF0FF) 
+	{
+	case 0xF007:
+	{
+		// 0xFX07: Sets Vx to the value of the delay timer.
+		// TODO: check if correct.
+		uint8_t vx = (X86_STATE::x86_interrupt_c8_param1 & 0x0F00) >> 8;
+		timers->TIMERS_SPIN_LOCK();
+		C8_STATE::cpu.V[vx] = timers->delay_timer;
+		timers->TIMERS_SPIN_UNLOCK();
+		break;
+	}
+	case 0xF015:
+	{
+		// 0xFX15: Sets the delay timer to Vx.
+		// TODO: check if correct.
+		uint8_t vx = (X86_STATE::x86_interrupt_c8_param1 & 0x0F00) >> 8;
+		timers->TIMERS_SPIN_LOCK();
+		timers->delay_timer = C8_STATE::cpu.V[vx];
+		timers->TIMERS_SPIN_UNLOCK();
+		break;
+	}
+	case 0xF018:
+	{
+		// 0xFX18: Sets the sound timer to Vx.
+		// TODO: check if correct.
+		uint8_t vx = (X86_STATE::x86_interrupt_c8_param1 & 0x0F00) >> 8;
+		timers->TIMERS_SPIN_LOCK();
+		timers->sound_timer = C8_STATE::cpu.V[vx];
+		timers->TIMERS_SPIN_UNLOCK();
+		break;
+	}
+	default:
+	{
+		logMessage(LOGLEVEL::L_ERROR, "DEFAULT CASE REACHED IN UPDATE_TIMERS. SOMETHING IS WRONG!");
 		break;
 	}
 	}

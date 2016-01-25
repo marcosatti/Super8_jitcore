@@ -1,5 +1,7 @@
 #include "stdafx.h"
 
+#include <SDL.h>
+
 #include "Headers\Globals.h"
 #include "Headers\SDLGlobals.h"
 

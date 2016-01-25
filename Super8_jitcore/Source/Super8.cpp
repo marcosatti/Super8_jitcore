@@ -37,11 +37,12 @@ int main(int argc, char **argv) {
 
 	// Initialize the Chip8 system and load the game into the memory
 	mChip8->initialise();
-	mChip8->loadProgram("..\\Chip8_Roms\\PONG2");
+	mChip8->loadProgram("..\\Chip8_Roms\\INVADERS");
 
 	// Set keystate initially
 	Chip8Globals::key->clearKeyState();
-	Chip8Globals::key->setKeyState(0x1, KEY_STATE::DOWN);
+	Chip8Globals::key->setKeyState(0x5, KEY_STATE::DOWN);
+	Chip8Globals::key->setKeyState(0x4, KEY_STATE::DOWN);
 
 #ifdef USE_SDL
 	// Emulate
@@ -70,6 +71,11 @@ int main(int argc, char **argv) {
 
 		// Print fps
 		ticks = SDL_GetTicks();
+		if ((ticks - ticks_old) % 250 < 15) {
+			// change key state
+			Chip8Globals::key->setKeyState(0x4, (KEY_STATE)(Chip8Globals::key->getKeyState(0x4) ^ 1));
+			Chip8Globals::key->setKeyState(0x6, (KEY_STATE)(Chip8Globals::key->getKeyState(0x6) ^ 1));
+		}
 		if ((ticks - ticks_old) > 1000) {
 			if (fps_tex != NULL) SDL_DestroyTexture(fps_tex);
 			sprintf_s(fps_buffer, 255, "FPS: %4.0f fps", (drawcycles - drawcycles_old) * 1000.0 / (ticks - ticks_old));
@@ -80,10 +86,6 @@ int main(int argc, char **argv) {
 			sdlgfxupdate = true;
 			drawcycles_old = drawcycles;
 			ticks_old = ticks;
-
-			// change key state
-			Chip8Globals::key->setKeyState(0x1, (KEY_STATE)(Chip8Globals::key->getKeyState(0x1) ^ 1));
-			Chip8Globals::key->setKeyState(0xC, (KEY_STATE)(Chip8Globals::key->getKeyState(0xC) ^ 1));
 		}
 
 		// Print cycles

@@ -5,6 +5,9 @@
 #include <SDL_ttf.h>
 
 namespace SDLGlobals {
+	const SDL_Color SDL_COLOR_WHITE = { 180,180,180,0 };
+	const SDL_Color SDL_COLOR_BLACK = { 0,0,0,0 };
+
 	extern SDL_Window * window;
 	extern SDL_Renderer * renderer;
 	extern SDL_Surface * surface;
@@ -20,8 +23,6 @@ namespace SDLGlobals {
 	extern SDL_Texture * fps_tex;
 	extern SDL_Surface * cycle_surf;
 	extern SDL_Texture * cycle_tex;
-	extern SDL_Color SDL_COLOR_WHITE;
-	extern SDL_Color SDL_COLOR_BLACK;
 	extern SDL_Rect fps_render_location;
 	extern SDL_Rect cycle_render_location;
 

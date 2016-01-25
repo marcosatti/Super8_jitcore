@@ -13,7 +13,6 @@ public:
 	std::string getComponentName();
 
 	void emulateTranslatorCycle();
-	void emulateTranslatorTimers();
 private:
 	// MSN = most significant nibble (half-byte)
 	void handleOpcodeMSN_0();

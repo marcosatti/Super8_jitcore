@@ -33,6 +33,7 @@ private:
 #endif
 	void handleInterrupt_WAIT_FOR_KEYPRESS();
 	void handleInterrupt_PREPARE_FOR_STACK_JUMP();
+	void handleInterrupt_UPDATE_TIMERS();
 
 #ifdef USE_DEBUG_EXTRA
 	void DEBUG_renderGFXText();

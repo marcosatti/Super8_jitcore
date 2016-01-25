@@ -3,6 +3,8 @@
 #include <cstdint>
 #include <fstream>
 
+#include <SDL.h>
+
 #include "Headers\Globals.h"
 
 #include "Headers\Chip8Globals\Chip8Globals.h"
@@ -70,6 +72,13 @@ void Chip8Engine::initialise() {
 
 	// Load fontset
 	memcpy(C8_STATE::memory, C8_STATE::chip8_fontset, FONTSET_SZ);
+
+	// initiate timers
+	SDL_Thread * timersthread = SDL_CreateThread(timers->Thread_handleTimers, "TimersThread", timers);
+	if (timersthread == nullptr) {
+		logMessage(LOGLEVEL::L_FATAL, "Could not create timers thread!"); 
+		exit(4);
+	}
 
 	// Setup/update cache here pop/push etc
 	cache->setupCache_CDECL();
@@ -160,6 +169,16 @@ void Chip8Engine::handleInterrupt()
 		handleInterrupt_PREPARE_FOR_STACK_JUMP();
 		break;
 	}
+	case X86_STATE::UPDATE_TIMERS:
+	{
+		handleInterrupt_UPDATE_TIMERS();
+		break;
+	}
+	default:
+	{
+		logMessage(LOGLEVEL::L_ERROR, "DEFAULT CASE REACHED IN handleInterrupt. SOMETHING IS WRONG!");
+		break;
+	}
 	}
 }
 
@@ -193,7 +212,7 @@ void Chip8Engine::translatorLoop()
 		C8_STATE::opcode = C8_STATE::memory[C8_STATE::cpu.pc] << 8 | C8_STATE::memory[C8_STATE::cpu.pc + 1]; // We have 8-bit memory, but an opcode is 16-bits long. Need to construct opcode from 2 successive memory locations.
 
 		// Update Timers
-		dynarec->emulateTranslatorTimers();
+		//dynarec->emulateTranslatorTimers();
 
 #ifdef USE_DEBUG_EXTRA
 		// DEBUG

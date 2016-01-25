@@ -15,5 +15,12 @@ public:
 
 	Chip8Engine_Timers();
 	~Chip8Engine_Timers();
+
+	static int Thread_handleTimers(void * data);
+
+	// This component is run on a separate thread, so it has a lock variable, and functions associated with it.
+	void TIMERS_SPIN_LOCK();
+	void TIMERS_SPIN_UNLOCK();
 private:
+	uint8_t TIMERS_LOCK;
 };
