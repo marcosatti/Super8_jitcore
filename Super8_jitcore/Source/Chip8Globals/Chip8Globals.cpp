@@ -2,6 +2,8 @@
 
 #include <cstdint>
 
+#include "Headers\Globals.h"
+
 // File contains global vars to simplify use across files.
 
 // Forward decl's
@@ -13,6 +15,9 @@ class Chip8Engine_CodeEmitter_x86;
 class Chip8Engine_CacheHandler;
 class Chip8Engine_Key;
 class Chip8Engine_StackHandler;
+#ifdef USE_SDL_GRAPHICS
+struct SDL_Texture;
+#endif
 
 namespace Chip8Globals {
 	Chip8Engine_Interpreter * interpreter;
@@ -35,4 +40,10 @@ namespace Chip8Globals {
 	void setDrawFlag(bool isdraw) {
 		drawflag = isdraw;
 	}
+
+#ifdef USE_SDL_GRAPHICS
+	SDL_Texture * SDL_texture;
+	uint32_t * SDL_gfxmem;
+	int SDL_pitch;
+#endif
 }

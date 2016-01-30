@@ -212,7 +212,7 @@ void Chip8Engine::handleInterrupt_UPDATE_TIMERS()
 		// TODO: check if correct.
 		uint8_t vx = (X86_STATE::x86_interrupt_c8_param1 & 0x0F00) >> 8;
 		timers->TIMERS_SPIN_LOCK();
-		C8_STATE::cpu.V[vx] = timers->delay_timer;
+		C8_STATE::cpu.V[vx] = timers->getDelayTimer();
 		timers->TIMERS_SPIN_UNLOCK();
 		break;
 	}
@@ -222,7 +222,7 @@ void Chip8Engine::handleInterrupt_UPDATE_TIMERS()
 		// TODO: check if correct.
 		uint8_t vx = (X86_STATE::x86_interrupt_c8_param1 & 0x0F00) >> 8;
 		timers->TIMERS_SPIN_LOCK();
-		timers->delay_timer = C8_STATE::cpu.V[vx];
+		timers->setDelayTimer(C8_STATE::cpu.V[vx]);
 		timers->TIMERS_SPIN_UNLOCK();
 		break;
 	}
@@ -232,7 +232,7 @@ void Chip8Engine::handleInterrupt_UPDATE_TIMERS()
 		// TODO: check if correct.
 		uint8_t vx = (X86_STATE::x86_interrupt_c8_param1 & 0x0F00) >> 8;
 		timers->TIMERS_SPIN_LOCK();
-		timers->sound_timer = C8_STATE::cpu.V[vx];
+		timers->setSoundTimer(C8_STATE::cpu.V[vx]);
 		timers->TIMERS_SPIN_UNLOCK();
 		break;
 	}

@@ -128,9 +128,7 @@
     <ClInclude Include="Headers\Logger\ILogComponent.h" />
     <ClInclude Include="Headers\Logger\Logger.h" />
     <ClInclude Include="resource.h" />
-    <ClInclude Include="Headers\SDLGlobals.h" />
     <ClInclude Include="stdafx.h" />
-    <ClInclude Include="Headers\Super8.h" />
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
@@ -156,7 +154,6 @@
     <ClCompile Include="Source\Chip8Engine\Chip8Engine_CodeEmitter_x86_SUB.cpp" />
     <ClCompile Include="Source\Logger\ILogComponent.cpp" />
     <ClCompile Include="Source\Logger\Logger.cpp" />
-    <ClCompile Include="Source\SDLGlobals.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Normal|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Speed Optimised|Win32'">Create</PrecompiledHeader>

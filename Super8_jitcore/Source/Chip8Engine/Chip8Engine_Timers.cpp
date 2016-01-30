@@ -27,7 +27,7 @@ Chip8Engine_Timers::~Chip8Engine_Timers()
 	logger->deregisterComponent(this);
 }
 
-int Chip8Engine_Timers::Thread_handleTimers(void * data)
+int Chip8Engine_Timers::runThread_Timers(void * data)
 {
 	// Follows SDL_CreateThread format.
 	// Cast data to the timers class.
@@ -43,18 +43,10 @@ int Chip8Engine_Timers::Thread_handleTimers(void * data)
 		timer_data->TIMERS_SPIN_LOCK();
 #ifdef USE_DEBUG
 		char buffer[1000];
-		_snprintf_s(buffer, 1000, "delay_timer = %d, sound_timer = %d", timer_data->delay_timer, timer_data->sound_timer);
+		_snprintf_s(buffer, 1000, "delay_timer = %d, sound_timer = %d", timer_data->getDelayTimer(), timer_data->getSoundTimer());
 		timer_data->logMessage(LOGLEVEL::L_DEBUG, buffer);
 #endif
-		if (timer_data->delay_timer > 0)
-		{
-			timer_data->delay_timer--;
-		}
-		if (timer_data->sound_timer > 0)
-		{
-			timer_data->sound_timer--;
-			timer_data->logMessage(LOGLEVEL::L_INFO, "BEEP!");
-		}
+		timer_data->handleTimers();
 		timer_data->TIMERS_SPIN_UNLOCK();
 	}
 	return 0;
@@ -62,6 +54,7 @@ int Chip8Engine_Timers::Thread_handleTimers(void * data)
 
 void Chip8Engine_Timers::TIMERS_SPIN_LOCK()
 {
+	// Impl comes from https://en.wikipedia.org/wiki/Spinlock
 	uint8_t * addr = &TIMERS_LOCK;
 	__asm {
 	spin_lock:
@@ -75,10 +68,46 @@ void Chip8Engine_Timers::TIMERS_SPIN_LOCK()
 
 void Chip8Engine_Timers::TIMERS_SPIN_UNLOCK()
 {
+	// Impl comes from https://en.wikipedia.org/wiki/Spinlock
 	uint8_t * addr = &TIMERS_LOCK;
 	__asm {
 		mov edx, addr
 		mov al, 0
 		xchg al, [edx] // done atomically
 	}
+}
+
+void Chip8Engine_Timers::handleTimers()
+{
+	if (delay_timer > 0)
+	{
+		delay_timer--;
+	}
+	if (sound_timer > 0)
+	{
+		sound_timer--;
+#ifdef USE_VERBOSE
+		logMessage(LOGLEVEL::L_INFO, "BEEP!");
+#endif		
+	}
+}
+
+uint8_t Chip8Engine_Timers::getDelayTimer()
+{
+	return delay_timer;
+}
+
+uint8_t Chip8Engine_Timers::getSoundTimer()
+{
+	return sound_timer;
+}
+
+void Chip8Engine_Timers::setDelayTimer(uint8_t value)
+{
+	delay_timer = value;
+}
+
+void Chip8Engine_Timers::setSoundTimer(uint8_t value)
+{
+	sound_timer = value;
 }

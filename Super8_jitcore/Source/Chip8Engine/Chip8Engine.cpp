@@ -64,7 +64,7 @@ void Chip8Engine::initialise() {
 	C8_STATE::opcode = (uint16_t)0x0000;				// Reset current opcode
 	C8_STATE::cpu.I = (uint16_t)0x000;					// Reset index register
 	stack->resetStack();								// Reset stack pointer
-#ifndef USE_SDL
+#ifndef USE_SDL_GRAPHICS
 	C8_STATE::C8_clearGFXMem();							// Clear display
 #endif
 	C8_STATE::C8_clearRegV();							// Clear registers V0-VF
@@ -74,7 +74,7 @@ void Chip8Engine::initialise() {
 	memcpy(C8_STATE::memory, C8_STATE::chip8_fontset, FONTSET_SZ);
 
 	// initiate timers
-	SDL_Thread * timersthread = SDL_CreateThread(timers->Thread_handleTimers, "TimersThread", timers);
+	SDL_Thread * timersthread = SDL_CreateThread(timers->runThread_Timers, "TimersThread", timers);
 	if (timersthread == nullptr) {
 		logMessage(LOGLEVEL::L_FATAL, "Could not create timers thread!"); 
 		exit(4);
@@ -189,7 +189,9 @@ void Chip8Engine::translatorLoop()
 
 	// Translator loop.
 	while (Dynarec::block_finished == false) { // Limit a cache update to blocks of code.
+#ifdef USE_VERBOSE
 		char buffer[1000];
+#endif
 #ifdef USE_DEBUG
 		// Print number of translator cycles parsed.
 		_snprintf_s(buffer, 1000, "Translator cycle %d, in cache[%d].", translate_cycles, cache->findCacheIndexCurrent());

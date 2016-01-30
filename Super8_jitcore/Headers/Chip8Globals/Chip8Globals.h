@@ -15,6 +15,9 @@ class Chip8Engine_CodeEmitter_x86;
 class Chip8Engine_CacheHandler;
 class Chip8Engine_Key;
 class Chip8Engine_StackHandler;
+#ifdef USE_SDL_GRAPHICS
+struct SDL_Texture;
+#endif
 
 namespace Chip8Globals {
 	// Declare Globals for C8
@@ -32,4 +35,11 @@ namespace Chip8Globals {
 	extern bool drawflag;
 	extern bool getDrawFlag();
 	extern void setDrawFlag(bool isdraw);
+
+#ifdef USE_SDL_GRAPHICS
+	extern SDL_Texture * SDL_texture;
+	extern uint32_t * SDL_gfxmem;
+	extern int SDL_pitch;
+#endif
+
 }

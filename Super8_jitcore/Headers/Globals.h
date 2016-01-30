@@ -7,7 +7,7 @@
 #include "Headers\Logger\ILogComponent.h"
 
 // SDL
-#define USE_SDL
+#define USE_SDL_GRAPHICS
 
 // Logging
 #define USE_VERBOSE

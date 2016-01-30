@@ -4,148 +4,174 @@
 #include "stdafx.h"
 
 #include <cstdint>
+#include <SDL.h>
+#include <SDL_ttf.h>
 #include <Windows.h>
 
 #include "Headers\Globals.h"
-#include "Headers\SDLGlobals.h"
 #include "Headers\Chip8Globals\Chip8Globals.h"
-
-#include "Headers\Super8.h"
 
 #include "Headers\Chip8Engine\Chip8Engine.h"
 #include "Headers\Chip8Engine\Chip8Engine_Key.h"
+
+// Variables
+const char * PROGRAM_TITLE = "Super8_jitcore";
+const SDL_Color SDL_COLOR_LIGHT_GREY = { 180,180,180,0 };
+const SDL_Color SDL_COLOR_BLACK = { 0,0,0,0 };
+SDL_Window * window = NULL;
+SDL_Renderer * renderer = NULL;
+SDL_Texture * texture = NULL;
+TTF_Font * font = NULL;
 
 // NVIDIA optimus hack
 extern "C" {
 	_declspec(dllexport) DWORD NvOptimusEnablement = 0x00000001;
 }
 
-using namespace SDLGlobals;
+// Function Declarations
+void setupSDL();
+void cleanupSDL();
 
 int main(int argc, char **argv) {
-	// Setup logging system
+	// Vars
+	uint64_t c_cycles = 0;
+	uint64_t c_cycles_old = 0;
+	uint64_t c_drawcycles = 0;
+	uint64_t c_drawcycles_old = 0;
+	uint32_t c_ticks = 0;
+	uint32_t c_ticks_old = 0;
+	SDL_Surface * render_fps_surface = NULL;
+	SDL_Texture * render_fps_texture = NULL;
+	SDL_Surface * render_cycles_surface = NULL;
+	SDL_Texture * render_cycles_texture = NULL;
+	SDL_Rect render_fps_location = { 0,0,0,0 };
+	SDL_Rect render_cycles_location = { 0,0,0,0 };
+	char render_text_buffer[255];
+
+	// Setup logging system.
 	logger = new Logger(false);
 
-	// Set up render system and register input callbacks
-#ifdef USE_SDL
-	SDLGlobals::setupSDLGraphics();
+	// Setup SDL system.
+	setupSDL();
+
+	// Setup Super8_jitcore emulator.
+	Chip8Engine * super8 = new Chip8Engine();
+
+	// Initialize the Chip8 system and load the game into the memory.
+	super8->initialise();
+	super8->loadProgram("..\\Chip8_Roms\\INVADERS");
+
+	// If SDL graphics are being used set the texture to be used
+#ifdef USE_SDL_GRAPHICS
+	Chip8Globals::SDL_texture = texture;
 #endif
-	//setupInput();
 
-	// Setup chip8 jitcore emulator
-	Chip8Engine * mChip8 = new Chip8Engine();
-
-	// Initialize the Chip8 system and load the game into the memory
-	mChip8->initialise();
-	mChip8->loadProgram("..\\Chip8_Roms\\INVADERS");
-
-	// Set keystate initially
+	// DEBUG: Set key state initially.
 	Chip8Globals::key->clearKeyState();
 	Chip8Globals::key->setKeyState(0x5, KEY_STATE::DOWN);
 	Chip8Globals::key->setKeyState(0x4, KEY_STATE::DOWN);
 
-#ifdef USE_SDL
-	// Emulate
-	char fps_buffer[255];
-	char cycle_buffer[255];
-	bool sdlgfxupdate = false;
-	SDL_Event e;
+	// Main program loop.
+	SDL_Event sdlevent;
 	bool quit = false;
 	while (!quit) {
-		// Handle events
-		while (SDL_PollEvent(&e)) {
-			if (e.type == SDL_QUIT) {
+		// Handle SDL events.
+		while (SDL_PollEvent(&sdlevent)) {
+			if (sdlevent.type == SDL_QUIT) {
 				quit = true;
 			}
 		}
+		
+		// Emulation Loop.
+		super8->emulationLoop();
 
-		// Emulation loop
-		mChip8->emulationLoop();
-
-		// C8 Render
+		// Render if draw flag is set.
 		if (Chip8Globals::getDrawFlag()) {
-			sdlgfxupdate = true;
-			drawcycles++;
-			Chip8Globals::setDrawFlag(false);
-		}
+			// Prepare Cycle and FPS count.
+			c_ticks = SDL_GetTicks();
+			if ((c_ticks - c_ticks_old) > 1000) {
+#ifdef USE_SDL_GRAPHICS
+				// FPS Count:
+				if (render_fps_texture != NULL) SDL_DestroyTexture(render_fps_texture);
+				sprintf_s(render_text_buffer, sizeof(render_text_buffer), "Drawcycles/s: %4.0f fps", (c_drawcycles - c_drawcycles_old) * 1000.0 / (c_ticks - c_ticks_old));
+				render_fps_surface = TTF_RenderText_Blended(font, render_text_buffer, SDL_COLOR_LIGHT_GREY);
+				render_fps_texture = SDL_CreateTextureFromSurface(renderer, render_fps_surface);
+				SDL_QueryTexture(render_fps_texture, NULL, NULL, &render_fps_location.w, &render_fps_location.h);
+				SDL_FreeSurface(render_fps_surface);
 
-		// Print fps
-		ticks = SDL_GetTicks();
-		if ((ticks - ticks_old) % 250 < 15) {
-			// change key state
-			Chip8Globals::key->setKeyState(0x4, (KEY_STATE)(Chip8Globals::key->getKeyState(0x4) ^ 1));
-			Chip8Globals::key->setKeyState(0x6, (KEY_STATE)(Chip8Globals::key->getKeyState(0x6) ^ 1));
-		}
-		if ((ticks - ticks_old) > 1000) {
-			if (fps_tex != NULL) SDL_DestroyTexture(fps_tex);
-			sprintf_s(fps_buffer, 255, "FPS: %4.0f fps", (drawcycles - drawcycles_old) * 1000.0 / (ticks - ticks_old));
-			fps_surf = TTF_RenderText_Blended(font, fps_buffer, SDL_COLOR_WHITE);
-			fps_tex = SDL_CreateTextureFromSurface(renderer, fps_surf);
-			SDL_QueryTexture(fps_tex, NULL, NULL, &fps_render_location.w, &fps_render_location.h);
-			SDL_FreeSurface(fps_surf);
-			sdlgfxupdate = true;
-			drawcycles_old = drawcycles;
-			ticks_old = ticks;
-		}
-
-		// Print cycles
-		if (drawcycles % 30 == 0) {
-			if (cycle_tex != NULL) SDL_DestroyTexture(cycle_tex);
-			sprintf_s(cycle_buffer, 255, "Cycle: %llu, Draw: %llu", cycles, drawcycles);
-			cycle_surf = TTF_RenderText_Blended(font, cycle_buffer, SDL_COLOR_WHITE);
-			cycle_tex = SDL_CreateTextureFromSurface(renderer, cycle_surf);
-			SDL_QueryTexture(cycle_tex, NULL, NULL, &cycle_render_location.w, &cycle_render_location.h);
-			cycle_render_location.y = fps_render_location.h;
-			SDL_FreeSurface(cycle_surf);
-			sdlgfxupdate = true;
-		}
-
-		// Final render
-		if (sdlgfxupdate) {
-			SDL_RenderClear(renderer);
-			SDL_RenderCopy(renderer, texture, NULL, NULL);
-			SDL_RenderCopy(renderer, fps_tex, NULL, &fps_render_location);
-			SDL_RenderCopy(renderer, cycle_tex, NULL, &cycle_render_location);
-			SDL_RenderPresent(renderer);
-			sdlgfxupdate = false;
-		}
-		cycles++;
-	}
+				// Cycle and Draw Count:
+				if (render_cycles_texture != NULL) SDL_DestroyTexture(render_cycles_texture);
+				sprintf_s(render_text_buffer, sizeof(render_text_buffer), "Cycle: %llu, Drawcycle: %llu", c_cycles, c_drawcycles);
+				render_cycles_surface = TTF_RenderText_Blended(font, render_text_buffer, SDL_COLOR_LIGHT_GREY);
+				render_cycles_texture = SDL_CreateTextureFromSurface(renderer, render_cycles_surface);
+				SDL_QueryTexture(render_cycles_texture, NULL, NULL, &render_cycles_location.w, &render_cycles_location.h);
+				render_cycles_location.y = render_fps_location.h;
+				SDL_FreeSurface(render_cycles_surface);
 #else
-	if (SDL_Init(SDL_INIT_EVERYTHING) != 0) exit(1);
-	//printf("Performance test mode. No graphics or sound!\n");
-	uint64_t cycles_old = 0;
-	while (1) {
-		// Emulation loop
-		mChip8->emulationLoop();
+				// Print to console.
+				printf("Cycle: %llu, Draw: %llu, Cycles/s: %4.0f, Drawcycles/s: %4.0f\n", c_cycles, c_drawcycles, (c_cycles - c_cycles_old) * 1000.0 / (c_ticks - c_ticks_old), (c_drawcycles - c_drawcycles_old) * 1000.0 / (c_ticks - c_ticks_old));
+#endif
 
-		// C8 Render
-		if (Chip8Globals::getDrawFlag()) {
-			//mChip8->DEBUG_renderGFXText();
-			drawcycles++;
+				// Update old cycle count.
+				c_ticks_old = c_ticks;
+				c_cycles_old = c_cycles;
+				c_drawcycles_old = c_drawcycles;
+			}
+
+			// DEBUG: Change key states (randomly).
+			if (c_ticks % 500 > 20) {
+				Chip8Globals::key->setKeyState(0x4, (KEY_STATE)(Chip8Globals::key->getKeyState(0x4) ^ 1));
+				Chip8Globals::key->setKeyState(0x6, (KEY_STATE)(Chip8Globals::key->getKeyState(0x6) ^ 1));
+			}
+
+			// Update draw cycles count and reset draw flag.
+			c_drawcycles++;
 			Chip8Globals::setDrawFlag(false);
+
+			// Final render
+			// There is a stutter that happens when rendering currently. This is due to how the games work, where they will 'spin' in a tight loop waiting for the delay timer to reach 0 (@ 60 Hz).
+			// In this period where it is non-zero, no graphical updates will appear. However the emulator is working correctly, its just that there is nothing to update and show.
+			// When the graphics/system timings are implemented properly (ie: refresh rate is set properly), this will be less apparent.
+#ifdef USE_SDL_GRAPHICS
+			SDL_RenderClear(renderer);
+			if (texture != NULL) SDL_RenderCopy(renderer, texture, NULL, NULL);
+			if (render_fps_texture != NULL) SDL_RenderCopy(renderer, render_fps_texture, NULL, &render_fps_location);
+			if (render_cycles_texture != NULL) SDL_RenderCopy(renderer, render_cycles_texture, NULL, &render_cycles_location);
+			SDL_RenderPresent(renderer);
+#endif
 		}
 
-		ticks = SDL_GetTicks();
-		if ((ticks - ticks_old) > 1000) {
-<<<<<<< HEAD
-			//printf("Super8:			Cycle: %llu, Cycles per second: %8.0f\n", cycles, (cycles - cycles_old) * 1000.0 / (ticks - ticks_old));
-=======
-			printf("Super8:			Cycle: %llu, Cycles per second: %8.0f\n", cycles, (cycles - cycles_old) * 1000.0 / (ticks - ticks_old));
->>>>>>> block_test_perf
-			ticks_old = ticks;
-			cycles_old = cycles;
-		}
-		cycles++;
+		// Update number of emulation cycles.
+		c_cycles++;
 	}
-#endif
 
-	// deconstruct graphics & emulator
-#ifdef USE_SDL
-	SDLGlobals::exitSDLGraphics();
-#endif
-	delete mChip8;
+	// Cleanup SDL & emulator.
+	delete super8;
+	cleanupSDL();
 	delete logger;
 
-	return 0;
+	return EXIT_SUCCESS;
+}
+
+void setupSDL() {
+	if (SDL_Init(SDL_INIT_EVERYTHING) != 0) exit(1);
+#ifdef USE_SDL_GRAPHICS
+	// Following is used if the graphics mode is used.
+	// Initialise window, renderer, memory and texture.
+	if ((window = SDL_CreateWindow(PROGRAM_TITLE, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 1024, 768, SDL_WINDOW_SHOWN)) == NULL) exit(1);
+	if ((renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED)) == NULL) exit(1);
+	if ((texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGB888, SDL_TEXTUREACCESS_STREAMING, 64, 32)) == NULL) exit(1);
+	// Initialise font system.
+	if (TTF_Init() != 0) exit(1);
+	if ((font = TTF_OpenFont("..\\Fonts\\OpenSans-Regular.ttf", 18)) == NULL) exit(1);
+#endif
+}
+
+void cleanupSDL() {
+#ifdef USE_SDL_GRAPHICS
+	SDL_DestroyTexture(texture);
+	SDL_DestroyRenderer(renderer);
+	SDL_DestroyWindow(window);
+#endif
+	SDL_Quit();
 }
