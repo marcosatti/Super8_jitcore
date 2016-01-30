@@ -24,7 +24,7 @@ void Chip8Engine::handleInterrupt_PREPARE_FOR_JUMP()
 
 	// Need to update the jump table/cache before the jumps are made.
 #ifdef USE_DEBUG
-	//cache->DEBUG_printCacheList();
+	cache->DEBUG_printCacheList();
 #endif
 	jumptbl->checkAndFillJumpsByStartC8PC();
 }

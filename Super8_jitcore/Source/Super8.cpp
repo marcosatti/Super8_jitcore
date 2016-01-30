@@ -16,6 +16,7 @@
 
 // Variables
 const char * PROGRAM_TITLE = "Super8_jitcore";
+const char * ROM_PATH = "..\\Chip8_Roms\\BRIX_test";
 const SDL_Color SDL_COLOR_LIGHT_GREY = { 180,180,180,0 };
 const SDL_Color SDL_COLOR_BLACK = { 0,0,0,0 };
 SDL_Window * window = NULL;
@@ -40,6 +41,7 @@ int main(int argc, char **argv) {
 	uint64_t c_drawcycles_old = 0;
 	uint32_t c_ticks = 0;
 	uint32_t c_ticks_old = 0;
+#ifdef USE_SDL_GRAPHICS
 	SDL_Surface * render_fps_surface = NULL;
 	SDL_Texture * render_fps_texture = NULL;
 	SDL_Surface * render_cycles_surface = NULL;
@@ -47,6 +49,7 @@ int main(int argc, char **argv) {
 	SDL_Rect render_fps_location = { 0,0,0,0 };
 	SDL_Rect render_cycles_location = { 0,0,0,0 };
 	char render_text_buffer[255];
+#endif
 
 	// Setup logging system.
 	logger = new Logger(false);
@@ -59,7 +62,7 @@ int main(int argc, char **argv) {
 
 	// Initialize the Chip8 system and load the game into the memory.
 	super8->initialise();
-	super8->loadProgram("..\\Chip8_Roms\\INVADERS");
+	super8->loadProgram(ROM_PATH);
 
 	// If SDL graphics are being used set the texture to be used
 #ifdef USE_SDL_GRAPHICS
@@ -160,7 +163,7 @@ void setupSDL() {
 	// Initialise window, renderer, memory and texture.
 	if ((window = SDL_CreateWindow(PROGRAM_TITLE, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 1024, 768, SDL_WINDOW_SHOWN)) == NULL) exit(1);
 	if ((renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED)) == NULL) exit(1);
-	if ((texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGB888, SDL_TEXTUREACCESS_STREAMING, 64, 32)) == NULL) exit(1);
+	if ((texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, 64, 32)) == NULL) exit(1);
 	// Initialise font system.
 	if (TTF_Init() != 0) exit(1);
 	if ((font = TTF_OpenFont("..\\Fonts\\OpenSans-Regular.ttf", 18)) == NULL) exit(1);

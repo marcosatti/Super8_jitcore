@@ -103,7 +103,7 @@ void Chip8Engine_Interpreter::handleOpcodeMSN_0() {
 		// TODO: Check if correct.
 #ifdef USE_SDL_GRAPHICS
 		SDL_LockTexture(SDL_texture, NULL, (void**)&SDL_gfxmem, &SDL_pitch);
-		memset(SDL_gfxmem, 0x00, 64 * 32 * sizeof(uint32_t));
+		memset(SDL_gfxmem, 0x00, 64 * 32 * sizeof(SDL_gfxmem[0]));
 		SDL_UnlockTexture(SDL_texture);
 #else
 		C8_STATE::C8_clearGFXMem();
@@ -356,38 +356,42 @@ void Chip8Engine_Interpreter::handleOpcodeMSN_D() {
 				As described above, VF is set to 1 if any screen pixels are flipped from
 				set to unset when the sprite is drawn, and to 0 if that doesn’t happen */
 				// TODO: check if correct.
-	uint8_t vx = (opcode & 0x0F00) >> 8; // Need to bit shift by 8 to get to a single base16 digit.
-	uint8_t vy = (opcode & 0x00F0) >> 4; // Need to bit shift by 4 to get to a single base16 digit.
+				// Get X,Y position to start drawing from & number of rows to draw.
+	uint8_t xpixel = C8_STATE::cpu.V[(opcode & 0x0F00) >> 8];
+	uint8_t ypixel = C8_STATE::cpu.V[(opcode & 0x00F0) >> 4];
+	uint8_t nrows = (opcode & 0x000F);
+	// Set VF = 0 initially from specs (used for collision detection).
+	C8_STATE::cpu.V[0xF] = 0;
 
-	uint8_t xpixel = C8_STATE::cpu.V[vx]; // Get x-pixel position from register Vx
-	uint8_t ypixel = C8_STATE::cpu.V[vy]; // Get y-pixel position from register Vy
-	uint8_t nrows = (opcode & 0x000F); // Get num of rows to draw.
-	uint32_t gfxarraypos = 0x0; // Variable used to calculate position within gfx memory array based on x and y positions.
-
-	uint8_t newpixeldata = 0x0; // Variable used to hold the new pixel data from memory[I, I+1] etc.
-	uint8_t oldpixelbit = 0x0; // Variable used to hold old pixel bit currently on screen.
-	uint8_t newpixelbit = 0x0; // Variable used to hold new pixel bit, grabbed from the newpixeldata variable.
-
-	C8_STATE::cpu.V[0xF] = 0; // Set VF to 0 initially (from specs).
-
+	// Enter loop
+	// NOTE: xpos will contain values from 0 -> 7 (from specs), and ypos will contain values from 0 -> (max)15 (from specs/opcode). 
+	// Therefore safe to use uint8_t.
 #ifdef USE_SDL_GRAPHICS
 	SDL_LockTexture(SDL_texture, NULL, (void**)&SDL_gfxmem, &SDL_pitch);
 #endif
-	for (int ypos = 0; ypos < nrows; ypos++) { // Loop through number of rows to display from opcode.
-		newpixeldata = C8_STATE::memory[C8_STATE::cpu.I + ypos]; // Get the first row of pixel data.
-		for (int xpos = 0; xpos < NUM_BITS_PER_BYTE; xpos++) { // Loop though the x-positions.
-			gfxarraypos = ((ypixel + ypos) * GFX_XRES) + (xpixel + xpos); // Calculate the gfx memory array position
-			newpixelbit = (newpixeldata & (0x80 >> xpos)); // Get the pixel bit value from within the 8-bit data. (will be > 0 if there is a pixel)
-			if (newpixelbit != 0) { // Set new pixel only if there is data.
+	uint8_t row_pixel_data = 0; // Used to cache one row of pixel bit data from a font character.
+	size_t gfx_array_position = 0; // Used to cache position of graphics memory array when accessed.
+	for (uint8_t ypos = 0; ypos < nrows; ypos++) {
+		row_pixel_data = C8_STATE::memory[C8_STATE::cpu.I + ypos];
+		for (uint8_t xpos = 0; xpos < NUM_BITS_PER_BYTE; xpos++) {
+			if ((row_pixel_data & (0x80 >> xpos)) != 0) {
+				gfx_array_position = ((ypixel + ypos) * GFX_XRES) + (xpixel + xpos);
 #ifdef USE_SDL_GRAPHICS
-				// Apparently SDL is using 32bit pixels always even though its RGB888 (24)? Anyway, the higher order bits are unused (remember: little-endian on intel x86, number stored in memory back to front)
-				(SDL_gfxmem[gfxarraypos] > 0) ? oldpixelbit = 1 : oldpixelbit = 0;
-				if (oldpixelbit == 1) C8_STATE::cpu.V[0xF] = 1; // Get the previous pixel value (already in the form of 1 or 0). Set VF to 1 if ANY pixel will be unset (from specs, used for collision detection).
-				SDL_gfxmem[gfxarraypos] ^= 0x00FFFFFF;
+				if (SDL_gfxmem[gfx_array_position] != 0) {
+					C8_STATE::cpu.V[0xF] = 1;
+					SDL_gfxmem[gfx_array_position] = 0x00000000;
+				}
+				else {
+					SDL_gfxmem[gfx_array_position] = 0x00FFFFFF;
+				}
 #else
-				oldpixelbit = C8_STATE::gfxmem[gfxarraypos]; // Get the previous pixel value (already in the form of 1 or 0).
-				if (oldpixelbit == 1) C8_STATE::cpu.V[0xF] = 1; // Set VF to 1 if ANY pixel will be unset (from specs, used for collision detection).
-				C8_STATE::gfxmem[gfxarraypos] = C8_STATE::gfxmem[gfxarraypos] ^ 0x01; // Toggle pixel using XOR.
+				if (C8_STATE::gfxmem[gfx_array_position] != 0) {
+					C8_STATE::cpu.V[0xF] = 1;
+					C8_STATE::gfxmem[gfx_array_position] = 0;
+				}
+				else {
+					C8_STATE::gfxmem[gfx_array_position] = 1;
+				}
 #endif
 			}
 		}

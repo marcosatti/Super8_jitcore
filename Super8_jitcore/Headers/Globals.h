@@ -10,7 +10,7 @@
 #define USE_SDL_GRAPHICS
 
 // Logging
-#define USE_VERBOSE
+//#define USE_VERBOSE
 //#define USE_DEBUG
 //#define USE_DEBUG_EXTRA
 

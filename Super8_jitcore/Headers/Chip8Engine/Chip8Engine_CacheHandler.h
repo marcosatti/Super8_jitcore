@@ -10,7 +10,7 @@
 #ifdef USE_DEBUG_EXTRA
 #define  MAX_CACHE_SZ 0xFFFF
 #else
-#define  MAX_CACHE_SZ 0xFFF
+#define  MAX_CACHE_SZ 0x7FF
 #endif
 
 struct CACHE_REGION {
