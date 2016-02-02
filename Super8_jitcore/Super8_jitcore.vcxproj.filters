@@ -152,9 +152,6 @@
     <ClCompile Include="Source\Chip8Engine\Chip8Engine.cpp">
       <Filter>Source Files\Chip8Engine</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Chip8Engine\Chip8Engine_HandleInterrupt.cpp">
-      <Filter>Source Files\Chip8Engine</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Chip8Engine\Chip8Engine_Key.cpp">
       <Filter>Source Files\Chip8Engine</Filter>
     </ClCompile>

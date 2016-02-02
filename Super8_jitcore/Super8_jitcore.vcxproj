@@ -137,7 +137,6 @@
     <ClCompile Include="Source\Globals.cpp" />
     <ClCompile Include="Source\Chip8Engine\Chip8Engine.cpp" />
     <ClCompile Include="Source\Chip8Engine\Chip8Engine_CacheHandler.cpp" />
-    <ClCompile Include="Source\Chip8Engine\Chip8Engine_HandleInterrupt.cpp" />
     <ClCompile Include="Source\Chip8Engine\Chip8Engine_Interpreter.cpp" />
     <ClCompile Include="Source\Chip8Engine\Chip8Engine_Dynarec.cpp" />
     <ClCompile Include="Source\Chip8Engine\Chip8Engine_JumpHandler.cpp" />

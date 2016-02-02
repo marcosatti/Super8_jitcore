@@ -88,7 +88,7 @@ void Chip8Engine_Interpreter::emulateCycle() {
 	default:
 		// Unknown opcode encountered
 		char buffer[1000];
-		_snprintf_s(buffer, 1000, "Unknown Opcode detected!");
+		sprintf_s(buffer, 1000, "Unknown Opcode detected!");
 		logMessage(LOGLEVEL::L_WARNING, buffer);
 		break;
 	}
@@ -291,7 +291,7 @@ void Chip8Engine_Interpreter::handleOpcodeMSN_8() {
 	default:
 	{
 		char buffer[1000];
-		_snprintf_s(buffer, 1000, "Unknown Opcode detected (in 0x8000)!");
+		sprintf_s(buffer, 1000, "Unknown Opcode detected (in 0x8000)!");
 		logMessage(LOGLEVEL::L_WARNING, buffer);
 		//C8_incrementPC(); // Update PC by 2 bytes
 		break;
@@ -314,7 +314,7 @@ void Chip8Engine_Interpreter::handleOpcodeMSN_9() {
 	default:
 	{
 		char buffer[1000];
-		_snprintf_s(buffer, 1000, "Unknown Opcode detected (in 0x9000)!");
+		sprintf_s(buffer, 1000, "Unknown Opcode detected (in 0x9000)!");
 		logMessage(LOGLEVEL::L_WARNING, buffer);
 		//C8_incrementPC(); // Update PC by 2 bytes
 		break;
@@ -419,7 +419,7 @@ void Chip8Engine_Interpreter::handleOpcodeMSN_E() {
 	default:
 	{
 		char buffer[1000];
-		_snprintf_s(buffer, 1000, "Unknown Opcode detected (in 0xE000)!");
+		sprintf_s(buffer, 1000, "Unknown Opcode detected (in 0xE000)!");
 		logMessage(LOGLEVEL::L_WARNING, buffer);
 		//C8_incrementPC(); // Update PC by 2 bytes
 		break;
@@ -525,7 +525,7 @@ void Chip8Engine_Interpreter::handleOpcodeMSN_F() {
 	default:
 	{
 		char buffer[1000];
-		_snprintf_s(buffer, 1000, "Unknown Opcode detected (in 0xF000)!");
+		sprintf_s(buffer, 1000, "Unknown Opcode detected (in 0xF000)!");
 		logMessage(LOGLEVEL::L_WARNING, buffer);
 		break;
 	}

@@ -40,7 +40,7 @@ void Chip8Engine_StackHandler::setTopStack(STACK_ENTRY entry)
 	}
 	else {
 		char buffer[1000];
-		_snprintf_s(buffer, 1000, "Stack is full! (16 levels). Prepare for a crash or unintended actions! May be a bad rom or emulation bug.");
+		sprintf_s(buffer, 1000, "Stack is full! (16 levels). Prepare for a crash or unintended actions! May be a bad rom or emulation bug.");
 		logMessage(LOGLEVEL::L_ERROR, buffer);
 	}
 }
