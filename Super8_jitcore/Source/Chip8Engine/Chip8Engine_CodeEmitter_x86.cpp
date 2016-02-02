@@ -28,13 +28,15 @@ std::string Chip8Engine_CodeEmitter_x86::getComponentName()
 	return std::string("CodeEmitter");
 }
 
-void Chip8Engine_CodeEmitter_x86::DYNAREC_EMIT_INTERRUPT(Chip8Globals::X86_STATE::X86_INT_STATUS_CODE code)
+#ifdef LIMIT_SPEED_BY_INSTRUCTIONS
+void Chip8Engine_CodeEmitter_x86::DYNAREC_EMIT_INTERRUPT(X86_INT_STATUS_CODE code)
 {
 	MOV_ImmtoM_8((uint8_t *)(&x86_interrupt_status_code), code); // Store status code into global variable (x86_resume_address).
 	DYNAREC_EMIT_MOV_EAX_EIP(); // move current eip into eax (uses a 32-bit hack method)
 	ADD_ImmtoR_32(eax, 18); // 18 is length of next two x86 opcodes
 	DYNAREC_EMIT_RETURN_CDECL_JUMP();
 }
+#endif
 
 void Chip8Engine_CodeEmitter_x86::DYNAREC_EMIT_INTERRUPT(X86_INT_STATUS_CODE code, uint16_t c8_opcode)
 {
