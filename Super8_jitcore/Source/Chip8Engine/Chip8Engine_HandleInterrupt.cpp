@@ -1,6 +1,7 @@
 #include "stdafx.h"
 
 #include <cstdint>
+#include <SDL.h>
 
 #include "Headers\Globals.h"
 
@@ -15,6 +16,14 @@
 #include "Headers\Chip8Engine\Chip8Engine_Timers.h"
 
 using namespace Chip8Globals;
+
+// Variables
+#ifdef LIMIT_SPEED_BY_DRAW_CALLS
+uint32_t old_ticks = 0;
+uint32_t new_ticks = 0;
+int32_t delta_ticks = 0;
+const uint32_t max_time_slice = (1000 / TARGET_FRAMES_PER_SECOND);
+#endif
 
 void Chip8Engine::handleInterrupt_PREPARE_FOR_JUMP()
 {
@@ -36,6 +45,14 @@ void Chip8Engine::handleInterrupt_USE_INTERPRETER()
 	// Opcode hasnt been implemented in the dynarec yet, need to use interpreter
 	interpreter->setOpcode(X86_STATE::x86_interrupt_c8_param1);
 	interpreter->emulateCycle();
+
+#ifdef LIMIT_SPEED_BY_DRAW_CALLS
+	// If defined, attempts to delay emulation by ((uint)1000/TARGET_FRAMES_PER_SECOND - execution time since last draw call)ms.
+	new_ticks = SDL_GetTicks();
+	delta_ticks = max_time_slice - (new_ticks - old_ticks);
+	if (delta_ticks > 0) SDL_Delay(delta_ticks);
+	old_ticks = SDL_GetTicks();
+#endif
 }
 
 void Chip8Engine::handleInterrupt_OUT_OF_CODE()

@@ -1,10 +1,12 @@
 #include "stdafx.h"
 
 #include <cstdint>
-
-#include "Headers\FastArrayList\FastArrayList.h"
+#ifdef _WIN32
+#include <Windows.h>
+#endif
 
 #include "Headers\Globals.h"
+#include "Headers\FastArrayList\FastArrayList.h"
 
 #include "Headers\Chip8Globals\Chip8Globals.h"
 #include "Headers\Chip8Engine\Chip8Engine_CacheHandler.h"

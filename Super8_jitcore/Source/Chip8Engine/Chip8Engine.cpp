@@ -4,6 +4,10 @@
 #include <fstream>
 
 #include <SDL.h>
+#ifdef _WIN32
+#include <Windows.h>
+#pragma comment(lib, "winmm.lib")
+#endif
 
 #include "Headers\Globals.h"
 
@@ -23,11 +27,23 @@ using namespace Chip8Globals;
 Chip8Engine::Chip8Engine() {
 	// Register this component in logger
 	logger->registerComponent(this);
+
+#ifdef LIMITER_ON
+#ifdef _WIN32
+	timeBeginPeriod(1);
+#endif
+#endif
 }
 
 Chip8Engine::~Chip8Engine() {
 	// Deregister this component in logger
 	logger->deregisterComponent(this);
+
+#ifdef LIMITER_ON
+#ifdef _WIN32
+	timeEndPeriod(1);
+#endif
+#endif
 
 	delete key;
 	delete stack;

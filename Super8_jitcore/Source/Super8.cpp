@@ -15,14 +15,16 @@
 #include "Headers\Chip8Engine\Chip8Engine_Key.h"
 
 // Variables
+const char * ROM_PATH = "..\\Chip8_Roms\\INVADERS";
+#ifdef USE_SDL_GRAPHICS
 const char * PROGRAM_TITLE = "Super8_jitcore";
-const char * ROM_PATH = "..\\Chip8_Roms\\BRIX_test";
 const SDL_Color SDL_COLOR_LIGHT_GREY = { 180,180,180,0 };
 const SDL_Color SDL_COLOR_BLACK = { 0,0,0,0 };
 SDL_Window * window = NULL;
 SDL_Renderer * renderer = NULL;
-SDL_Texture * texture = NULL;
+SDL_Texture * gfx_texture = NULL;
 TTF_Font * font = NULL;
+#endif
 
 // NVIDIA optimus hack
 extern "C" {
@@ -66,7 +68,7 @@ int main(int argc, char **argv) {
 
 	// If SDL graphics are being used set the texture to be used
 #ifdef USE_SDL_GRAPHICS
-	Chip8Globals::SDL_texture = texture;
+	Chip8Globals::SDL_texture = gfx_texture;
 #endif
 
 	// DEBUG: Set key state initially.
@@ -122,7 +124,7 @@ int main(int argc, char **argv) {
 			}
 
 			// DEBUG: Change key states (randomly).
-			if (c_ticks % 500 > 20) {
+			if (c_ticks % 500 < 100) {
 				Chip8Globals::key->setKeyState(0x4, (KEY_STATE)(Chip8Globals::key->getKeyState(0x4) ^ 1));
 				Chip8Globals::key->setKeyState(0x6, (KEY_STATE)(Chip8Globals::key->getKeyState(0x6) ^ 1));
 			}
@@ -137,7 +139,7 @@ int main(int argc, char **argv) {
 			// When the graphics/system timings are implemented properly (ie: refresh rate is set properly), this will be less apparent.
 #ifdef USE_SDL_GRAPHICS
 			SDL_RenderClear(renderer);
-			if (texture != NULL) SDL_RenderCopy(renderer, texture, NULL, NULL);
+			if (gfx_texture != NULL) SDL_RenderCopy(renderer, gfx_texture, NULL, NULL);
 			if (render_fps_texture != NULL) SDL_RenderCopy(renderer, render_fps_texture, NULL, &render_fps_location);
 			if (render_cycles_texture != NULL) SDL_RenderCopy(renderer, render_cycles_texture, NULL, &render_cycles_location);
 			SDL_RenderPresent(renderer);
@@ -163,7 +165,7 @@ void setupSDL() {
 	// Initialise window, renderer, memory and texture.
 	if ((window = SDL_CreateWindow(PROGRAM_TITLE, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 1024, 768, SDL_WINDOW_SHOWN)) == NULL) exit(1);
 	if ((renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED)) == NULL) exit(1);
-	if ((texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, 64, 32)) == NULL) exit(1);
+	if ((gfx_texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, 64, 32)) == NULL) exit(1);
 	// Initialise font system.
 	if (TTF_Init() != 0) exit(1);
 	if ((font = TTF_OpenFont("..\\Fonts\\OpenSans-Regular.ttf", 18)) == NULL) exit(1);
@@ -172,7 +174,7 @@ void setupSDL() {
 
 void cleanupSDL() {
 #ifdef USE_SDL_GRAPHICS
-	SDL_DestroyTexture(texture);
+	SDL_DestroyTexture(gfx_texture);
 	SDL_DestroyRenderer(renderer);
 	SDL_DestroyWindow(window);
 #endif

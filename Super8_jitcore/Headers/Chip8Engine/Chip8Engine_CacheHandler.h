@@ -2,7 +2,6 @@
 
 #include <cstdint>
 #include <string>
-#include <Windows.h>
 
 #include "Headers\Globals.h"
 #include "Headers\FastArrayList\FastArrayList.h"

@@ -39,7 +39,7 @@ int Chip8Engine_Timers::runThread_Timers(void * data)
 	// For now, the atomic lock is implemented in asm. (spinlock)
 
 	while (1) {
-		SDL_Delay(17); // ~ 60Hz = 17ms sleeps.
+		SDL_Delay(16); // ~ 60Hz = 16ms sleeps.
 		timer_data->TIMERS_SPIN_LOCK();
 #ifdef USE_DEBUG
 		char buffer[1000];
