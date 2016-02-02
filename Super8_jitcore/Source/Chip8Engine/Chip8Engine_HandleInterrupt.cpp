@@ -22,7 +22,10 @@ using namespace Chip8Globals;
 uint32_t old_ticks = 0;
 uint32_t new_ticks = 0;
 int32_t delta_ticks = 0;
-const uint32_t max_time_slice = (1000 / TARGET_FRAMES_PER_SECOND);
+const uint32_t limiter_max_time_slice = (1000 / TARGET_FRAMES_PER_SECOND);
+#endif
+#ifdef LIMIT_SPEED_BY_INSTRUCTIONS
+const uint32_t limiter_delay_ms = (1000 / TARGET_CPU_SPEED_HZ);
 #endif
 
 void Chip8Engine::handleInterrupt_PREPARE_FOR_JUMP()
@@ -49,7 +52,7 @@ void Chip8Engine::handleInterrupt_USE_INTERPRETER()
 #ifdef LIMIT_SPEED_BY_DRAW_CALLS
 	// If defined, attempts to delay emulation by ((uint)1000/TARGET_FRAMES_PER_SECOND - execution time since last draw call)ms.
 	new_ticks = SDL_GetTicks();
-	delta_ticks = max_time_slice - (new_ticks - old_ticks);
+	delta_ticks = limiter_max_time_slice - (new_ticks - old_ticks);
 	if (delta_ticks > 0) SDL_Delay(delta_ticks);
 	old_ticks = SDL_GetTicks();
 #endif
@@ -260,3 +263,10 @@ void Chip8Engine::handleInterrupt_UPDATE_TIMERS()
 	}
 	}
 }
+
+#ifdef LIMIT_SPEED_BY_INSTRUCTIONS
+void Chip8Engine::handleInterrupt_DELAY_INSTRUCTION()
+{
+	SDL_Delay(limiter_delay_ms);
+}
+#endif

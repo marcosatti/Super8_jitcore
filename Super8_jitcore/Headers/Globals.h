@@ -10,14 +10,18 @@
 #define USE_SDL_GRAPHICS
 
 // Emulation Accuracy Options
-// There are references online that say the Chip8 runs at 500 Hz, which equates to 2ms per instruction.
-// Attempts to delay emulation by ((uint)1000/TARGET_FRAMES_PER_SECOND - execution time since last draw call)ms.
-#define LIMIT_SPEED_BY_DRAW_CALLS
-// TODO: implement.
-//#define LIMIT_SPEED_BY_INSTRUCTIONS
+// There are references online that say the Chip8 runs at 500 Hz, which equates to 2ms per instruction (equates to 60-70 fps from testing with INVADERS).
+//
+// Attempts to delay emulation by (1000/TARGET_FRAMES_PER_SECOND - execution time since last draw call)ms. Offers a balance of accuracy vs performance trade off. A target of 60 fps seems good for most roms.
+//#define LIMIT_SPEED_BY_DRAW_CALLS
+//
+// Attempts to delay emulation by accurately simulating the clock speed of the Chip8 cpu, by inserting (1000/TARGET_CPU_SPEED_HZ)ms delays between each instruction. 
+#define LIMIT_SPEED_BY_INSTRUCTIONS
+
 #if defined(LIMIT_SPEED_BY_DRAW_CALLS) || defined(LIMIT_SPEED_BY_INSTRUCTIONS)
 #define LIMITER_ON
 #define TARGET_FRAMES_PER_SECOND 60
+#define TARGET_CPU_SPEED_HZ 500
 #endif
 
 // Logging

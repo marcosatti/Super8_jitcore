@@ -34,6 +34,9 @@ private:
 	void handleInterrupt_WAIT_FOR_KEYPRESS();
 	void handleInterrupt_PREPARE_FOR_STACK_JUMP();
 	void handleInterrupt_UPDATE_TIMERS();
+#ifdef LIMIT_SPEED_BY_INSTRUCTIONS
+	void handleInterrupt_DELAY_INSTRUCTION();
+#endif
 
 #ifdef USE_DEBUG_EXTRA
 	void DEBUG_renderGFXText();

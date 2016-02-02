@@ -27,6 +27,9 @@ public:
 	std::string getComponentName();
 
 	// DYNAREC HELPER FUNCTIONS
+#ifdef LIMIT_SPEED_BY_INSTRUCTIONS
+	void DYNAREC_EMIT_INTERRUPT(Chip8Globals::X86_STATE::X86_INT_STATUS_CODE code); // Used only with the speed limiter by instructions option.
+#endif
 	void DYNAREC_EMIT_INTERRUPT(Chip8Globals::X86_STATE::X86_INT_STATUS_CODE code, uint16_t c8_opcode);
 	void DYNAREC_EMIT_INTERRUPT(Chip8Globals::X86_STATE::X86_INT_STATUS_CODE code, uint16_t c8_opcode, uint16_t c8_return_pc);
 	void DYNAREC_EMIT_MOV_EAX_EIP();

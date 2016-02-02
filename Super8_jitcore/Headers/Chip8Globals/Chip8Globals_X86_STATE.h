@@ -15,6 +15,9 @@ namespace Chip8Globals {
 			WAIT_FOR_KEYPRESS = 6,
 			PREPARE_FOR_STACK_JUMP = 7,
 			UPDATE_TIMERS = 8
+#ifdef LIMIT_SPEED_BY_INSTRUCTIONS
+			, DELAY_INSTRUCTION = 9
+#endif
 		};
 
 		extern uint8_t * x86_resume_address; // Used as the entry point into dynarec emulation.

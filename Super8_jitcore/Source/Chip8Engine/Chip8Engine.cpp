@@ -190,6 +190,13 @@ void Chip8Engine::handleInterrupt()
 		handleInterrupt_UPDATE_TIMERS();
 		break;
 	}
+#ifdef LIMIT_SPEED_BY_INSTRUCTIONS
+	case X86_STATE::DELAY_INSTRUCTION:
+	{
+		handleInterrupt_DELAY_INSTRUCTION();
+		break;
+	}
+#endif
 	default:
 	{
 		logMessage(LOGLEVEL::L_ERROR, "DEFAULT CASE REACHED IN handleInterrupt. SOMETHING IS WRONG!");
@@ -242,6 +249,11 @@ void Chip8Engine::translatorLoop()
 		// Check and fill in conditional jumps & decrease num of cycles
 		jumptbl->decreaseConditionalCycle();
 		jumptbl->checkAndFillConditionalJumpsByCycles();
+
+		// Delay instruction by 1000/TARGET_CPU_SPEED_HZ if limiter option is on.
+#ifdef LIMIT_SPEED_BY_INSTRUCTIONS
+		emitter->DYNAREC_EMIT_INTERRUPT(X86_STATE::DELAY_INSTRUCTION);
+#endif
 
 		// Update cycle number
 		translate_cycles++;
