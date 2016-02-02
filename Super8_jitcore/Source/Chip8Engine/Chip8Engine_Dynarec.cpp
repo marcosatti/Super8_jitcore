@@ -128,7 +128,7 @@ void Chip8Engine_Dynarec::handleOpcodeMSN_0() {
 		// TODO: Implement?. Skips instruction for now.
 #ifdef USE_VERBOSE
 		char buffer[1000];
-		_snprintf_s(buffer, 1000, "RCA call happened but no code! Skipping (0x%.4X).", C8_STATE::opcode);
+		sprintf_s(buffer, 1000, "RCA call happened but no code! Skipping (0x%.4X).", C8_STATE::opcode);
 		logMessage(LOGLEVEL::L_WARNING, buffer);
 #endif
 		// Set region pc to current c8 pc
@@ -436,7 +436,7 @@ void Chip8Engine_Dynarec::handleOpcodeMSN_8() {
 	{
 #ifdef USE_VERBOSE
 		char buffer[1000];
-		_snprintf_s(buffer, 1000, "Unknown Opcode detected! Skipping (0x%.4X).", C8_STATE::opcode);
+		sprintf_s(buffer, 1000, "Unknown Opcode detected! Skipping (0x%.4X).", C8_STATE::opcode);
 		logMessage(LOGLEVEL::L_WARNING, buffer);
 #endif
 		// Set region pc to current c8 pc
@@ -477,7 +477,7 @@ void Chip8Engine_Dynarec::handleOpcodeMSN_9() {
 	{
 #ifdef USE_VERBOSE
 		char buffer[1000];
-		_snprintf_s(buffer, 1000, "Unknown Opcode detected! Skipping (0x%.4X).", C8_STATE::opcode);
+		sprintf_s(buffer, 1000, "Unknown Opcode detected! Skipping (0x%.4X).", C8_STATE::opcode);
 		logMessage(LOGLEVEL::L_WARNING, buffer);
 #endif
 		// Set region pc to current c8 pc
@@ -609,7 +609,7 @@ void Chip8Engine_Dynarec::handleOpcodeMSN_E() {
 	{
 #ifdef USE_VERBOSE
 		char buffer[1000];
-		_snprintf_s(buffer, 1000, "Unknown Opcode detected! Skipping (0x%.4X).", C8_STATE::opcode);
+		sprintf_s(buffer, 1000, "Unknown Opcode detected! Skipping (0x%.4X).", C8_STATE::opcode);
 		logMessage(LOGLEVEL::L_WARNING, buffer);
 #endif
 		// Set region pc to current c8 pc
@@ -813,7 +813,7 @@ void Chip8Engine_Dynarec::handleOpcodeMSN_F() {
 	{
 #ifdef USE_VERBOSE
 		char buffer[1000];
-		_snprintf_s(buffer, 1000, "Unknown Opcode detected! Skipping (0x%.4X).", C8_STATE::opcode);
+		sprintf_s(buffer, 1000, "Unknown Opcode detected! Skipping (0x%.4X).", C8_STATE::opcode);
 		logMessage(LOGLEVEL::L_WARNING, buffer);
 #endif
 		// Set region pc to current c8 pc

@@ -43,7 +43,7 @@ int Chip8Engine_Timers::runThread_Timers(void * data)
 		timer_data->TIMERS_SPIN_LOCK();
 #ifdef USE_DEBUG
 		char buffer[1000];
-		_snprintf_s(buffer, 1000, "delay_timer = %d, sound_timer = %d", timer_data->getDelayTimer(), timer_data->getSoundTimer());
+		sprintf_s(buffer, 1000, "delay_timer = %d, sound_timer = %d", timer_data->getDelayTimer(), timer_data->getSoundTimer());
 		timer_data->logMessage(LOGLEVEL::L_DEBUG, buffer);
 #endif
 		timer_data->handleTimers();
