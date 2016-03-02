@@ -366,7 +366,7 @@ int32_t Chip8Engine_CacheHandler::findCacheIndexCurrent()
 
 void Chip8Engine_CacheHandler::switchCacheByIndex(int32_t index)
 {
-#ifdef USE_DEBUG
+#ifdef USE_DEBUG_EXTRA
 	char buffer[1000];
 	sprintf_s(buffer, 1000, "Old s_c_i = cache[%d]. New s_c_i = cache[%d]", selected_cache_index, index);
 	logMessage(LOGLEVEL::L_INFO, buffer);
@@ -407,19 +407,13 @@ CACHE_REGION * Chip8Engine_CacheHandler::getCacheInfoByIndex(int32_t index)
 	return &(*cache_list)[index];
 }
 
-#ifdef USE_DEBUG
+#ifdef USE_DEBUG_EXTRA
 void Chip8Engine_CacheHandler::DEBUG_printCacheByIndex(int32_t index)
 {
 	char buffer[1000];
-<<<<<<< HEAD
-	_snprintf_s(buffer, 1000, "Cache[%d]: C8_start_pc = 0x%.4X, C8_end_pc = 0x%.4X, X86_mem_address = 0x%.8X, X86_pc = 0x%.8X.", index, (*cache_list)[index].c8_start_recompile_pc, (*cache_list)[index].c8_end_recompile_pc, (uint32_t)(*cache_list)[index].x86_mem_address, (*cache_list)[index].x86_pc);
+	sprintf_s(buffer, 1000, "Cache[%d]: C8_start_pc = 0x%.4X, C8_end_pc = 0x%.4X, X86_mem_address = 0x%.8X, X86_pc = 0x%.8X.", index, (*cache_list)[index].c8_start_recompile_pc, (*cache_list)[index].c8_end_recompile_pc, (uint32_t)(*cache_list)[index].x86_mem_address, (*cache_list)[index].x86_pc);
 	logMessage(LOGLEVEL::L_DEBUG, buffer);
-	_snprintf_s(buffer, 1000, " invalid_flag = %d.", (*cache_list)[index].invalid_flag);
-=======
-	sprintf_s(buffer, 1000, "Cache[%d]: C8_start_pc = 0x%.4X, C8_end_pc = 0x%.4X, X86_mem_address = 0x%.8X, X86_pc = 0x%.8X, ", index, cache_list->get_ptr(index)->c8_start_recompile_pc, cache_list->get_ptr(index)->c8_end_recompile_pc, (uint32_t)cache_list->get_ptr(index)->x86_mem_address, cache_list->get_ptr(index)->x86_pc);
-	logMessage(LOGLEVEL::L_DEBUG, buffer);
-	sprintf_s(buffer, 1000, " invalid_flag = %d.", (cache_invalidate_list->find(index) != -1));
->>>>>>> 2b6ca31... Cleanup.
+	sprintf_s(buffer, 1000, " invalid_flag = %d.", (*cache_list)[index].invalid_flag);
 	logMessage(LOGLEVEL::L_DEBUG, buffer);
 }
 
@@ -427,15 +421,9 @@ void Chip8Engine_CacheHandler::DEBUG_printCacheList()
 {
 	for (int32_t i = 0; i < (int32_t)(*cache_list).size(); i++) {
 		char buffer[1000];
-<<<<<<< HEAD
-		_snprintf_s(buffer, 1000, "Cache[%d]: C8_start_pc = 0x%.4X, C8_end_pc = 0x%.4X, X86_mem_address = 0x%.8X, X86_pc = 0x%.8X.", i, (*cache_list)[i].c8_start_recompile_pc, (*cache_list)[i].c8_end_recompile_pc, (uint32_t)(*cache_list)[i].x86_mem_address, (*cache_list)[i].x86_pc);
+		sprintf_s(buffer, 1000, "Cache[%d]: C8_start_pc = 0x%.4X, C8_end_pc = 0x%.4X, X86_mem_address = 0x%.8X, X86_pc = 0x%.8X.", i, (*cache_list)[i].c8_start_recompile_pc, (*cache_list)[i].c8_end_recompile_pc, (uint32_t)(*cache_list)[i].x86_mem_address, (*cache_list)[i].x86_pc);
 		logMessage(LOGLEVEL::L_DEBUG, buffer);
-		_snprintf_s(buffer, 1000, " invalid_flag = %d.", (*cache_list)[i].invalid_flag);
-=======
-		sprintf_s(buffer, 1000, "Cache[%d]: C8_start_pc = 0x%.4X, C8_end_pc = 0x%.4X, X86_mem_address = 0x%.8X, X86_pc = 0x%.8X, ", i, cache_list->get_ptr(i)->c8_start_recompile_pc, cache_list->get_ptr(i)->c8_end_recompile_pc, (uint32_t)cache_list->get_ptr(i)->x86_mem_address, cache_list->get_ptr(i)->x86_pc);
-		logMessage(LOGLEVEL::L_DEBUG, buffer);
-		sprintf_s(buffer, 1000, " invalid_flag = %d.", (cache_invalidate_list->find(i) != -1));
->>>>>>> 2b6ca31... Cleanup.
+		sprintf_s(buffer, 1000, " invalid_flag = %d.", (*cache_list)[i].invalid_flag);
 		logMessage(LOGLEVEL::L_DEBUG, buffer);
 	}
 }

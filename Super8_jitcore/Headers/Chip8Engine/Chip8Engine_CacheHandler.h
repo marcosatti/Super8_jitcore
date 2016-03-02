@@ -72,7 +72,7 @@ public:
 	void write16(uint16_t word_);
 	void write32(uint32_t dword_);
 
-#ifdef USE_DEBUG
+#ifdef USE_DEBUG_EXTRA
 	void DEBUG_printCacheByIndex(int32_t index);
 	void DEBUG_printCacheList();
 #endif

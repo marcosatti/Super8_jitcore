@@ -18,17 +18,6 @@
 
 using namespace Chip8Globals;
 
-// Variables
-#ifdef LIMIT_SPEED_BY_DRAW_CALLS
-uint32_t old_ticks = 0;
-uint32_t new_ticks = 0;
-int32_t delta_ticks = 0;
-const uint32_t limiter_max_time_slice = (1000 / TARGET_FRAMES_PER_SECOND);
-#endif
-#ifdef LIMIT_SPEED_BY_INSTRUCTIONS
-const uint32_t limiter_delay_ms = (1000 / TARGET_CPU_SPEED_HZ);
-#endif
-
 Chip8Engine::Chip8Engine() {
 	// Register this component in logger
 	logger->registerComponent(this);
@@ -53,7 +42,7 @@ std::string Chip8Engine::getComponentName()
 	return std::string("Chip8Engine");
 }
 
-void Chip8Engine::initialise() {
+void Chip8Engine::initialise(std::string rom_path) {
 	// Initialise & reset timers
 	timers = new Chip8Engine_Timers();
 	key = new Chip8Engine_Key();
@@ -82,17 +71,9 @@ void Chip8Engine::initialise() {
 	// Load fontset
 	memcpy(C8_STATE::memory, C8_STATE::chip8_fontset, FONTSET_SZ);
 
-	// Setup/update cache here pop/push etc
-	cache->setupCache_CDECL();
-
-	// Setup first memory region
-	cache->initFirstCache();
-}
-
-void Chip8Engine::loadProgram(std::string path) {
 	// Load whole program into memory, starting at address 0x200.
 	// Open file.
-	std::ifstream file(path, std::ios::in | std::ios::binary);
+	std::ifstream file(rom_path, std::ios::in | std::ios::binary);
 
 	// Get length of file, store end location in global var rom_sz
 	file.seekg(0, std::ios::end);
@@ -103,17 +84,30 @@ void Chip8Engine::loadProgram(std::string path) {
 	// Read file into memory at address 0x200.
 	file.read((char *)(C8_STATE::memory + 0x200), length);
 	file.close();
+
+	// Setup/update cache here pop/push etc
+	cache->setupCache_CDECL();
+
+	// Setup first memory region & manually create jump table entry etc.
+	cache->initFirstCache();
+	jumptbl->getJumpIndexByC8PC(0x0200);
+	jumptbl->checkAndFillJumpsByStartC8PC();
+	translatorLoop();
 }
 
 void Chip8Engine::emulationLoop()
 {
 	// The heart and soul of this emulator
-	// Exec cache and cleanup & handle return interrupt code (first run will produce OUT_OF_CODE)
+	// Exec cache and cleanup & handle return interrupt code.
+#ifdef USE_DEBUG
+	char buffer[1000];
+	sprintf_s(buffer, 1000, ">> Running Chip8 recompiled code @ address 0x%.8X (in cache[%d])", X86_STATE::x86_resume_address, cache->findCacheIndexByX86Address(X86_STATE::x86_resume_address));
+	logMessage(LOGLEVEL::L_DEBUG, buffer);
+#endif
 	cache->execCache_CDECL();
 
 #ifdef USE_DEBUG
-	char buffer[1000];
-	sprintf_s(buffer, 1000, "Ran cache ok. Interrupt code = %d (%s).", X86_STATE::x86_interrupt_status_code, X86_STATE::x86_int_status_code_strings[(uint8_t)X86_STATE::x86_interrupt_status_code]);
+	sprintf_s(buffer, 1000, ">> Ran cache ok. Interrupt code = %d (%s).", X86_STATE::x86_interrupt_status_code, X86_STATE::x86_int_status_code_strings[(uint8_t)X86_STATE::x86_interrupt_status_code]);
 	logMessage(LOGLEVEL::L_DEBUG, buffer);
 #endif
 
@@ -121,7 +115,7 @@ void Chip8Engine::emulationLoop()
 	handleInterrupt();
 
 #ifdef USE_DEBUG
-	sprintf_s(buffer, 1000, "New x86_resume_address = 0x%.8X (in cache[%d]).", (uint32_t)X86_STATE::x86_resume_address, cache->findCacheIndexByX86Address(X86_STATE::x86_resume_address));
+	sprintf_s(buffer, 1000, ">> Finished handling interrupt. New x86_resume_address = 0x%.8X (in cache[%d]).", (uint32_t)X86_STATE::x86_resume_address, cache->findCacheIndexByX86Address(X86_STATE::x86_resume_address));
 	logMessage(LOGLEVEL::L_DEBUG, buffer);
 #endif
 }
@@ -229,10 +223,24 @@ void Chip8Engine::handleInterrupt_PREPARE_FOR_JUMP()
 	cache->invalidateCacheByFlag();
 
 	// Need to update the jump table/cache before the jumps are made.
-#ifdef USE_DEBUG
+#ifdef USE_DEBUG_EXTRA
 	cache->DEBUG_printCacheList();
 #endif
 	jumptbl->checkAndFillJumpsByStartC8PC();
+
+	// Check & Generate/translate code for the cache that the jump is to, if needed.
+	// First get the cache details that caused the interrupt.
+	uint8_t * cache_address = jumptbl->getJumpInfoByIndex(jumptbl->getJumpIndexByC8PC(X86_STATE::x86_interrupt_c8_param1))->x86_address_to;
+	int32_t cache_index = cache->findCacheIndexByX86Address(cache_address);
+	CACHE_REGION * cache_region = cache->getCacheInfoByIndex(cache_index);
+	// Check if cache needs code generated.
+	if (cache_region->x86_pc == 0) {
+		// Select cache in CacheHandler equal to cache that caused interrupt
+		cache->switchCacheByIndex(cache_index);
+		// Start recompiling code in blocks
+		C8_STATE::cpu.pc = cache_region->c8_start_recompile_pc;
+		translatorLoop();
+	}
 }
 
 void Chip8Engine::handleInterrupt_USE_INTERPRETER()
@@ -242,14 +250,6 @@ void Chip8Engine::handleInterrupt_USE_INTERPRETER()
 	// Opcode hasnt been implemented in the dynarec yet, need to use interpreter
 	interpreter->setOpcode(X86_STATE::x86_interrupt_c8_param1);
 	interpreter->emulateCycle();
-
-#ifdef LIMIT_SPEED_BY_DRAW_CALLS
-	// If defined, attempts to delay emulation by ((uint)1000/TARGET_FRAMES_PER_SECOND - execution time since last draw call)ms.
-	new_ticks = SDL_GetTicks();
-	delta_ticks = limiter_max_time_slice - (new_ticks - old_ticks);
-	if (delta_ticks > 0) SDL_Delay(delta_ticks);
-	old_ticks = SDL_GetTicks();
-#endif
 }
 
 void Chip8Engine::handleInterrupt_OUT_OF_CODE()
@@ -265,20 +265,12 @@ void Chip8Engine::handleInterrupt_OUT_OF_CODE()
 	// Select cache in CacheHandler equal to cache that caused interrupt
 	cache->switchCacheByIndex(cache_index);
 
-	// Case 1 - cache is out of code (empty) and needs recompiling code.
-	if (region->x86_pc == 0) {
-		// Start recompiling code in blocks
-		C8_STATE::cpu.pc = region->c8_start_recompile_pc;
-		translatorLoop();
-	}
 	// Case 2 - cache has code, but needs a jump needs to happen into the next cache (end pc + 2). This is due to a conditional jump.
-	else {
-		// First make sure jump table entry
-		int32_t tblindex = jumptbl->getJumpIndexByC8PC(region->c8_end_recompile_pc + 2);
-		// Emit the jump
-		emitter->DYNAREC_EMIT_INTERRUPT(X86_STATE::PREPARE_FOR_JUMP, region->c8_end_recompile_pc + 2);
-		emitter->JMP_M_PTR_32((uint32_t*)&jumptbl->getJumpInfoByIndex(tblindex)->x86_address_to);
-	}
+	// First make sure jump table entry
+	int32_t tblindex = jumptbl->getJumpIndexByC8PC(region->c8_end_recompile_pc + 2);
+	// Emit the jump
+	emitter->DYNAREC_EMIT_INTERRUPT(X86_STATE::PREPARE_FOR_JUMP, region->c8_end_recompile_pc + 2);
+	emitter->JMP_M_PTR_32((uint32_t*)&jumptbl->getJumpInfoByIndex(tblindex)->x86_address_to);
 }
 
 void Chip8Engine::handleInterrupt_PREPARE_FOR_INDIRECT_JUMP()
@@ -295,10 +287,20 @@ void Chip8Engine::handleInterrupt_PREPARE_FOR_INDIRECT_JUMP()
 		uint16_t c8_address = X86_STATE::x86_interrupt_c8_param1 & 0x0FFF;
 		c8_address += C8_STATE::cpu.V[0]; // get address to jump to
 
-										  // Jump cache handling done by CacheHandler, so this function just updates the jump table locations
+		// Jump cache handling done by CacheHandler, so this function just updates the jump table locations
 		int32_t cache_index = cache->getCacheWritableByStartC8PC(c8_address);
-		CACHE_REGION * region = cache->getCacheInfoByIndex(cache_index);
-		jumptbl->x86_indirect_jump_address = region->x86_mem_address;
+		CACHE_REGION * cache_region = cache->getCacheInfoByIndex(cache_index);
+		jumptbl->x86_indirect_jump_address = cache_region->x86_mem_address;
+
+		// Check & Generate/translate code for the cache that the jump is to, if needed.
+		// Check if cache needs code generated.
+		if (cache_region->x86_pc == 0) {
+			// Select cache in CacheHandler equal to cache that caused interrupt
+			cache->switchCacheByIndex(cache_index);
+			// Start recompiling code in blocks
+			C8_STATE::cpu.pc = cache_region->c8_start_recompile_pc;
+			translatorLoop();
+		}
 	}
 	default:
 	{
@@ -389,6 +391,20 @@ void Chip8Engine::handleInterrupt_PREPARE_FOR_STACK_JUMP()
 		// Need to check/alloc jump location caches
 		jumptbl->checkAndFillJumpsByStartC8PC();
 
+		// Check & Generate/translate code for the cache that the jump is to, if needed.
+		// First get the cache details that caused the interrupt.
+		uint8_t * cache_address = jumptbl->getJumpInfoByIndex(jumptbl->getJumpIndexByC8PC(jump_c8_pc))->x86_address_to;
+		int32_t cache_index = cache->findCacheIndexByX86Address(cache_address);
+		CACHE_REGION * cache_region = cache->getCacheInfoByIndex(cache_index);
+		// Check if cache needs code generated.
+		if (cache_region->x86_pc == 0) {
+			// Select cache in CacheHandler equal to cache that caused interrupt
+			cache->switchCacheByIndex(cache_index);
+			// Start recompiling code in blocks
+			C8_STATE::cpu.pc = cache_region->c8_start_recompile_pc;
+			translatorLoop();
+		}
+
 		// Set stack->x86_address_to equal to jumptable location
 		stack->x86_address_to = jumptbl->getJumpInfoByIndex(tblindex)->x86_address_to;
 		break;
@@ -404,6 +420,20 @@ void Chip8Engine::handleInterrupt_PREPARE_FOR_STACK_JUMP()
 		// Need to check/alloc jump location caches
 		jumptbl->checkAndFillJumpsByStartC8PC();
 
+		// Check & Generate/translate code for the cache that the jump is to, if needed.
+		// First get the cache details that caused the interrupt.
+		uint8_t * cache_address = jumptbl->getJumpInfoByIndex(jumptbl->getJumpIndexByC8PC(entry.c8_address))->x86_address_to;
+		int32_t cache_index = cache->findCacheIndexByX86Address(cache_address);
+		CACHE_REGION * cache_region = cache->getCacheInfoByIndex(cache_index);
+		// Check if cache needs code generated.
+		if (cache_region->x86_pc == 0) {
+			// Select cache in CacheHandler equal to cache that caused interrupt
+			cache->switchCacheByIndex(cache_index);
+			// Start recompiling code in blocks
+			C8_STATE::cpu.pc = cache_region->c8_start_recompile_pc;
+			translatorLoop();
+		}
+
 		// Set stack->x86_address_to equal to jumptable location
 		stack->x86_address_to = jumptbl->getJumpInfoByIndex(tblindex)->x86_address_to;
 		break;
@@ -415,55 +445,6 @@ void Chip8Engine::handleInterrupt_PREPARE_FOR_STACK_JUMP()
 	}
 	}
 }
-
-void Chip8Engine::handleInterrupt_UPDATE_TIMERS()
-{
-	switch (X86_STATE::x86_interrupt_c8_param1 & 0xF0FF)
-	{
-	case 0xF007:
-	{
-		// 0xFX07: Sets Vx to the value of the delay timer.
-		// TODO: check if correct.
-		uint8_t vx = (X86_STATE::x86_interrupt_c8_param1 & 0x0F00) >> 8;
-		timers->TIMERS_SPIN_LOCK();
-		C8_STATE::cpu.V[vx] = timers->getDelayTimer();
-		timers->TIMERS_SPIN_UNLOCK();
-		break;
-	}
-	case 0xF015:
-	{
-		// 0xFX15: Sets the delay timer to Vx.
-		// TODO: check if correct.
-		uint8_t vx = (X86_STATE::x86_interrupt_c8_param1 & 0x0F00) >> 8;
-		timers->TIMERS_SPIN_LOCK();
-		timers->setDelayTimer(C8_STATE::cpu.V[vx]);
-		timers->TIMERS_SPIN_UNLOCK();
-		break;
-	}
-	case 0xF018:
-	{
-		// 0xFX18: Sets the sound timer to Vx.
-		// TODO: check if correct.
-		uint8_t vx = (X86_STATE::x86_interrupt_c8_param1 & 0x0F00) >> 8;
-		timers->TIMERS_SPIN_LOCK();
-		timers->setSoundTimer(C8_STATE::cpu.V[vx]);
-		timers->TIMERS_SPIN_UNLOCK();
-		break;
-	}
-	default:
-	{
-		logMessage(LOGLEVEL::L_ERROR, "DEFAULT CASE REACHED IN UPDATE_TIMERS. SOMETHING IS WRONG!");
-		break;
-	}
-	}
-}
-
-#ifdef LIMIT_SPEED_BY_INSTRUCTIONS
-void Chip8Engine::handleInterrupt_DELAY_INSTRUCTION()
-{
-	SDL_Delay(limiter_delay_ms);
-}
-#endif
 
 #ifdef USE_DEBUG_EXTRA
 void Chip8Engine::DEBUG_renderGFXText()

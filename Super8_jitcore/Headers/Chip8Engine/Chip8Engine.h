@@ -15,8 +15,7 @@ public:
 
 	std::string getComponentName();
 
-	void initialise();
-	void loadProgram(std::string path);
+	void initialise(std::string rom_path);
 
 	void emulationLoop();
 	void translatorLoop();

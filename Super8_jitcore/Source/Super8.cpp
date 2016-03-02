@@ -36,8 +36,7 @@ int main(int argc, char **argv) {
 	Chip8Engine * mChip8 = new Chip8Engine();
 
 	// Initialize the Chip8 system and load the game into the memory
-	mChip8->initialise();
-	mChip8->loadProgram("..\\Chip8_Roms\\PONG2");
+	mChip8->initialise("..\\Chip8_Roms\\INVADERS");
 
 	// Set keystate initially
 	Chip8Globals::key->clearKeyState();
@@ -83,7 +82,7 @@ int main(int argc, char **argv) {
 
 			// change key state
 			Chip8Globals::key->setKeyState(0x1, (KEY_STATE)(Chip8Globals::key->getKeyState(0x1) ^ 1));
-			Chip8Globals::key->setKeyState(0xC, (KEY_STATE)(Chip8Globals::key->getKeyState(0xC) ^ 1));
+			Chip8Globals::key->setKeyState(0x5, (KEY_STATE)(Chip8Globals::key->getKeyState(0xC) ^ 1));
 		}
 
 		// Print cycles

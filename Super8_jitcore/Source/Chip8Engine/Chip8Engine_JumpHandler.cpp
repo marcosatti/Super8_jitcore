@@ -159,11 +159,7 @@ void Chip8Engine_JumpHandler::DEBUG_printJumpList()
 {
 	for (int32_t i = 0; i < (int32_t)(*jump_list).size(); i++) {
 		char buffer[1000];
-<<<<<<< HEAD
-		_snprintf_s(buffer, 1000, "Jump[%d] c8_address_to = 0x%.4X, x86_address_to = 0x%.8X.", i, (*jump_list)[i].c8_address_to, (uint32_t)(*jump_list)[i].x86_address_to);
-=======
-		sprintf_s(buffer, 1000, "Jump[%d]: c8_address_to = 0x%.4X, x86_address_to = 0x%.8X.", i, jump_list->get_ptr(i)->c8_address_to, (uint32_t)jump_list->get_ptr(i)->x86_address_to);
->>>>>>> 2b6ca31... Cleanup.
+		sprintf_s(buffer, 1000, "Jump[%d] c8_address_to = 0x%.4X, x86_address_to = 0x%.8X.", i, (*jump_list)[i].c8_address_to, (uint32_t)(*jump_list)[i].x86_address_to);
 		logMessage(LOGLEVEL::L_DEBUG, buffer);
 	}
 }
@@ -172,11 +168,7 @@ void Chip8Engine_JumpHandler::DEBUG_printCondJumpList()
 {
 	for (int32_t i = 0; i < (int32_t)(*cond_jump_list).size(); i++) {
 		char buffer[1000];
-<<<<<<< HEAD
-		_snprintf_s(buffer, 1000, "CondJump[%d]: c8_address_from = 0x%.4X, c8_address_to = 0x%.4X, x86_address_jump_value = 0x%.8X, translator_cycles = %d.", i, (*cond_jump_list)[i].c8_address_from, (*cond_jump_list)[i].c8_address_to, (uint32_t)(*cond_jump_list)[i].x86_address_jump_value, (*cond_jump_list)[i].translator_cycles);
-=======
-		sprintf_s(buffer, 1000, "CondJump[%d]: c8_address_from = 0x%.4X, c8_address_to = 0x%.4X, x86_address_jump_value = 0x%.8X, translator_cycles = %d.", i, cond_jump_list->get_ptr(i)->c8_address_from, cond_jump_list->get_ptr(i)->c8_address_to, (uint32_t)cond_jump_list->get_ptr(i)->x86_address_jump_value, cond_jump_list->get_ptr(i)->translator_cycles);
->>>>>>> 2b6ca31... Cleanup.
+		sprintf_s(buffer, 1000, "CondJump[%d]: c8_address_from = 0x%.4X, c8_address_to = 0x%.4X, x86_address_jump_value = 0x%.8X, translator_cycles = %d.", i, (*cond_jump_list)[i].c8_address_from, (*cond_jump_list)[i].c8_address_to, (uint32_t)(*cond_jump_list)[i].x86_address_jump_value, (*cond_jump_list)[i].translator_cycles);
 		logMessage(LOGLEVEL::L_DEBUG, buffer);
 	}
 }
