@@ -2,9 +2,11 @@
 
 #include "Headers\Globals.h"
 
-#include "Headers\Chip8Engine\Chip8Engine_Key.h"
+#include "Headers\Chip8Engine\Key.h"
 
-Chip8Engine_Key::Chip8Engine_Key()
+using namespace Chip8Engine;
+
+Key::Key()
 {
 	// Set all key states to 0.
 	memset(key, 0, NUM_KEYS);
@@ -13,28 +15,28 @@ Chip8Engine_Key::Chip8Engine_Key()
 	logger->registerComponent(this);
 }
 
-Chip8Engine_Key::~Chip8Engine_Key()
+Key::~Key()
 {
 	// Deregister this component in logger
 	logger->deregisterComponent(this);
 }
 
-std::string Chip8Engine_Key::getComponentName()
+std::string Key::getComponentName()
 {
 	return std::string("Key");
 }
 
-void Chip8Engine_Key::setKeyState(uint8_t keyindex, KEY_STATE state)
+void Key::setKeyState(uint8_t keyindex, KEY_STATE state)
 {
 	key[keyindex] = (uint8_t)state;
 }
 
-KEY_STATE Chip8Engine_Key::getKeyState(uint8_t keyindex)
+KEY_STATE Key::getKeyState(uint8_t keyindex)
 {
 	return (KEY_STATE)key[keyindex]; // 0 = key is up, 1 = key is down.
 }
 
-void Chip8Engine_Key::clearKeyState()
+void Key::clearKeyState()
 {
 	memset(key, 0, 16);
 }

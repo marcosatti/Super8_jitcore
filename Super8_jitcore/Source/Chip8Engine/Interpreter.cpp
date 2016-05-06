@@ -3,37 +3,40 @@
 #include "Headers\Globals.h"
 #include "Headers\SDLGlobals.h"
 
-#include "Headers\Chip8Globals\Chip8Globals.h"
-#include "Headers\Chip8Engine\Chip8Engine_Interpreter.h"
+#include "Headers\Chip8Globals\MainEngineGlobals.h"
+#include "Headers\Chip8Globals\C8_STATE.h"
+#include "Headers\Chip8Engine\Interpreter.h"
 
 // This file provides easier opcode management rather than having it all in the main engine.cpp file.
 // TODO Implement: 0x0NNN (needed ?)
 
 using namespace Chip8Globals;
+using namespace Chip8Globals::MainEngineGlobals;
+using namespace Chip8Engine;
 
-Chip8Engine_Interpreter::Chip8Engine_Interpreter()
+Interpreter::Interpreter()
 {
 	// Register this component in logger
 	logger->registerComponent(this);
 }
 
-Chip8Engine_Interpreter::~Chip8Engine_Interpreter()
+Interpreter::~Interpreter()
 {
 	// Deregister this component in logger
 	logger->deregisterComponent(this);
 }
 
-std::string Chip8Engine_Interpreter::getComponentName()
+std::string Interpreter::getComponentName()
 {
 	return std::string("Interpreter");
 }
 
-void Chip8Engine_Interpreter::setOpcode(uint16_t c8_opcode)
+void Interpreter::setOpcode(uint16_t c8_opcode)
 {
 	opcode = c8_opcode;
 }
 
-void Chip8Engine_Interpreter::emulateCycle() {
+void Interpreter::emulateCycle() {
 	// Decode Opcode
 	// Initially work out what type of opcode it is by AND with 0xF000 and branch from that (looks at MSB)
 	switch (opcode & 0xF000) {
@@ -94,7 +97,7 @@ void Chip8Engine_Interpreter::emulateCycle() {
 	}
 }
 
-void Chip8Engine_Interpreter::handleOpcodeMSN_0() {
+void Interpreter::handleOpcodeMSN_0() {
 	switch (opcode) {
 	case 0x00E0:
 	{
@@ -128,20 +131,20 @@ void Chip8Engine_Interpreter::handleOpcodeMSN_0() {
 	}
 }
 
-void Chip8Engine_Interpreter::handleOpcodeMSN_1() {
+void Interpreter::handleOpcodeMSN_1() {
 	// Only one subtype of opcode in this branch
 	// 0x1NNN jumps to address 0xNNN (set PC)
 	// TODO: check if correct
 }
 
-void Chip8Engine_Interpreter::handleOpcodeMSN_2() {
+void Interpreter::handleOpcodeMSN_2() {
 	// Only one subtype of opcode in this branch
 	// 0x2NNN calls the subroutine at address 0xNNN
 	//stack->setTopStack(cpu.pc); // Dont want to lose the current PC, so store it on the stack
 	//cpu.pc = opcode & 0x0FFF; // Get the memory address within the opcode by AND
 }
 
-void Chip8Engine_Interpreter::handleOpcodeMSN_3() {
+void Interpreter::handleOpcodeMSN_3() {
 	// Only one subtype of opcode in this branch
 	// 0x3XNN skips next instruction if VX equals NN
 	// TODO: check if correct
@@ -151,7 +154,7 @@ void Chip8Engine_Interpreter::handleOpcodeMSN_3() {
 	//else C8_incrementPC(); // Update PC by 2 bytes
 }
 
-void Chip8Engine_Interpreter::handleOpcodeMSN_4() {
+void Interpreter::handleOpcodeMSN_4() {
 	// Only one subtype of opcode in this branch
 	// 0x4XNN skips next instruction if VX does not equal NN
 	//// TODO: check if correct
@@ -161,7 +164,7 @@ void Chip8Engine_Interpreter::handleOpcodeMSN_4() {
 	//else C8_incrementPC(); // Update PC by 2 bytes
 }
 
-void Chip8Engine_Interpreter::handleOpcodeMSN_5() {
+void Interpreter::handleOpcodeMSN_5() {
 	// Only one subtype of opcode in this branch
 	// 0x5XY0 skips next instruction if VX equals XY
 	//// TODO: check if correct
@@ -171,7 +174,7 @@ void Chip8Engine_Interpreter::handleOpcodeMSN_5() {
 	//else C8_incrementPC(); // Update PC by 2 bytes
 }
 
-void Chip8Engine_Interpreter::handleOpcodeMSN_6() {
+void Interpreter::handleOpcodeMSN_6() {
 	// Only one subtype of opcode in this branch
 	// 0x6XNN sets VX to NN
 	//// TODO: check if correct
@@ -181,7 +184,7 @@ void Chip8Engine_Interpreter::handleOpcodeMSN_6() {
 	//C8_incrementPC(); // Update PC by 2 bytes
 }
 
-void Chip8Engine_Interpreter::handleOpcodeMSN_7() {
+void Interpreter::handleOpcodeMSN_7() {
 	// Only one subtype of opcode in this branch
 	// 0x7XNN adds NN to Vx
 	//// TODO: check if correct
@@ -191,7 +194,7 @@ void Chip8Engine_Interpreter::handleOpcodeMSN_7() {
 	//C8_incrementPC(); // Update PC by 2 bytes
 }
 
-void Chip8Engine_Interpreter::handleOpcodeMSN_8() {
+void Interpreter::handleOpcodeMSN_8() {
 	switch (opcode & 0x000F) {
 	case 0x0000:
 	{
@@ -299,7 +302,7 @@ void Chip8Engine_Interpreter::handleOpcodeMSN_8() {
 	}
 }
 
-void Chip8Engine_Interpreter::handleOpcodeMSN_9() {
+void Interpreter::handleOpcodeMSN_9() {
 	switch (opcode & 0x000F) {
 	case 0x0000:
 	{
@@ -322,7 +325,7 @@ void Chip8Engine_Interpreter::handleOpcodeMSN_9() {
 	}
 }
 
-void Chip8Engine_Interpreter::handleOpcodeMSN_A() {
+void Interpreter::handleOpcodeMSN_A() {
 	// Only one subtype of opcode in this branch
 	// 0xANNN: Sets I to the address NNN
 	//// TODO: Check if correct
@@ -330,14 +333,14 @@ void Chip8Engine_Interpreter::handleOpcodeMSN_A() {
 	//C8_incrementPC(); // Update PC by 2 bytes
 }
 
-void Chip8Engine_Interpreter::handleOpcodeMSN_B() {
+void Interpreter::handleOpcodeMSN_B() {
 	// Only one subtype of opcode in this branch
 	// 0xBNNN: Sets PC to the address (NNN + V0)
 	//// TODO: Check if correct
 	//cpu.pc = ((opcode & 0x0FFF) + cpu.V[0x0]);
 }
 
-void Chip8Engine_Interpreter::handleOpcodeMSN_C() {
+void Interpreter::handleOpcodeMSN_C() {
 	// Only one subtype of opcode in this branch
 	// 0xCXNN: Sets Vx to the result of 0xNN & (random number)
 	// TODO: Check if correct.
@@ -347,7 +350,7 @@ void Chip8Engine_Interpreter::handleOpcodeMSN_C() {
 	//C8_STATE::cpu.V[vx] = opcodenum & randnum; // Set Vx to number from opcode AND random number.
 }
 
-void Chip8Engine_Interpreter::handleOpcodeMSN_D() {
+void Interpreter::handleOpcodeMSN_D() {
 	// Only one subtype of opcode in this branch
 	/* 0xDXYN: Draws a sprite at coordinate (VX, VY) that has a width of 8 pixels and a height of N pixels.
 				Each row of 8 pixels is read as bit-coded starting from memory location I;
@@ -394,7 +397,7 @@ void Chip8Engine_Interpreter::handleOpcodeMSN_D() {
 	setDrawFlag(true); // Set the draw flag to true.
 }
 
-void Chip8Engine_Interpreter::handleOpcodeMSN_E() {
+void Interpreter::handleOpcodeMSN_E() {
 	switch (opcode & 0x00FF) {
 	case 0x009E:
 	{
@@ -427,7 +430,7 @@ void Chip8Engine_Interpreter::handleOpcodeMSN_E() {
 	}
 }
 
-void Chip8Engine_Interpreter::handleOpcodeMSN_F() {
+void Interpreter::handleOpcodeMSN_F() {
 	switch (opcode & 0x00FF) {
 	case 0x0007:
 	{

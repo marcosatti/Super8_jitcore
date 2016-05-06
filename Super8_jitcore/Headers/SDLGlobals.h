@@ -4,6 +4,8 @@
 #include <SDL.h>
 #include <SDL_ttf.h>
 
+// Many variables & functions related to the SDL graphical output if the USE_SDL define is set. Not relevant to the core emulator.
+
 namespace SDLGlobals {
 	extern SDL_Window * window;
 	extern SDL_Renderer * renderer;
@@ -24,9 +26,7 @@ namespace SDLGlobals {
 	extern SDL_Color SDL_COLOR_BLACK;
 	extern SDL_Rect fps_render_location;
 	extern SDL_Rect cycle_render_location;
-
 	extern int pitch;
-
 	extern void setupSDLGraphics();
 	extern void exitSDLGraphics();
 }

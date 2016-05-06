@@ -2,26 +2,28 @@
 
 #include "Headers\Globals.h"
 
-#include "Headers\Chip8Engine\Chip8Engine_StackHandler.h"
+#include "Headers\Chip8Engine\StackHandler.h"
 
-Chip8Engine_StackHandler::Chip8Engine_StackHandler()
+using namespace Chip8Engine;
+
+StackHandler::StackHandler()
 {
 	// Register this component in logger
 	logger->registerComponent(this);
 }
 
-Chip8Engine_StackHandler::~Chip8Engine_StackHandler()
+StackHandler::~StackHandler()
 {
 	// Deregister this component in logger
 	logger->deregisterComponent(this);
 }
 
-std::string Chip8Engine_StackHandler::getComponentName()
+std::string StackHandler::getComponentName()
 {
 	return std::string("StackHandler");
 }
 
-void Chip8Engine_StackHandler::resetStack()
+void StackHandler::resetStack()
 {
 	sp = 0;
 	for (int i = 0; i < NUM_STACK_LVLS; i++) {
@@ -29,7 +31,7 @@ void Chip8Engine_StackHandler::resetStack()
 	}
 }
 
-void Chip8Engine_StackHandler::setTopStack(STACK_ENTRY entry)
+void StackHandler::setTopStack(STACK_ENTRY entry)
 {
 	// Make sure stack is not maxed out
 	if (sp < 0xF) {
@@ -45,7 +47,7 @@ void Chip8Engine_StackHandler::setTopStack(STACK_ENTRY entry)
 	}
 }
 
-STACK_ENTRY Chip8Engine_StackHandler::getTopStack()
+STACK_ENTRY StackHandler::getTopStack()
 {
 	// Decrease stack level by 1
 	sp--;

@@ -8,14 +8,14 @@
 
 #include "Headers\Globals.h"
 #include "Headers\SDLGlobals.h"
-#include "Headers\Chip8Globals\Chip8Globals.h"
+#include "Headers\Chip8Globals\MainEngineGlobals.h"
 
 #include "Headers\Super8.h"
 
-#include "Headers\Chip8Engine\Chip8Engine.h"
-#include "Headers\Chip8Engine\Chip8Engine_Key.h"
+#include "Headers\Chip8Engine\MainEngine.h"
+#include "Headers\Chip8Engine\Key.h"
 
-// NVIDIA optimus hack
+// NVIDIA optimus hack. Needed for my laptop :) (turns on the dedicated gfx card).
 extern "C" {
 	_declspec(dllexport) DWORD NvOptimusEnablement = 0x00000001;
 }
@@ -23,32 +23,34 @@ extern "C" {
 using namespace SDLGlobals;
 
 int main(int argc, char **argv) {
-	// Setup logging system
+	// Setup logging system. External component to emulator.
 	logger = new Logger(false);
 
-	// Set up render system and register input callbacks
+	// Set up render system.
 #ifdef USE_SDL
 	SDLGlobals::setupSDLGraphics();
 #endif
-	//setupInput();
 
-	// Setup chip8 jitcore emulator
-	Chip8Engine * mChip8 = new Chip8Engine();
+	// Setup Chip8 jitcore emulator.
+	Chip8Engine::MainEngine * mChip8 = new Chip8Engine::MainEngine();
 
-	// Initialize the Chip8 system and load the game into the memory
-	mChip8->initialise("..\\Chip8_Roms\\INVADERS");
+	// Initialize the Chip8 system and load the game into the memory.
+	mChip8->initialise("..\\Chip8_Roms\\BRIX_test");
 
-	// Set keystate initially
-	Chip8Globals::key->clearKeyState();
-	Chip8Globals::key->setKeyState(0x1, KEY_STATE::DOWN);
+	// Set keystate initially for debugging purposes.
+	Chip8Globals::MainEngineGlobals::key->clearKeyState();
+	Chip8Globals::MainEngineGlobals::key->setKeyState(0x4, Chip8Engine::KEY_STATE::DOWN);
 
 #ifdef USE_SDL
-	// Emulate
+	// Graphics output is set to be used.
+	// SDL setup variables needed.
 	char fps_buffer[255];
 	char cycle_buffer[255];
 	bool sdlgfxupdate = false;
 	SDL_Event e;
 	bool quit = false;
+
+	// The main emulation loop that runs MainEngine::emulationLoop() in essentually a while(1) loop.
 	while (!quit) {
 		// Handle events
 		while (SDL_PollEvent(&e)) {
@@ -61,10 +63,10 @@ int main(int argc, char **argv) {
 		mChip8->emulationLoop();
 
 		// C8 Render
-		if (Chip8Globals::getDrawFlag()) {
+		if (Chip8Globals::MainEngineGlobals::getDrawFlag()) {
 			sdlgfxupdate = true;
 			drawcycles++;
-			Chip8Globals::setDrawFlag(false);
+			Chip8Globals::MainEngineGlobals::setDrawFlag(false);
 		}
 
 		// Print fps
@@ -81,8 +83,8 @@ int main(int argc, char **argv) {
 			ticks_old = ticks;
 
 			// change key state
-			Chip8Globals::key->setKeyState(0x1, (KEY_STATE)(Chip8Globals::key->getKeyState(0x1) ^ 1));
-			Chip8Globals::key->setKeyState(0x5, (KEY_STATE)(Chip8Globals::key->getKeyState(0xC) ^ 1));
+			Chip8Globals::MainEngineGlobals::key->setKeyState(0x4, (Chip8Engine::KEY_STATE)(Chip8Globals::MainEngineGlobals::key->getKeyState(0x4) ^ 1));
+			Chip8Globals::MainEngineGlobals::key->setKeyState(0x6, (Chip8Engine::KEY_STATE)(Chip8Globals::MainEngineGlobals::key->getKeyState(0x6) ^ 1));
 		}
 
 		// Print cycles
@@ -109,6 +111,7 @@ int main(int argc, char **argv) {
 		cycles++;
 	}
 #else
+	// No graphics output, purely just to test if it works.
 	if (SDL_Init(SDL_INIT_EVERYTHING) != 0) exit(1);
 	printf("Performance test mode. No graphics or sound!\n");
 	uint64_t cycles_old = 0;
@@ -117,10 +120,10 @@ int main(int argc, char **argv) {
 		mChip8->emulationLoop();
 
 		// C8 Render
-		if (Chip8Globals::getDrawFlag()) {
+		if (Chip8Globals::MainEngineGlobals::getDrawFlag()) {
 			//mChip8->DEBUG_renderGFXText();
 			drawcycles++;
-			Chip8Globals::setDrawFlag(false);
+			Chip8Globals::MainEngineGlobals::setDrawFlag(false);
 		}
 
 		ticks = SDL_GetTicks();

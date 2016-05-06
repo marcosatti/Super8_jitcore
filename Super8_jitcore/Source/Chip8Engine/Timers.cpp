@@ -2,20 +2,22 @@
 
 #include "Headers\Globals.h"
 
-#include "Headers\Chip8Engine\Chip8Engine_Timers.h"
+#include "Headers\Chip8Engine\Timers.h"
 
-std::string Chip8Engine_Timers::getComponentName()
+using namespace Chip8Engine;
+
+std::string Timers::getComponentName()
 {
 	return std::string("Timers");
 }
 
-Chip8Engine_Timers::Chip8Engine_Timers()
+Timers::Timers()
 {
 	// Register this component in logger
 	logger->registerComponent(this);
 }
 
-Chip8Engine_Timers::~Chip8Engine_Timers()
+Timers::~Timers()
 {
 	// Deregister this component in logger
 	logger->deregisterComponent(this);

@@ -4,6 +4,8 @@
 #include <SDL.h>
 #include <SDL_ttf.h>
 
+// Many variables & functions related to the SDL graphical output if the USE_SDL define is set. Not relevant to the core emulator.
+
 namespace SDLGlobals {
 	SDL_Color SDL_COLOR_WHITE = { 180,180,180,0 };
 	SDL_Color SDL_COLOR_BLACK = { 0,0,0,0 };

@@ -3,7 +3,9 @@
 #include <cstdint>
 
 #include "Headers\Globals.h"
-#include "Headers\Chip8Globals\Chip8Globals_X86_STATE.h"
+#include "Headers\Chip8Globals\X86_STATE.h"
+
+// See the corresponding header file X86_STATE.h for descriptions.
 
 namespace Chip8Globals {
 	namespace X86_STATE {
@@ -25,8 +27,7 @@ namespace Chip8Globals {
 			"PREPARE_FOR_STACK_JUMP"
 		};
 
-		void DEBUG_printX86_STATE()
-		{
+		void DEBUG_printX86_STATE() {
 			//printf("X86_STATE:		x86_resume_address = 0x%.8X, x86_interrupt_c8_param1 = 0x%.4X, x86_status_code = %d\n", (uint32_t)x86_resume_address, x86_interrupt_c8_param1, x86_interrupt_status_code);
 		}
 #endif

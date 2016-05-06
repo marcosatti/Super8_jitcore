@@ -2,14 +2,14 @@
 
 // Globals.h is used to define global macros etc.
 
-// Global Logger
+// Global Logger for message formatting. External component to emulator.
 #include "Headers\Logger\Logger.h"
 #include "Headers\Logger\ILogComponent.h"
 
-// SDL
+// The USE_SDL define. If set, SDL will be used to display graphics output. Sound output is not implemented yet.
 #define USE_SDL
 
-// Logging
+// Logging options. Top define will output the least information, while the bottom define will output the most information (and is very slow!).
 //#define USE_VERBOSE
 //#define USE_DEBUG
 //#define USE_DEBUG_EXTRA
@@ -26,4 +26,5 @@
 #endif
 #endif
 
+// Used to log messages to the console. External component to emulator.
 extern Logger * logger;
